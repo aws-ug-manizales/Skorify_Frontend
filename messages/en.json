@@ -1,0 +1,58 @@
+{
+  "common": {
+    "appName": "Skorify",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back"
+  },
+  "nav": {
+    "home": "Home",
+    "predictions": "Predictions",
+    "matches": "Matches",
+    "leaderboard": "Leaderboard",
+    "groups": "Groups",
+    "profile": "Profile"
+  },
+  "auth": {
+    "login": "Log in",
+    "logout": "Log out",
+    "register": "Sign up",
+    "email": "Email",
+    "password": "Password"
+  },
+  "predictions": {
+    "title": "My predictions",
+    "make": "Make prediction",
+    "home": "Home",
+    "away": "Away",
+    "submit": "Submit prediction",
+    "deadline": "Closes"
+  },
+  "matches": {
+    "title": "Matches",
+    "upcoming": "Upcoming",
+    "live": "Live",
+    "finished": "Finished"
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "rank": "Rank",
+    "player": "Player",
+    "points": "Points",
+    "correct": "Exact",
+    "partial": "Partial"
+  },
+  "groups": {
+    "title": "Groups",
+    "create": "Create group",
+    "join": "Join",
+    "invite": "Invite friends",
+    "members": "Members"
+  }
+}

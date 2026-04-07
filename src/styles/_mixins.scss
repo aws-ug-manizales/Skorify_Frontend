@@ -1,0 +1,49 @@
+@use 'variables' as v;
+
+// ─── Breakpoints ────────────────────────────────────────────────────────────
+
+@mixin sm-up {
+  @media (min-width: #{v.$bp-sm}) { @content; }
+}
+
+@mixin md-up {
+  @media (min-width: #{v.$bp-md}) { @content; }
+}
+
+@mixin lg-up {
+  @media (min-width: #{v.$bp-lg}) { @content; }
+}
+
+@mixin xl-up {
+  @media (min-width: #{v.$bp-xl}) { @content; }
+}
+
+// ─── Layout helpers ─────────────────────────────────────────────────────────
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+// ─── Truncar texto ──────────────────────────────────────────────────────────
+
+@mixin truncate {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+// ─── Superficie tipo "card" ─────────────────────────────────────────────────
+
+@mixin surface {
+  background-color: v.$color-bg-paper;
+  border-radius: v.$border-radius-base;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}

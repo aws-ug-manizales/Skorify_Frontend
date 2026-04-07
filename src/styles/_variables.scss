@@ -1,0 +1,62 @@
+// ─── Palette ────────────────────────────────────────────────────────────────
+// Estos valores deben mantenerse sincronizados con src/lib/theme/theme.ts
+
+$color-primary:           #00C853;
+$color-primary-light:     #5EFF82;
+$color-primary-dark:      #009624;
+
+$color-secondary:         #FFD600;
+$color-secondary-light:   #FFFF52;
+$color-secondary-dark:    #C7A500;
+
+$color-error:             #FF1744;
+
+$color-bg-default:        #0D0D0D;
+$color-bg-paper:          #1A1A2E;
+
+$color-text-primary:      #FFFFFF;
+$color-text-secondary:    #B0BEC5;
+
+// ─── Typography ─────────────────────────────────────────────────────────────
+
+$font-family-base:        'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+
+$font-weight-regular:     400;
+$font-weight-medium:      500;
+$font-weight-semibold:    600;
+$font-weight-bold:        700;
+
+// ─── Shape ──────────────────────────────────────────────────────────────────
+
+$border-radius-base:      12px;
+$border-radius-sm:        8px;
+$border-radius-xs:        4px;
+
+// ─── Spacing ────────────────────────────────────────────────────────────────
+
+$spacing-unit:            8px;
+
+@function spacing($multiplier) {
+  @return $spacing-unit * $multiplier;
+}
+
+// ─── Breakpoints (alineados con MUI) ────────────────────────────────────────
+
+$bp-xs:   0px;
+$bp-sm:   600px;
+$bp-md:   900px;
+$bp-lg:   1200px;
+$bp-xl:   1536px;
+
+// ─── Z-index ────────────────────────────────────────────────────────────────
+
+$z-navbar:    1100;
+$z-drawer:    1200;
+$z-modal:     1300;
+$z-tooltip:   1500;
+
+// ─── Transitions ────────────────────────────────────────────────────────────
+
+$transition-fast:    150ms ease-in-out;
+$transition-base:    250ms ease-in-out;
+$transition-slow:    400ms ease-in-out;
