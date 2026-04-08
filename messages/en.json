@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "Skorify",
+    "description": "The ultimate sports predictions platform. Predict, compete and win."
+  },
   "common": {
     "appName": "Skorify",
     "loading": "Loading...",
@@ -54,5 +58,21 @@
     "join": "Join",
     "invite": "Invite friends",
     "members": "Members"
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "The ultimate predictions game",
+      "title": "Predict. Compete. Win.",
+      "description": "Challenge your friends, join groups and climb the leaderboard with your sports predictions.",
+      "cta": "Start predicting",
+      "ctaSecondary": "Learn more"
+    }
+  },
+  "notFound": {
+    "branding": "SKORiFY",
+    "code": "404",
+    "title": "Off Side!",
+    "description": "Looks like you've gone out of bounds. This page is not available.",
+    "cta": "Back to home"
   }
 }

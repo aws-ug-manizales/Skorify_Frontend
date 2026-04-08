@@ -1,11 +1,5 @@
-import { useTranslations } from 'next-intl';
+import HomeHero from '@features/home/components/organisms/HomeHero';
 
-export default function HomePage() {
-  const t = useTranslations('common');
+const HomePage = () => <HomeHero />;
 
-  return (
-    <main>
-      <h1>{t('appName')}</h1>
-    </main>
-  );
-}
+export default HomePage;

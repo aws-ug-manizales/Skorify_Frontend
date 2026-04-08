@@ -18,7 +18,6 @@ export interface ApiFailure {
 
 export type ApiResult<T> = ApiSuccess<T> | ApiFailure;
 
-/** Shape expected from the backend envelope */
 export interface BackendEnvelope<T> {
   data: T;
   message?: string;

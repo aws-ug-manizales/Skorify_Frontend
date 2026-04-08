@@ -1,34 +1,5 @@
-@use '../styles/variables' as v;
-
-// ─── CSS custom properties (accesibles desde JS/inline styles) ──────────────
-
-:root {
-  --color-primary:         #{v.$color-primary};
-  --color-secondary:       #{v.$color-secondary};
-  --color-error:           #{v.$color-error};
-  --color-bg-default:      #{v.$color-bg-default};
-  --color-bg-paper:        #{v.$color-bg-paper};
-  --color-text-primary:    #{v.$color-text-primary};
-  --color-text-secondary:  #{v.$color-text-secondary};
-  --border-radius-base:    #{v.$border-radius-base};
-  --font-family-base:      #{v.$font-family-base};
-  color-scheme: dark;
-}
-
-// ─── Reset / base ────────────────────────────────────────────────────────────
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
 html {
   height: 100%;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 html,
@@ -39,14 +10,8 @@ body {
 
 body {
   min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  background-color: v.$color-bg-default;
-  color: v.$color-text-primary;
-  font-family: v.$font-family-base;
 }
 
 a {
-  color: inherit;
   text-decoration: none;
 }

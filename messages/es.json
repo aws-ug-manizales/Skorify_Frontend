@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "Skorify",
+    "description": "La plataforma definitiva de predicciones deportivas. Predice, compite y gana."
+  },
   "common": {
     "appName": "Skorify",
     "loading": "Cargando...",
@@ -54,5 +58,21 @@
     "join": "Unirse",
     "invite": "Invitar amigos",
     "members": "Miembros"
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "El juego definitivo de predicciones",
+      "title": "Predice. Compite. Gana.",
+      "description": "Reta a tus amigos, únete a grupos y escala en la tabla con tus predicciones deportivas.",
+      "cta": "Empezar a predecir",
+      "ctaSecondary": "Saber más"
+    }
+  },
+  "notFound": {
+    "branding": "SKORiFY",
+    "code": "404",
+    "title": "¡Fuera de Juego!",
+    "description": "Parece que has salido de los límites del campo. Esta página no está disponible.",
+    "cta": "Volver al inicio"
   }
 }

@@ -1,20 +1,13 @@
-import axios, {
-  AxiosError,
-  AxiosInstance,
-  AxiosResponse,
-  InternalAxiosRequestConfig,
-} from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import type { ApiError, ApiFailure, ApiResult, ApiSuccess } from './types';
 
-const apiInstance: AxiosInstance = axios.create(
-  {
-    baseURL: process.env.NEXT_PUBLIC_API_URL,
-    timeout: 15_000,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  }
-);
+const apiInstance: AxiosInstance = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  timeout: 15_000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 apiInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
@@ -29,29 +22,25 @@ apiInstance.interceptors.request.use(
   (error: AxiosError) => Promise.reject(error),
 );
 
-function toSuccess<T>(response: AxiosResponse<T>): ApiSuccess<T> {
-  return { success: true, data: response.data, status: response.status };
-}
+const toSuccess = <T>(response: AxiosResponse<T>): ApiSuccess<T> => ({
+  success: true,
+  data: response.data,
+  status: response.status,
+});
 
-function toFailure(error: AxiosError, status: number): ApiFailure {
-  const responseData = error.response?.data as
-    | Partial<ApiError>
-    | undefined;
+const toFailure = (error: AxiosError, status: number): ApiFailure => {
+  const responseData = error.response?.data as Partial<ApiError> | undefined;
 
   const apiError: ApiError = {
-    message:
-      responseData?.message ??
-      error.message ??
-      'Error desconocido',
+    message: responseData?.message ?? error.message ?? 'Error desconocido',
     code: responseData?.code ?? error.code ?? error.response?.status ?? 0,
     details: responseData?.details,
   };
 
   return { success: false, error: apiError, status };
-}
+};
 
-
-async function request<T>(fn: () => Promise<AxiosResponse<T>>,): Promise<ApiResult<T>> {
+const request = async <T>(fn: () => Promise<AxiosResponse<T>>): Promise<ApiResult<T>> => {
   try {
     const response = await fn();
     return toSuccess(response);
@@ -65,7 +54,7 @@ async function request<T>(fn: () => Promise<AxiosResponse<T>>,): Promise<ApiResu
       status: 0,
     };
   }
-}
+};
 
 export const api = {
   get: <T>(url: string, params?: Record<string, unknown>) =>
@@ -80,8 +69,7 @@ export const api = {
   patch: <T, B = Record<string, unknown>>(url: string, body?: B) =>
     request<T>(() => apiInstance.patch<T>(url, body)),
 
-  delete: <T>(url: string) =>
-    request<T>(() => apiInstance.delete<T>(url)),
+  delete: <T>(url: string) => request<T>(() => apiInstance.delete<T>(url)),
 };
 
 export default apiInstance;

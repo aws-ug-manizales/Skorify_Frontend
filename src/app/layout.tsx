@@ -1,24 +1,31 @@
 import type { Metadata } from 'next';
+import { Lexend } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
-import { getLocale, getMessages } from 'next-intl/server';
+import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 import ThemeRegistry from '@/lib/theme/ThemeRegistry';
 import './globals.scss';
 
-export const metadata: Metadata = {
-  title: 'Skorify',
-  description: 'Plataforma de predicciones deportivas',
+const lexend = Lexend({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-lexend',
+  display: 'swap',
+});
+
+export const generateMetadata = async (): Promise<Metadata> => {
+  const t = await getTranslations('meta');
+  return {
+    title: t('title'),
+    description: t('description'),
+  };
 };
 
-export default async function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+const RootLayout = async ({ children }: Readonly<{ children: React.ReactNode }>) => {
   const locale = await getLocale();
   const messages = await getMessages();
 
   return (
-    <html lang={locale}>
+    <html lang={locale} className={lexend.variable}>
       <body>
         <ThemeRegistry>
           <NextIntlClientProvider locale={locale} messages={messages}>
@@ -28,4 +35,6 @@ export default async function RootLayout({
       </body>
     </html>
   );
-}
+};
+
+export default RootLayout;
