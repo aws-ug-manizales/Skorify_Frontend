@@ -3,24 +3,47 @@
 import { createTheme } from '@mui/material/styles';
 
 const tokens = {
-  primary: '#DCB8FF',
+  // Primary — purple
+  primary: '#ca98ff',
   primaryContainer: '#8A2BE2',
-  onSecondary: '#4B0080',
-  tertiary: '#FFB873',
-  onSurface: '#E5E2E1',
-  onSurfaceVariant: '#CFC2D7',
-  surfaceTint: '#DCB8FF',
-  outlineVariant: '#4C4354',
-  background: '#131313',
-  surfaceContainer: '#201F1F',
-  surfaceContainerHigh: '#2A2A2A',
-  surfaceContainerHighest: '#353534',
-  surfaceContainerLow: '#1C1B1B',
-  surfaceContainerLowest: '#0E0E0E',
-  ctaGradient: 'linear-gradient(135deg, #8A2BE2 0%, #4B0080 100%)',
-  shadowSm: '0 4px 30px rgba(220, 184, 255, 0.08)',
-  shadowMd: '0 8px 60px rgba(220, 184, 255, 0.08)',
-  glowHover: '0 0 15px rgba(220, 184, 255, 0.30)',
+  primaryDim: '#9c42f4',
+  onPrimary: '#46007d',
+
+  // Secondary — orange
+  secondary: '#ff8a00',
+  secondaryContainer: '#914c00',
+  onSecondary: '#442100',
+
+  // Tertiary — golden
+  tertiary: '#ffe792',
+
+  // Surfaces
+  background: '#0d0d15',
+  surfaceBright: '#2b2b38',
+  surfaceContainer: '#191922',
+  surfaceContainerHigh: '#1f1f29',
+  surfaceContainerHighest: '#252530',
+  surfaceContainerLow: '#13131b',
+  surfaceContainerLowest: '#000000',
+
+  // Text
+  onSurface: '#efecf8',
+  onSurfaceVariant: '#acaab5',
+
+  // Borders
+  outlineVariant: '#484750',
+
+  // Status
+  success: '#00C853',
+  error: '#ff6e84',
+
+  // Gradient — purple → orange (kinetic brand)
+  ctaGradient: 'linear-gradient(135deg, #8A2BE2 0%, #FF8A00 100%)',
+
+  // Effects
+  shadowSm: '0 4px 30px rgba(202, 152, 255, 0.08)',
+  shadowMd: '0 8px 60px rgba(202, 152, 255, 0.08)',
+  glowHover: '0 0 20px rgba(202, 152, 255, 0.25)',
 } as const;
 
 const theme = createTheme({
@@ -29,14 +52,21 @@ const theme = createTheme({
     primary: {
       main: tokens.primary,
       dark: tokens.primaryContainer,
-      contrastText: tokens.background,
+      contrastText: tokens.onPrimary,
     },
     secondary: {
-      main: tokens.onSecondary,
-      contrastText: tokens.onSurface,
+      main: tokens.secondary,
+      dark: tokens.secondaryContainer,
+      contrastText: tokens.onSecondary,
     },
     warning: {
       main: tokens.tertiary,
+    },
+    error: {
+      main: tokens.error,
+    },
+    success: {
+      main: tokens.success,
     },
     background: {
       default: tokens.background,
@@ -46,7 +76,7 @@ const theme = createTheme({
       primary: tokens.onSurface,
       secondary: tokens.onSurfaceVariant,
     },
-    divider: 'rgba(76, 67, 84, 0.15)',
+    divider: `${tokens.outlineVariant}26`,
   },
   typography: {
     fontFamily: 'var(--font-lexend), "Lexend", sans-serif',
@@ -92,21 +122,41 @@ const theme = createTheme({
   ],
   components: {
     MuiButton: {
+      defaultProps: {
+        disableElevation: true,
+      },
       styleOverrides: {
-        root: { textTransform: 'none', borderRadius: 4, transition: 'all 250ms ease-in-out' },
+        root: {
+          textTransform: 'none',
+          borderRadius: 8,
+          transition: 'all 250ms ease-in-out',
+          fontWeight: 700,
+        },
         containedPrimary: {
           background: tokens.ctaGradient,
           color: tokens.onSurface,
-          boxShadow: tokens.shadowSm,
-          '&:hover': { background: tokens.ctaGradient, boxShadow: tokens.glowHover },
+          '&:hover': {
+            background: tokens.ctaGradient,
+            boxShadow: tokens.glowHover,
+            filter: 'brightness(1.1)',
+          },
+          '&:active': { transform: 'scale(0.97)' },
+        },
+        containedSecondary: {
+          background: tokens.secondary,
+          color: tokens.onSecondary,
+          '&:hover': {
+            background: tokens.secondary,
+            filter: 'brightness(1.1)',
+          },
         },
         outlined: {
-          borderColor: 'rgba(76, 67, 84, 0.20)',
+          borderColor: `${tokens.outlineVariant}33`,
           color: tokens.primary,
           '&:hover': {
             borderColor: tokens.primary,
             boxShadow: tokens.glowHover,
-            backgroundColor: 'transparent',
+            backgroundColor: `${tokens.primary}0D`,
           },
         },
         text: {
@@ -123,7 +173,7 @@ const theme = createTheme({
         root: {
           background: tokens.surfaceContainerLow,
           backgroundImage: 'none',
-          borderRadius: 6,
+          borderRadius: 8,
           boxShadow: tokens.shadowSm,
           border: 'none',
         },
@@ -147,8 +197,12 @@ const theme = createTheme({
         root: {
           backgroundColor: tokens.surfaceContainerLowest,
           borderRadius: 4,
-          '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(76, 67, 84, 0.15)' },
-          '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(76, 67, 84, 0.40)' },
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: `${tokens.outlineVariant}26`,
+          },
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: `${tokens.outlineVariant}66`,
+          },
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
             borderColor: tokens.primaryContainer,
             boxShadow: tokens.glowHover,
@@ -166,7 +220,7 @@ const theme = createTheme({
     },
     MuiDivider: {
       styleOverrides: {
-        root: { borderColor: 'rgba(76, 67, 84, 0.15)' },
+        root: { borderColor: `${tokens.outlineVariant}26` },
       },
     },
     MuiModal: {
@@ -177,8 +231,9 @@ const theme = createTheme({
     MuiDrawer: {
       styleOverrides: {
         paper: {
-          backgroundColor: 'rgba(53, 53, 52, 0.60)',
+          backgroundColor: `${tokens.background}D9`,
           backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
           backgroundImage: 'none',
         },
       },
@@ -186,10 +241,11 @@ const theme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: 'rgba(53, 53, 52, 0.60)',
+          backgroundColor: `${tokens.background}D9`,
           backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
           backgroundImage: 'none',
-          boxShadow: tokens.shadowSm,
+          boxShadow: `0 1px 0 ${tokens.outlineVariant}26`,
         },
       },
     },

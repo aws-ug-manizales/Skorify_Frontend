@@ -13,13 +13,15 @@
     "confirm": "Confirmar",
     "delete": "Eliminar",
     "edit": "Editar",
-    "back": "Volver"
+    "back": "Volver",
+    "backToHome": "Volver al inicio",
+    "comingSoon": "Esta sección está en desarrollo. Vuelve pronto."
   },
   "nav": {
     "home": "Inicio",
     "predictions": "Predicciones",
     "matches": "Partidos",
-    "leaderboard": "Tabla",
+    "tournaments": "Torneos",
     "groups": "Grupos",
     "profile": "Perfil"
   },
@@ -44,13 +46,27 @@
     "live": "En vivo",
     "finished": "Finalizados"
   },
-  "leaderboard": {
-    "title": "Tabla de posiciones",
-    "rank": "Posición",
-    "player": "Jugador",
-    "points": "Puntos",
-    "correct": "Exactos",
-    "partial": "Parciales"
+  "tournaments": {
+    "title": "Torneos",
+    "active": "Activos",
+    "upcoming": "Próximos",
+    "finished": "Finalizados",
+    "join": "Unirse",
+    "view": "Ver torneo",
+    "participants": "participantes",
+    "endsIn": "Termina en",
+    "startsIn": "Inicia en",
+    "prize": "Premio",
+    "free": "Gratuito",
+    "noActive": "No hay torneos activos",
+    "filterAll": "Todos",
+    "filterActive": "Activos",
+    "filterUpcoming": "Próximos",
+    "filterFinished": "Finalizados",
+    "championsName": "UEFA Champions League",
+    "laligaName": "La Liga",
+    "worldcupName": "Copa del Mundo FIFA 2026",
+    "premierName": "Premier League"
   },
   "groups": {
     "title": "Grupos",
@@ -58,6 +74,41 @@
     "join": "Unirse",
     "invite": "Invitar amigos",
     "members": "Miembros"
+  },
+  "dashboard": {
+    "title": "Panel de Control",
+    "liveStatus": "Motor en línea • Latencia 14ms",
+    "lastUpdate": "Última actualización",
+    "totalUsers": "Usuarios totales",
+    "activePredictions": "Predicciones activas",
+    "matchesToday": "Partidos hoy",
+    "recentEvents": "Eventos recientes",
+    "viewAll": "Ver todos los eventos",
+    "analyticsTitle": "Analítica de tráfico",
+    "analyticsSubtitle": "Actividad en las últimas 24 horas",
+    "badgeGrowth": "+12%",
+    "badgeRealtime": "Tiempo real",
+    "badgeLive": "En vivo",
+    "peak": "Pico",
+    "event0Text": "Resultados validados - Champions League",
+    "event0Time": "Hace 14 minutos",
+    "event1Text": "Nuevo grupo creado: La Quiniela FC",
+    "event1Time": "Hace 2 horas",
+    "event2Text": "3 nuevos usuarios registrados",
+    "event2Time": "Hace 5 horas",
+    "event3Text": "Predicciones cerradas - La Liga J28",
+    "event3Time": "Ayer",
+    "quickActions": "Acciones rápidas",
+    "actions": {
+      "users": "Usuarios",
+      "usersDesc": "Administrar perfiles",
+      "matches": "Partidos",
+      "matchesDesc": "Horarios y resultados",
+      "groups": "Grupos",
+      "groupsDesc": "Comunidades activas",
+      "tournaments": "Torneos",
+      "tournamentsDesc": "Competiciones activas"
+    }
   },
   "home": {
     "hero": {

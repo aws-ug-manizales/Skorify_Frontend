@@ -13,13 +13,15 @@
     "confirm": "Confirm",
     "delete": "Delete",
     "edit": "Edit",
-    "back": "Back"
+    "back": "Back",
+    "backToHome": "Back to home",
+    "comingSoon": "This section is under development. Come back soon."
   },
   "nav": {
     "home": "Home",
     "predictions": "Predictions",
     "matches": "Matches",
-    "leaderboard": "Leaderboard",
+    "tournaments": "Tournaments",
     "groups": "Groups",
     "profile": "Profile"
   },
@@ -44,13 +46,27 @@
     "live": "Live",
     "finished": "Finished"
   },
-  "leaderboard": {
-    "title": "Leaderboard",
-    "rank": "Rank",
-    "player": "Player",
-    "points": "Points",
-    "correct": "Exact",
-    "partial": "Partial"
+  "tournaments": {
+    "title": "Tournaments",
+    "active": "Active",
+    "upcoming": "Upcoming",
+    "finished": "Finished",
+    "join": "Join",
+    "view": "View tournament",
+    "participants": "participants",
+    "endsIn": "Ends in",
+    "startsIn": "Starts in",
+    "prize": "Prize",
+    "free": "Free",
+    "noActive": "No active tournaments",
+    "filterAll": "All",
+    "filterActive": "Active",
+    "filterUpcoming": "Upcoming",
+    "filterFinished": "Finished",
+    "championsName": "UEFA Champions League",
+    "laligaName": "La Liga",
+    "worldcupName": "FIFA World Cup 2026",
+    "premierName": "Premier League"
   },
   "groups": {
     "title": "Groups",
@@ -58,6 +74,41 @@
     "join": "Join",
     "invite": "Invite friends",
     "members": "Members"
+  },
+  "dashboard": {
+    "title": "Control Panel",
+    "liveStatus": "Engine online • Latency 14ms",
+    "lastUpdate": "Last update",
+    "totalUsers": "Total users",
+    "activePredictions": "Active predictions",
+    "matchesToday": "Matches today",
+    "recentEvents": "Recent events",
+    "viewAll": "View all events",
+    "analyticsTitle": "Traffic analytics",
+    "analyticsSubtitle": "Server activity over the last 24 hours",
+    "badgeGrowth": "+12%",
+    "badgeRealtime": "Real-time",
+    "badgeLive": "Live",
+    "peak": "Peak",
+    "event0Text": "Results validated - Champions League",
+    "event0Time": "14 minutes ago",
+    "event1Text": "New group created: La Quiniela FC",
+    "event1Time": "2 hours ago",
+    "event2Text": "3 new users registered",
+    "event2Time": "5 hours ago",
+    "event3Text": "Predictions closed - La Liga J28",
+    "event3Time": "Yesterday",
+    "quickActions": "Quick actions",
+    "actions": {
+      "users": "Users",
+      "usersDesc": "Manage profiles",
+      "matches": "Matches",
+      "matchesDesc": "Schedule & results",
+      "groups": "Groups",
+      "groupsDesc": "Active communities",
+      "tournaments": "Tournaments",
+      "tournamentsDesc": "Active competitions"
+    }
   },
   "home": {
     "hero": {
