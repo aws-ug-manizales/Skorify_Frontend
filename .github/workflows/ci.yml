@@ -1,0 +1,33 @@
+name: CI Frontend
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar repo
+        uses: actions/checkout@v4
+
+      - name: Instalar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Instalar Yarn
+        run: npm install -g yarn
+
+      - name: Instalar dependencias
+        run: yarn
+
+      - name: Build
+        run: yarn build
+
+      - name: Levantar app y validar
+        run: |
+          yarn dev &
+          sleep 10
+          curl -f http://localhost:3000
