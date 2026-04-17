@@ -52,7 +52,7 @@ const CreateGroupForm = () => {
     <Box
       component="form"
       onSubmit={handleSubmit(onSubmit)}
-      sx={{ px: { xs: 3, md: 4 }, py: 4, maxWidth: 520, mx: 'auto' }}
+      sx={{ px: { xs: 3, md: 4 }, pt: 1, pb: 4, maxWidth: 520, mx: 'auto' }}
     >
       {/* Title */}
       <Box sx={{ mb: 1 }}>
