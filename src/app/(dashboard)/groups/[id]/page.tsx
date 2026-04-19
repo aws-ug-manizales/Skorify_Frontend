@@ -7,6 +7,7 @@ import NotFoundPage from '@shared/components/organisms/NotFoundPage';
 
 interface GroupDetailPageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ created?: string }>;
 }
 
 // ─── MOCK (solo activo cuando NEXT_PUBLIC_MOCK_GROUPS=true en .env.local) ───
@@ -21,8 +22,9 @@ const mockGetGroup = (id: string): Group => ({
 });
 // ─────────────────────────────────────────────────────────────────────────────
 
-const GroupDetailPage = async ({ params }: GroupDetailPageProps) => {
+const GroupDetailPage = async ({ params, searchParams }: GroupDetailPageProps) => {
   const { id } = await params;
+  const { created } = await searchParams;
   const t = await getTranslations('groups');
 
   let group: Group;
@@ -42,6 +44,7 @@ const GroupDetailPage = async ({ params }: GroupDetailPageProps) => {
   return (
     <GroupDetail
       group={group}
+      isNew={created === 'true'}
       inviteCodeLabel={t('inviteCodeLabel')}
       inviteLinkLabel={t('inviteLinkLabel')}
       copyLabel={t('inviteCodeCopy')}

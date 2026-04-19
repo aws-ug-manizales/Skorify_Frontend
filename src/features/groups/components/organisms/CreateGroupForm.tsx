@@ -1,15 +1,14 @@
 'use client';
 
-import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
+import Avatar from '@mui/material/Avatar';
 import InputAdornment from '@mui/material/InputAdornment';
 import GroupsIcon from '@mui/icons-material/Groups';
-import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -19,23 +18,25 @@ import { tokens } from '@lib/theme/theme';
 import useCreateGroup from '../../hooks/useCreateGroup';
 import type { CreateGroupFormValues } from '../../types';
 
+const getInitials = (name: string) =>
+  name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join('');
+
 const CreateGroupForm = () => {
   const t = useTranslations('groups');
   const router = useRouter();
   const { createGroup, isLoading, error } = useCreateGroup();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    setImagePreview(url);
-  };
-
-  const { control, handleSubmit } = useForm<CreateGroupFormValues>({
+  const { control, handleSubmit, watch } = useForm<CreateGroupFormValues>({
     defaultValues: { name: '', description: '' },
   });
+
+  const nameValue = watch('name');
 
   const onSubmit = async (values: CreateGroupFormValues) => {
     const group = await createGroup({
@@ -44,7 +45,7 @@ const CreateGroupForm = () => {
     });
 
     if (group) {
-      router.push(`/groups/${group.id}`);
+      router.push(`/groups/${group.id}?created=true`);
     }
   };
 
@@ -98,61 +99,26 @@ const CreateGroupForm = () => {
           gap: 2.5,
         }}
       >
-        {/* Image picker */}
+        {/* Avatar con iniciales */}
         <Box sx={{ display: 'flex', justifyContent: 'center', pb: 1 }}>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            style={{ display: 'none' }}
-            onChange={handleImageChange}
-          />
-          <Box
-            onClick={() => fileInputRef.current?.click()}
+          <Avatar
             sx={{
-              width: 110,
-              height: 110,
-              borderRadius: '50%',
-              border: `2px dashed ${tokens.primary}66`,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 0.75,
-              cursor: 'pointer',
-              overflow: 'hidden',
-              transition: 'border-color 200ms',
-              '&:hover': { borderColor: tokens.primary },
-              ...(imagePreview && { border: 'none' }),
+              width: 80,
+              height: 80,
+              background: nameValue.trim() ? tokens.ctaGradient : tokens.surfaceContainerHighest,
+              fontSize: nameValue.trim() ? '1.75rem' : '1.25rem',
+              fontWeight: 900,
+              letterSpacing: '-0.02em',
+              color: '#fff',
+              transition: 'background 300ms, font-size 200ms',
             }}
           >
-            {imagePreview ? (
-              <Box
-                component="img"
-                src={imagePreview}
-                alt=""
-                sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
+            {nameValue.trim() ? (
+              getInitials(nameValue)
             ) : (
-              <>
-                <AddAPhotoIcon sx={{ color: tokens.primary, fontSize: '1.75rem' }} />
-                <Typography
-                  sx={{
-                    fontSize: '0.5625rem',
-                    fontWeight: 700,
-                    color: tokens.primary,
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    textAlign: 'center',
-                    lineHeight: 1.3,
-                    px: 1,
-                  }}
-                >
-                  {t('imageLabel')}
-                </Typography>
-              </>
+              <GroupsIcon sx={{ fontSize: '2rem', opacity: 0.4 }} />
             )}
-          </Box>
+          </Avatar>
         </Box>
 
         {/* Name field */}

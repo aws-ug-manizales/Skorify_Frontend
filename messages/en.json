@@ -94,7 +94,8 @@
     "inviteCodeCopied": "Copied!",
     "inviteLinkLabel": "Invite Link",
     "memberCount": "{count} member(s)",
-    "leagueTitle": "Skorify Global League"
+    "leagueTitle": "Skorify Global League",
+    "whatsappShareText": "Join my group on Skorify! {link}"
   },
   "dashboard": {
     "title": "Control Panel",
