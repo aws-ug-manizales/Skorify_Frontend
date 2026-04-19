@@ -2,7 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import { api } from '@lib/api';
 import type { BackendEnvelope } from '@lib/api/types';
 import type { Group } from '@features/groups/types';
-import GroupDetail from './_components/GroupDetail';
+import { GroupDetail } from '@features/groups';
 import NotFoundPage from '@shared/components/organisms/NotFoundPage';
 
 interface GroupDetailPageProps {

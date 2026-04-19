@@ -218,7 +218,6 @@ const GroupDetail = ({ group, inviteCodeLabel, copiedLabel }: GroupDetailProps) 
 
             {/* Actions */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, width: '100%' }}>
-              {/* Copy code */}
               <Button
                 fullWidth
                 startIcon={
@@ -248,7 +247,6 @@ const GroupDetail = ({ group, inviteCodeLabel, copiedLabel }: GroupDetailProps) 
                 {codeCopied ? copiedLabel : 'Copiar código'}
               </Button>
 
-              {/* Copy link */}
               <Button
                 fullWidth
                 startIcon={
@@ -278,7 +276,6 @@ const GroupDetail = ({ group, inviteCodeLabel, copiedLabel }: GroupDetailProps) 
                 {linkCopied ? '¡Link copiado!' : 'Copiar link de invitación'}
               </Button>
 
-              {/* WhatsApp */}
               <Button
                 fullWidth
                 startIcon={<WhatsAppIcon sx={{ fontSize: '1rem !important', color: '#25D366' }} />}
