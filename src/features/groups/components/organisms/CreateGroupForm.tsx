@@ -45,7 +45,8 @@ const CreateGroupForm = () => {
     });
 
     if (group) {
-      router.push(`/groups/${group.id}?created=true`);
+      sessionStorage.setItem('justCreatedGroup', group.id);
+      router.push(`/groups/${group.id}`);
     }
   };
 

@@ -20,7 +20,6 @@ import type { Group } from '@features/groups/types';
 
 interface GroupDetailProps {
   group: Group;
-  isNew: boolean;
   inviteCodeLabel: string;
   inviteLinkLabel: string;
   copyLabel: string;
@@ -28,9 +27,17 @@ interface GroupDetailProps {
   memberCountLabel: string;
 }
 
-const GroupDetail = ({ group, isNew, inviteCodeLabel, copiedLabel }: GroupDetailProps) => {
+const GroupDetail = ({ group, inviteCodeLabel, copiedLabel }: GroupDetailProps) => {
   const t = useTranslations('groups');
-  const [successOpen, setSuccessOpen] = useState(isNew);
+  const [successOpen, setSuccessOpen] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const flag = sessionStorage.getItem('justCreatedGroup');
+    if (flag === group.id) {
+      sessionStorage.removeItem('justCreatedGroup');
+      return true;
+    }
+    return false;
+  });
   const [codeCopied, setCodeCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
 
