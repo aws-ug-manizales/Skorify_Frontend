@@ -26,11 +26,29 @@
     "profile": "Perfil"
   },
   "auth": {
+    "title": "Accede a Skorify",
+    "subtitle": "Regístrate o inicia sesión.",
     "login": "Iniciar sesión",
     "logout": "Cerrar sesión",
     "register": "Registrarse",
+    "loginTab": "Ingresar",
+    "registerTab": "Crear cuenta",
+    "loginCta": "Entrar con email",
+    "registerCta": "Crear cuenta con email",
+    "googleCta": "Continuar con Google",
     "email": "Correo electrónico",
-    "password": "Contraseña"
+    "password": "Contraseña",
+    "emailLabel": "Correo electrónico",
+    "passwordLabel": "Contraseña",
+    "emailPlaceholder": "tu@correo.com",
+    "passwordPlaceholder": "Mínimo 8 caracteres",
+    "or": "o",
+    "sessionCreated": "Sesión activa creada",
+    "registrationConfirmationOptional": "Confirmación de registro por correo: opcional para MVP.",
+    "genericError": "No se pudo completar la operación. Intenta nuevamente.",
+    "confirmPasswordLabel": "Confirmar contraseña",
+    "confirmPasswordPlaceholder": "Repite tu contraseña",
+    "passwordMismatch": "Las contraseñas no coinciden"
   },
   "predictions": {
     "title": "Mis predicciones",

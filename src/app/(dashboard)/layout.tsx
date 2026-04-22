@@ -1,8 +1,11 @@
 import DashboardLayout from '@shared/layouts/DashboardLayout';
+import { RequireAuth } from '@features/auth';
 import { ReactNode } from 'react';
 
 const Layout = ({ children }: { children: ReactNode }) => (
-  <DashboardLayout>{children}</DashboardLayout>
+  <RequireAuth>
+    <DashboardLayout>{children}</DashboardLayout>
+  </RequireAuth>
 );
 
 export default Layout;
