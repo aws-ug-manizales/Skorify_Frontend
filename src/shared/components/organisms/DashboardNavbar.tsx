@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
@@ -15,6 +16,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Link from 'next/link';
 import { tokens } from '@lib/theme/theme';
+import { useAuthStore } from '@features/auth/store/useAuthStore';
 
 const APPBAR_HEIGHT = 64;
 
@@ -23,14 +25,22 @@ type Props = {
 };
 
 const DashboardNavbar = ({ username = 'Usuario' }: Props) => {
+  const router = useRouter();
   const [anchor, setAnchor] = useState<null | HTMLElement>(null);
+  const session = useAuthStore((state) => state.session);
+  const logout = useAuthStore((state) => state.logout);
   const t = useTranslations('auth');
   const tNav = useTranslations('nav');
   const tCommon = useTranslations('common');
+  const profileName = session?.user.displayName || username;
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => setAnchor(e.currentTarget);
   const handleClose = () => setAnchor(null);
-  const handleLogout = () => handleClose();
+  const handleLogout = () => {
+    logout();
+    handleClose();
+    router.replace('/auth');
+  };
 
   return (
     <AppBar
@@ -88,7 +98,7 @@ const DashboardNavbar = ({ username = 'Usuario' }: Props) => {
               lineHeight: 1,
             }}
           >
-            {username}
+            {profileName}
           </Typography>
         </IconButton>
 
