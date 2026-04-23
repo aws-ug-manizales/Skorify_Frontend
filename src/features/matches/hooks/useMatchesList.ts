@@ -4,13 +4,13 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Match } from '../types';
 import type { MatchesFilterKey } from '../components/molecules/MatchesFilters';
 import { matchesService } from '../services/matchesService';
-import { monthToFromToIso, statusFromFilter, type MatchesQuery } from '../filters/MatchesQuery';
+import { statusFromFilter, worldCupWeekToFromToIso, type MatchesQuery } from '../filters/MatchesQuery';
 
 type UseMatchesListState = {
   query: MatchesQuery;
   setStatusFilter: (filter: MatchesFilterKey) => void;
   setTeam: (team: string) => void;
-  setMonth: (month: string) => void;
+  setWeek: (month: string) => void;
   setPage: (page: number) => void;
   setPageSize: (pageSize: number) => void;
   resetFilters: () => void;
@@ -19,11 +19,11 @@ type UseMatchesListState = {
   total: number;
 };
 
-export const useMatchesList = (initialPageSize = 9): UseMatchesListState => {
+export const useMatchesList = (initialPageSize = 10): UseMatchesListState => {
   const [query, setQuery] = useState<MatchesQuery>({
     statusFilter: 'filterAll',
     team: '',
-    month: '',
+    week: '',
     page: 1,
     pageSize: initialPageSize,
   });
@@ -34,7 +34,7 @@ export const useMatchesList = (initialPageSize = 9): UseMatchesListState => {
 
   const params = useMemo(() => {
     const status = statusFromFilter(query.statusFilter);
-    const { from, to } = monthToFromToIso(query.month);
+    const { from, to } = worldCupWeekToFromToIso(Number(query.week));
     return {
       page: query.page,
       pageSize: query.pageSize,
@@ -67,19 +67,19 @@ export const useMatchesList = (initialPageSize = 9): UseMatchesListState => {
   const setStatusFilter = (filter: MatchesFilterKey) =>
     setQuery((q) => ({ ...q, statusFilter: filter, page: 1 }));
   const setTeam = (team: string) => setQuery((q) => ({ ...q, team, page: 1 }));
-  const setMonth = (month: string) => setQuery((q) => ({ ...q, month, page: 1 }));
+  const setWeek = (week: string) => setQuery((q) => ({ ...q, week, page: 1 }));
   const setPage = (page: number) => setQuery((q) => ({ ...q, page: Math.max(1, page) }));
   const setPageSize = (pageSize: number) =>
     setQuery((q) => ({ ...q, pageSize: Math.max(1, pageSize), page: 1 }));
 
   const resetFilters = () =>
-    setQuery((q) => ({ ...q, statusFilter: 'filterAll', team: '', month: '', page: 1 }));
+    setQuery((q) => ({ ...q, statusFilter: 'filterAll', team: '', week: '', page: 1 }));
 
   return {
     query,
     setStatusFilter,
     setTeam,
-    setMonth,
+    setWeek,
     setPage,
     setPageSize,
     resetFilters,

@@ -1,5 +1,14 @@
 import type { Match } from '../types';
 
+const WORLD_CUP_START_AT = Date.UTC(2026, 5, 11, 16, 0, 0);
+const WORLD_CUP_END_AT = Date.UTC(2026, 6, 19, 19, 0, 0);
+const UPCOMING_MATCHES_COUNT = 44;
+const UPCOMING_MATCH_INTERVAL =
+  (WORLD_CUP_END_AT - WORLD_CUP_START_AT) / (UPCOMING_MATCHES_COUNT - 1);
+
+const createTournamentKickoff = (offsetMs = 0) =>
+  new Date(WORLD_CUP_START_AT + offsetMs).toISOString();
+
 export const MOCK_MATCHES: Match[] = [
   // Live (para probar marcador + filtro)
   {
@@ -7,7 +16,7 @@ export const MOCK_MATCHES: Match[] = [
     tournamentKey: 'worldcup',
     stageKey: 'groupStage',
     status: 'live',
-    kickoffAt: new Date(Date.now() - 1000 * 60 * 25).toISOString(),
+    kickoffAt: createTournamentKickoff(1000 * 60 * 60 * 26),
     homeTeam: { name: 'España', code: 'ESP' },
     awayTeam: { name: 'Brasil', code: 'BRA' },
     score: { home: 1, away: 0 },
@@ -18,7 +27,7 @@ export const MOCK_MATCHES: Match[] = [
     tournamentKey: 'worldcup',
     stageKey: 'groupStage',
     status: 'live',
-    kickoffAt: new Date(Date.now() - 1000 * 60 * 52).toISOString(),
+    kickoffAt: createTournamentKickoff(1000 * 60 * 60 * 74),
     homeTeam: { name: 'Argentina', code: 'ARG' },
     awayTeam: { name: 'México', code: 'MEX' },
     score: { home: 0, away: 0 },
@@ -28,7 +37,7 @@ export const MOCK_MATCHES: Match[] = [
     tournamentKey: 'worldcup',
     stageKey: 'roundOf16',
     status: 'live',
-    kickoffAt: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
+    kickoffAt: createTournamentKickoff(1000 * 60 * 60 * 492),
     homeTeam: { name: 'Francia', code: 'FRA' },
     awayTeam: { name: 'Alemania', code: 'GER' },
     score: { home: 2, away: 1 },
@@ -41,7 +50,7 @@ export const MOCK_MATCHES: Match[] = [
     tournamentKey: 'worldcup',
     stageKey: 'groupStage',
     status: 'finished',
-    kickoffAt: new Date(Date.now() - 1000 * 60 * 60 * 30).toISOString(),
+    kickoffAt: createTournamentKickoff(0),
     homeTeam: { name: 'Portugal', code: 'POR' },
     awayTeam: { name: 'Inglaterra', code: 'ENG' },
     score: { home: 1, away: 3 },
@@ -51,7 +60,7 @@ export const MOCK_MATCHES: Match[] = [
     tournamentKey: 'worldcup',
     stageKey: 'groupStage',
     status: 'finished',
-    kickoffAt: new Date(Date.now() - 1000 * 60 * 60 * 42).toISOString(),
+    kickoffAt: createTournamentKickoff(1000 * 60 * 60 * 12),
     homeTeam: { name: 'Colombia', code: 'COL' },
     awayTeam: { name: 'Uruguay', code: 'URU' },
     score: { home: 2, away: 2 },
@@ -61,7 +70,7 @@ export const MOCK_MATCHES: Match[] = [
     tournamentKey: 'worldcup',
     stageKey: 'roundOf16',
     status: 'finished',
-    kickoffAt: new Date(Date.now() - 1000 * 60 * 60 * 55).toISOString(),
+    kickoffAt: createTournamentKickoff(1000 * 60 * 60 * 456),
     homeTeam: { name: 'Italia', code: 'ITA' },
     awayTeam: { name: 'Países Bajos', code: 'NED' },
     score: { home: 0, away: 1 },
@@ -69,7 +78,7 @@ export const MOCK_MATCHES: Match[] = [
   },
 
   // Upcoming (mayoría para probar paginado)
-  ...Array.from({ length: 44 }, (_, i) => {
+  ...Array.from({ length: UPCOMING_MATCHES_COUNT }, (_, i) => {
     const idx = i + 1;
     const teams: Array<{ name: string; code: string }> = [
       { name: 'Chile', code: 'CHI' },
@@ -103,7 +112,7 @@ export const MOCK_MATCHES: Match[] = [
     const home = teams[idx % teams.length];
     const away = teams[(idx + 7) % teams.length];
     const stageKey = idx % 6 === 0 ? 'roundOf16' : 'groupStage';
-    const kickoffAt = new Date(Date.now() + 1000 * 60 * 60 * (6 + idx * 3)).toISOString();
+    const kickoffAt = createTournamentKickoff(Math.round(i * UPCOMING_MATCH_INTERVAL));
 
     return {
       id: `m-up-${String(idx).padStart(2, '0')}`,
@@ -117,4 +126,3 @@ export const MOCK_MATCHES: Match[] = [
     };
   }),
 ];
-

@@ -10,16 +10,16 @@ import MatchesHeader from '../molecules/MatchesHeader';
 import PaginatedMatchesGrid from '../molecules/PaginatedMatchesGrid';
 import MatchesToolbar from '../molecules/MatchesToolbar';
 import { useMatchesList } from '../../hooks/useMatchesList';
-import { getMonthOptions2026 } from '../../filters/monthOptions2026';
+import { getWorldCupWeekOptions2026 } from '../../filters/weekOptions';
 
 const MatchesHome = () => {
   const t = useTranslations('matches');
   const tCommon = useTranslations('common');
   const locale = useLocale();
-  const { query, setStatusFilter, setTeam, setMonth, setPage, loading, items, total, resetFilters } =
-    useMatchesList(9);
+  const { query, setStatusFilter, setTeam, setWeek, setPage, loading, items, total, resetFilters } =
+    useMatchesList(10);
 
-  const monthOptions = useMemo(() => getMonthOptions2026(locale), [locale]);
+  const monthOptions = useMemo(() => getWorldCupWeekOptions2026(locale), [locale]);
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
@@ -35,8 +35,8 @@ const MatchesHome = () => {
         teamValue={query.team}
         onTeamChange={setTeam}
         teamPlaceholder={t('teamFilterPlaceholder')}
-        monthValue={query.month}
-        onMonthChange={setMonth}
+        weekValue={query.week}
+        onMonthChange={setWeek}
         monthLabel={t('date')}
         monthAllLabel={t('dateAll')}
         monthOptions={monthOptions}

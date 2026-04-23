@@ -17,7 +17,7 @@ type Props = {
   onTeamChange: (value: string) => void;
   teamPlaceholder: string;
 
-  monthValue: string; // '' | '01'..'12'
+  weekValue: string; // '' | '01'..'12'
   onMonthChange: (value: string) => void;
   monthLabel: string;
   monthAllLabel: string;
@@ -31,7 +31,7 @@ const MatchesToolbar = ({
   teamValue,
   onTeamChange,
   teamPlaceholder,
-  monthValue,
+  weekValue,
   onMonthChange,
   monthLabel,
   monthAllLabel,
@@ -78,7 +78,7 @@ const MatchesToolbar = ({
         <InputLabel id="matches-month-label">{monthLabel}</InputLabel>
         <Select
           labelId="matches-month-label"
-          value={monthValue}
+          value={weekValue}
           label={monthLabel}
           onChange={(e: SelectChangeEvent<string>) => onMonthChange(e.target.value)}
         >
@@ -91,7 +91,7 @@ const MatchesToolbar = ({
         </Select>
       </FormControl>
 
-      {(teamValue || monthValue) && (
+      {(teamValue || weekValue) && (
         <IconButton onClick={onClear} aria-label={clearLabel} size="small">
           <ClearIcon />
         </IconButton>
