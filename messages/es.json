@@ -91,7 +91,22 @@
     "create": "Crear grupo",
     "join": "Unirse",
     "invite": "Invitar amigos",
-    "members": "Miembros"
+    "members": "Miembros",
+    "standingsTitle": "Tabla de Posiciones",
+    "matchesTitle": "Próximos Partidos",
+    "membersTitle": "Miembros",
+    "shareButton": "Compartir",
+    "shareTitle": "Compartir grupo",
+    "predictButton": "Predecir",
+    "editPredictionButton": "Editar predicción",
+    "adminBadge": "Admin",
+    "youBadge": "Tú",
+    "noMatchesTitle": "Todo al día",
+    "noMatchesSubtitle": "No hay partidos pendientes de predicción por ahora.",
+    "inviteCodeLabel": "Código de invitación",
+    "inviteLinkButton": "Copiar enlace de invitación",
+    "pendingMatchesSingular": "partido pendiente",
+    "pendingMatchesPlural": "partidos pendientes"
   },
   "dashboard": {
     "title": "Panel de Control",

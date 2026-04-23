@@ -91,7 +91,22 @@
     "create": "Create group",
     "join": "Join",
     "invite": "Invite friends",
-    "members": "Members"
+    "members": "Members",
+    "standingsTitle": "Standings",
+    "matchesTitle": "Upcoming Matches",
+    "membersTitle": "Members",
+    "shareButton": "Share",
+    "shareTitle": "Share group",
+    "predictButton": "Predict",
+    "editPredictionButton": "Edit prediction",
+    "adminBadge": "Admin",
+    "youBadge": "You",
+    "noMatchesTitle": "All caught up",
+    "noMatchesSubtitle": "No matches pending prediction right now.",
+    "inviteCodeLabel": "Invite code",
+    "inviteLinkButton": "Copy invite link",
+    "pendingMatchesSingular": "match pending",
+    "pendingMatchesPlural": "matches pending"
   },
   "dashboard": {
     "title": "Control Panel",
