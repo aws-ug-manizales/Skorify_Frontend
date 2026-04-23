@@ -44,7 +44,38 @@
     "title": "Partidos",
     "upcoming": "Próximos",
     "live": "En vivo",
-    "finished": "Finalizados"
+    "finished": "Finalizados",
+    "resultForm": {
+      "title": "Cargar resultado del partido",
+      "subtitle": "Selecciona un partido para revisar su información antes de cargar el resultado final.",
+      "matchLabel": "Partido",
+      "matchPlaceholder": "Busca por equipos, torneo o fecha",
+      "matchHelper": "Los partidos mostrados son datos simulados de frontend.",
+      "selectionSummaryTitle": "Resumen del partido seleccionado",
+      "selectionEmpty": "Selecciona un partido para ver sus datos.",
+      "fields": {
+        "teams": "Equipos",
+        "tournament": "Torneo",
+        "kickOff": "Inicio",
+        "stage": "Fase",
+        "venue": "Sede",
+        "status": "Estado"
+      },
+      "statusOptions": {
+        "scheduled": "Programado",
+        "in_progress": "En juego",
+        "finished": "Finalizado"
+      },
+      "stageOptions": {
+        "group": "Fase de grupos",
+        "finals": "Fase final"
+      },
+      "validation": {
+        "matchRequired": "Selecciona un partido para continuar."
+      },
+      "fallbackTeam": "Equipo",
+      "fallbackTournament": "Torneo"
+    }
   },
   "tournaments": {
     "title": "Torneos",

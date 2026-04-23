@@ -1,9 +1,5 @@
-import { getTranslations } from 'next-intl/server';
-import ComingSoonPage from '@shared/components/organisms/ComingSoonPage';
+import { MatchResultSelectionPanel } from '@features/matches';
 
-const MatchesPage = async () => {
-  const t = await getTranslations('nav');
-  return <ComingSoonPage title={t('matches')} />;
-};
+const MatchesPage = () => <MatchResultSelectionPanel />;
 
 export default MatchesPage;

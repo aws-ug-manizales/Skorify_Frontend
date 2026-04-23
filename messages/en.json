@@ -44,7 +44,38 @@
     "title": "Matches",
     "upcoming": "Upcoming",
     "live": "Live",
-    "finished": "Finished"
+    "finished": "Finished",
+    "resultForm": {
+      "title": "Load Match Result",
+      "subtitle": "Select a match and review its details before loading the final result.",
+      "matchLabel": "Match",
+      "matchPlaceholder": "Search by teams, tournament, or date",
+      "matchHelper": "Listed matches are simulated frontend data.",
+      "selectionSummaryTitle": "Selected Match Summary",
+      "selectionEmpty": "Select a match to view its details.",
+      "fields": {
+        "teams": "Teams",
+        "tournament": "Tournament",
+        "kickOff": "Kick Off",
+        "stage": "Stage",
+        "venue": "Venue",
+        "status": "Status"
+      },
+      "statusOptions": {
+        "scheduled": "Scheduled",
+        "in_progress": "In Progress",
+        "finished": "Finished"
+      },
+      "stageOptions": {
+        "group": "Group Stage",
+        "finals": "Final Stage"
+      },
+      "validation": {
+        "matchRequired": "Select a match to continue."
+      },
+      "fallbackTeam": "Team",
+      "fallbackTournament": "Tournament"
+    }
   },
   "tournaments": {
     "title": "Tournaments",
