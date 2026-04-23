@@ -53,6 +53,17 @@
       "matchHelper": "Listed matches are simulated frontend data.",
       "selectionSummaryTitle": "Selected Match Summary",
       "selectionEmpty": "Select a match to view its details.",
+      "editor": {
+        "title": "Edit result",
+        "description": "Update only goals and match status for the selected match.",
+        "homeGoalsLabel": "Home goals",
+        "awayGoalsLabel": "Away goals",
+        "statusLabel": "Match status",
+        "statusHelper": "For finished matches, use the Finished status.",
+        "saveButton": "Save result"
+      },
+      "saveSuccess": "Result updated successfully. Last update: {updatedAt}.",
+      "saveError": "Could not update the result. Please try again.",
       "fields": {
         "teams": "Teams",
         "tournament": "Tournament",
@@ -71,7 +82,11 @@
         "finals": "Final Stage"
       },
       "validation": {
-        "matchRequired": "Select a match to continue."
+        "matchRequired": "Select a match to continue.",
+        "homeGoalsRequired": "Enter home team goals.",
+        "awayGoalsRequired": "Enter away team goals.",
+        "statusRequired": "Select the match status.",
+        "goalsInteger": "Enter an integer value greater than or equal to 0."
       },
       "fallbackTeam": "Team",
       "fallbackTournament": "Tournament"

@@ -27,3 +27,10 @@ export interface MatchRecord {
   created_at: string;
   updated_at: string;
 }
+
+export interface UpdateMatchResultInput {
+  matchId: string;
+  homeGoals: number;
+  awayGoals: number;
+  status: MatchStatus;
+}

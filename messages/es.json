@@ -53,6 +53,17 @@
       "matchHelper": "Los partidos mostrados son datos simulados de frontend.",
       "selectionSummaryTitle": "Resumen del partido seleccionado",
       "selectionEmpty": "Selecciona un partido para ver sus datos.",
+      "editor": {
+        "title": "Editar resultado",
+        "description": "Actualiza únicamente los goles y el estado del partido seleccionado.",
+        "homeGoalsLabel": "Goles local",
+        "awayGoalsLabel": "Goles visitante",
+        "statusLabel": "Estado del partido",
+        "statusHelper": "Para partidos finalizados, usa el estado Finalizado.",
+        "saveButton": "Guardar resultado"
+      },
+      "saveSuccess": "Resultado actualizado correctamente. Última actualización: {updatedAt}.",
+      "saveError": "No se pudo actualizar el resultado. Intenta nuevamente.",
       "fields": {
         "teams": "Equipos",
         "tournament": "Torneo",
@@ -71,7 +82,11 @@
         "finals": "Fase final"
       },
       "validation": {
-        "matchRequired": "Selecciona un partido para continuar."
+        "matchRequired": "Selecciona un partido para continuar.",
+        "homeGoalsRequired": "Ingresa los goles del equipo local.",
+        "awayGoalsRequired": "Ingresa los goles del equipo visitante.",
+        "statusRequired": "Selecciona el estado del partido.",
+        "goalsInteger": "Ingresa un número entero mayor o igual a 0."
       },
       "fallbackTeam": "Equipo",
       "fallbackTournament": "Torneo"
