@@ -26,11 +26,29 @@
     "profile": "Profile"
   },
   "auth": {
+    "title": "Access Skorify",
+    "subtitle": "Sign up or log in to access the platform.",
     "login": "Log in",
     "logout": "Log out",
     "register": "Sign up",
+    "loginTab": "Log in",
+    "registerTab": "Sign up",
+    "loginCta": "Continue with email",
+    "registerCta": "Create account with email",
+    "googleCta": "Continue with Google",
     "email": "Email",
-    "password": "Password"
+    "password": "Password",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "emailPlaceholder": "you@email.com",
+    "passwordPlaceholder": "At least 8 characters",
+    "or": "or",
+    "sessionCreated": "Active session created",
+    "registrationConfirmationOptional": "Email confirmation: optional for MVP.",
+    "genericError": "The operation could not be completed. Please try again.",
+    "confirmPasswordLabel": "Confirm password",
+    "confirmPasswordPlaceholder": "Repeat your password",
+    "passwordMismatch": "Passwords do not match"
   },
   "predictions": {
     "title": "My predictions",
