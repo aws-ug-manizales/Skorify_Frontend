@@ -143,5 +143,33 @@
     "title": "¡Fuera de Juego!",
     "description": "Parece que has salido de los límites del campo. Esta página no está disponible.",
     "cta": "Volver al inicio"
+  },
+  "users": {
+    "title": "Usuarios",
+    "subtitle": "Gestión de participantes",
+    "search": "Buscar usuarios...",
+    "total": "usuarios registrados",
+    "filterAll": "Todos",
+    "filterActive": "Activos",
+    "filterSuspended": "Suspendidos",
+    "noUsers": "No se encontraron usuarios",
+    "status": {
+      "active": "Activo",
+      "suspended": "Suspendido"
+    },
+    "predictions": "predicciones",
+    "groups": "grupos",
+    "accuracy": "tasa de aciertos",
+    "suspendUser": "Suspender",
+    "activateUser": "Activar",
+    "table": {
+      "name": "Nombre",
+      "email": "Correo",
+      "status": "Estado",
+      "predictions": "Pred.",
+      "groups": "Grupos",
+      "accuracy": "Aciertos",
+      "actions": "Acciones"
+    }
   }
 }
