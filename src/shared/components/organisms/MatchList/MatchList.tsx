@@ -1,217 +1,387 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Box, Typography, Stack, Avatar, TextField } from '@mui/material';
-import { useLocale, useTranslations } from 'next-intl';
+import {
+  Box,
+  Typography,
+  Stack,
+  Avatar,
+  TextField,
+  CircularProgress,
+  useTheme,
+  useMediaQuery,
+} from '@mui/material';
+import { useLocale } from 'next-intl';
 
+import { MatchesToolbar } from './MatchesToolbar';
+import { getWorldCupWeekOptions2026 } from './weekOptions';
 import AppCard from '../../molecules/AppCard';
 import AppButton from '../../atoms/AppButton';
 import { MOCK_MATCHES } from '@/features/matches/constants/matches.mock';
 
-// Simulamos el import de las opciones de fecha de tu compañero
-// Cuando copies su archivo, descomenta la lógica real.
-const MOCK_WEEKS = [
-  { value: 'all', label: 'Todas las fechas' },
-  { value: '1', label: 'Semana 1 (11 jun - 17 jun)' },
-  { value: '2', label: 'Semana 2 (18 jun - 24 jun)' },
+interface Match {
+  id: string;
+  homeTeam: string;
+  awayTeam: string;
+  homeTeamFlag: string;
+  awayTeamFlag: string;
+  date: string;
+  isUserPredicted: boolean;
+}
+
+const FUNNY_MESSAGES = [
+  '¡El más veloz del oeste!',
+  '¡Predicción guardada! ¿Futuro pulpo Paul?',
+  '¡Apuntado! Ojalá le pegues al marcador...',
+  '¡Hecho! Ojalá no sea un 0-0...',
+  '¡Guardado! ¿Seguro que no quieres cambiarlo?',
 ];
 
+type PendingPrediction = {
+  homeGoals: string | number;
+  awayGoals: string | number;
+  isDirty: boolean;
+  isEditing: boolean;
+};
+
 export const MatchList = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const locale = useLocale();
+
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedWeek, setSelectedWeek] = useState<string | number>('all');
+  const [selectedWeek, setSelectedWeek] = useState('');
   const [now, setNow] = useState(new Date());
+  const [isMounted, setIsMounted] = useState(false);
+
+  const [loadingMatchId, setLoadingMatchId] = useState<string | null>(null);
+  const [successMatchId, setSuccessMatchId] = useState<string | null>(null);
+  const [currentFunnyMessage, setCurrentFunnyMessage] = useState('');
+
+  // Cast para evitar errores de any del mock
+  const matchesData = MOCK_MATCHES as unknown as Match[];
+
+  const [pendingPredictions, setPendingPredictions] = useState<Record<string, PendingPrediction>>(
+    () => {
+      const initial: Record<string, PendingPrediction> = {};
+      matchesData.forEach((match: Match) => {
+        initial[match.id] = {
+          homeGoals: match.isUserPredicted ? 2 : '',
+          awayGoals: match.isUserPredicted ? 1 : '',
+          isDirty: false,
+          isEditing: !match.isUserPredicted,
+        };
+      });
+      return initial;
+    },
+  );
+
+  const [savedStatus, setSavedStatus] = useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {};
+    matchesData.forEach((match: Match) => {
+      initial[match.id] = match.isUserPredicted;
+    });
+    return initial;
+  });
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsMounted(true);
     const timer = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(timer);
+
+    return () => {
+      clearInterval(timer);
+    };
   }, []);
 
+  const weekOptions = useMemo(() => getWorldCupWeekOptions2026(locale), [locale]);
+
   const filteredMatches = useMemo(() => {
-    return MOCK_MATCHES.filter((match) => {
+    return matchesData.filter((match: Match) => {
       const matchDate = new Date(match.date);
-
-      // 1. FILTRO: Solo partidos que NO han terminado (posteriores a "ahora")
-      const isFuture = matchDate > now;
-
-      // 2. FILTRO: Buscador por equipo
       const matchesSearch =
         match.homeTeam.toLowerCase().includes(searchTerm.toLowerCase()) ||
         match.awayTeam.toLowerCase().includes(searchTerm.toLowerCase());
+      if (!matchesSearch) return false;
 
-      return isFuture && matchesSearch;
+      if (selectedWeek) {
+        const startDate = new Date('2026-06-11T00:00:00');
+        const weekNum = parseInt(selectedWeek);
+        const weekStart = new Date(startDate);
+        weekStart.setDate(startDate.getDate() + (weekNum - 1) * 7);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 7);
+        if (matchDate < weekStart || matchDate >= weekEnd) return false;
+      }
+      return true;
     });
-  }, [searchTerm, now]);
+  }, [searchTerm, selectedWeek, matchesData]);
 
-  const getRemainingTime = (matchDate: string) => {
+  const getFormattedTime = (matchDate: string) => {
     const diff = new Date(matchDate).getTime() - now.getTime();
-    if (diff <= 0) return 'EMPEZADO';
+    if (diff <= 0) return '0h 0m 0s';
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
     return `${hours}h ${minutes}m ${seconds}s`;
   };
 
+  const handleGoalsChange = (matchId: string, team: 'home' | 'away', value: string) => {
+    // Evitamos que el usuario ponga números negativos directamente
+    const numericValue = value === '' ? '' : Math.max(0, parseInt(value)).toString();
+
+    setPendingPredictions((prev) => ({
+      ...prev,
+      [matchId]: { ...prev[matchId], [`${team}Goals`]: numericValue, isDirty: true },
+    }));
+  };
+
+  const handleAction = (matchId: string, label: string) => {
+    if (label === 'EDITAR') {
+      setPendingPredictions((prev) => ({
+        ...prev,
+        [matchId]: { ...prev[matchId], isEditing: true },
+      }));
+      return;
+    }
+    setLoadingMatchId(matchId);
+    setCurrentFunnyMessage(FUNNY_MESSAGES[Math.floor(Math.random() * FUNNY_MESSAGES.length)]);
+    setTimeout(() => {
+      setLoadingMatchId(null);
+      setSuccessMatchId(matchId);
+      setSavedStatus((prev) => ({ ...prev, [matchId]: true }));
+      setPendingPredictions((prev) => ({
+        ...prev,
+        [matchId]: { ...prev[matchId], isDirty: false, isEditing: false },
+      }));
+      setTimeout(() => setSuccessMatchId(null), 2500);
+    }, 1200);
+  };
+
   return (
-    <Box sx={{ width: '100%', maxWidth: '1000px', mx: 'auto', p: 2 }}>
-      {/* 📅 TOOLBAR SIMPLIFICADO (Basado en lo que viste de tu compañero) */}
-      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 4 }}>
-        <TextField
-          placeholder="Buscar equipo..."
-          variant="outlined"
-          size="small"
-          sx={{ flex: 2, bgcolor: 'rgba(255,255,255,0.05)' }}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        {/* Aquí puedes poner un Select simple para las semanas del mundial */}
-      </Stack>
+    <Box sx={{ width: '100%', maxWidth: '1000px', mx: 'auto', p: isMobile ? 1 : 2 }}>
+      <MatchesToolbar
+        teamValue={searchTerm}
+        onTeamChange={setSearchTerm}
+        teamPlaceholder="Buscar equipo..."
+        weekValue={selectedWeek}
+        onMonthChange={setSelectedWeek}
+        monthLabel="Semana"
+        monthAllLabel="Todas las semanas"
+        monthOptions={weekOptions}
+        onClear={() => {
+          setSearchTerm('');
+          setSelectedWeek('');
+        }}
+      />
 
       <Stack spacing={2}>
-        {filteredMatches.length > 0 ? (
-          filteredMatches.map((match) => {
-            const hasStarted = new Date(match.date) <= now;
+        {filteredMatches.map((match: Match) => {
+          const msRemaining = new Date(match.date).getTime() - now.getTime();
+          const isLocked = msRemaining <= 600000;
+          const isLoading = loadingMatchId === match.id;
+          const isSuccess = successMatchId === match.id;
+          const currentPred = pendingPredictions[match.id];
+          const isSaved = savedStatus[match.id];
 
-            return (
-              <AppCard
-                key={match.id}
-                sx={{ p: 0, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)' }}
-              >
-                <Stack
-                  direction={{ xs: 'column', md: 'row' }}
-                  alignItems="center"
-                  sx={{ minHeight: '100px' }}
+          let buttonLabel = 'PREDECIR';
+          if (isSaved) {
+            buttonLabel = currentPred.isEditing ? 'GUARDAR' : 'EDITAR';
+          }
+
+          const isInputInvalid =
+            currentPred.homeGoals === '' ||
+            currentPred.awayGoals === '' ||
+            Number(currentPred.homeGoals) < 0 ||
+            Number(currentPred.awayGoals) < 0;
+
+          return (
+            <AppCard
+              key={match.id}
+              sx={{ p: 0, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)' }}
+            >
+              <Stack direction={{ xs: 'column', md: 'row' }} alignItems="center">
+                <Box
+                  sx={{
+                    px: 3,
+                    py: isMobile ? 1.5 : 2,
+                    textAlign: 'center',
+                    minWidth: '175px',
+                    width: isMobile ? '100%' : 'auto',
+                    borderBottom: isMobile ? '1px solid rgba(255,255,255,0.05)' : 'none',
+                  }}
                 >
-                  {/* 1. CONTADOR */}
-                  <Box sx={{ px: 3, textAlign: 'center', minWidth: '140px' }}>
-                    <Typography
-                      variant="caption"
-                      sx={{ color: 'text.disabled', fontWeight: 'bold' }}
-                    >
-                      CIERRA EN
+                  {isMounted ? (
+                    <>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: isLocked ? 'error.main' : 'text.disabled',
+                          fontWeight: 'bold',
+                        }}
+                      >
+                        {isLocked ? 'EL PARTIDO EMPIEZA EN' : 'CIERRA EN'}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontFamily: 'monospace',
+                          fontWeight: '900',
+                          color: isLocked ? 'error.main' : 'primary.light',
+                        }}
+                      >
+                        {getFormattedTime(match.date)}
+                      </Typography>
+                    </>
+                  ) : (
+                    <Typography variant="body2" sx={{ opacity: 0.3 }}>
+                      Cargando...
                     </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{ fontFamily: 'monospace', fontWeight: '900', color: 'primary.light' }}
-                    >
-                      {getRemainingTime(match.date)}
-                    </Typography>
-                  </Box>
+                  )}
+                </Box>
 
-                  <Box
-                    sx={{
-                      display: { xs: 'none', md: 'block' },
-                      width: '1px',
-                      height: '50px',
-                      bgcolor: 'rgba(255,255,255,0.1)',
-                    }}
-                  />
-
-                  {/* 2. INPUTS DE PREDICCIÓN Y EQUIPOS */}
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  alignItems="center"
+                  justifyContent="center"
+                  sx={{ flex: 1, py: 2, px: 2, width: '100%' }}
+                >
                   <Stack
                     direction="row"
-                    spacing={2}
                     alignItems="center"
-                    justifyContent="center"
-                    sx={{ flex: 1, py: 2, px: 2 }}
+                    spacing={1}
+                    sx={{ flex: 1, justifyContent: 'flex-end' }}
                   >
-                    {/* Local */}
-                    <Stack
-                      direction="row"
-                      alignItems="center"
-                      spacing={1}
-                      sx={{ flex: 1, justifyContent: 'flex-end' }}
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 'bold', fontSize: isMobile ? '0.75rem' : '0.9rem' }}
                     >
-                      <Typography variant="body2" sx={{ fontWeight: 'bold', textAlign: 'right' }}>
-                        {match.homeTeam}
-                      </Typography>
-                      <Avatar src={match.homeTeamFlag} sx={{ width: 32, height: 32 }} />
-                    </Stack>
-
-                    {/* INPUTS NUMÉRICOS */}
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      <TextField
-                        size="small"
-                        disabled={hasStarted}
-                        inputProps={{
-                          style: {
-                            textAlign: 'center',
-                            fontWeight: 'bold',
-                            width: '35px',
-                            padding: '5px',
-                          },
-                        }}
-                        sx={{ bgcolor: 'rgba(255,255,255,0.1)', borderRadius: '4px' }}
-                      />
-                      <Typography sx={{ opacity: 0.5 }}>-</Typography>
-                      <TextField
-                        size="small"
-                        disabled={hasStarted}
-                        inputProps={{
-                          style: {
-                            textAlign: 'center',
-                            fontWeight: 'bold',
-                            width: '35px',
-                            padding: '5px',
-                          },
-                        }}
-                        sx={{ bgcolor: 'rgba(255,255,255,0.1)', borderRadius: '4px' }}
-                      />
-                    </Stack>
-
-                    {/* Visitante */}
-                    <Stack
-                      direction="row"
-                      alignItems="center"
-                      spacing={1}
-                      sx={{ flex: 1, justifyContent: 'flex-start' }}
-                    >
-                      <Avatar src={match.awayTeamFlag} sx={{ width: 32, height: 32 }} />
-                      <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                        {match.awayTeam}
-                      </Typography>
-                    </Stack>
+                      {match.homeTeam}
+                    </Typography>
+                    <Avatar src={match.homeTeamFlag} sx={{ width: 28, height: 28 }} />
                   </Stack>
 
-                  <Box
-                    sx={{
-                      display: { xs: 'none', md: 'block' },
-                      width: '1px',
-                      height: '50px',
-                      bgcolor: 'rgba(255,255,255,0.1)',
-                    }}
-                  />
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    alignItems="center"
+                    sx={{ minWidth: '80px', justifyContent: 'center' }}
+                  >
+                    {currentPred.isEditing && !isLocked ? (
+                      <>
+                        <TextField
+                          size="small"
+                          type="number"
+                          disabled={isLoading}
+                          value={currentPred.homeGoals}
+                          onChange={(e) => handleGoalsChange(match.id, 'home', e.target.value)}
+                          inputProps={{
+                            min: 0,
+                            style: {
+                              textAlign: 'center',
+                              fontWeight: 'bold',
+                              width: '30px',
+                              padding: '6px',
+                            },
+                          }}
+                          sx={{ bgcolor: 'rgba(255,255,255,0.1)', borderRadius: '4px' }}
+                        />
+                        <Typography sx={{ opacity: 0.3, mx: 0.5 }}>-</Typography>
+                        <TextField
+                          size="small"
+                          type="number"
+                          disabled={isLoading}
+                          value={currentPred.awayGoals}
+                          onChange={(e) => handleGoalsChange(match.id, 'away', e.target.value)}
+                          inputProps={{
+                            min: 0,
+                            style: {
+                              textAlign: 'center',
+                              fontWeight: 'bold',
+                              width: '30px',
+                              padding: '6px',
+                            },
+                          }}
+                          sx={{ bgcolor: 'rgba(255,255,255,0.1)', borderRadius: '4px' }}
+                        />
+                      </>
+                    ) : (
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: '900',
+                          letterSpacing: '4px',
+                          color: isLocked && !isSaved ? 'rgba(255,255,255,0.2)' : 'white',
+                        }}
+                      >
+                        {isSaved ? `${currentPred.homeGoals} - ${currentPred.awayGoals}` : 'X - X'}
+                      </Typography>
+                    )}
+                  </Stack>
 
-                  {/* 3. BOTÓN DE ACCIÓN */}
-                  <Box sx={{ px: 3, minWidth: '160px', textAlign: 'center' }}>
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    spacing={1}
+                    sx={{ flex: 1, justifyContent: 'flex-start' }}
+                  >
+                    <Avatar src={match.awayTeamFlag} sx={{ width: 28, height: 28 }} />
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 'bold', fontSize: isMobile ? '0.75rem' : '0.9rem' }}
+                    >
+                      {match.awayTeam}
+                    </Typography>
+                  </Stack>
+                </Stack>
+
+                <Box
+                  sx={{
+                    px: 3,
+                    py: 2,
+                    minWidth: '160px',
+                    textAlign: 'center',
+                    width: isMobile ? '100%' : 'auto',
+                  }}
+                >
+                  {isSuccess ? (
+                    <Typography
+                      variant="caption"
+                      color="success.light"
+                      sx={{ fontStyle: 'italic' }}
+                    >
+                      {currentFunnyMessage}
+                    </Typography>
+                  ) : (
                     <AppButton
                       variant="primary"
                       size="small"
-                      disabled={hasStarted} // Bloqueado si ya empezó
-                      sx={{ borderRadius: '8px', opacity: hasStarted ? 0.5 : 1 }}
+                      disabled={
+                        isLoading || isLocked || (buttonLabel !== 'EDITAR' && isInputInvalid)
+                      }
+                      onClick={() => handleAction(match.id, buttonLabel)}
+                      sx={{
+                        borderRadius: '8px',
+                        minWidth: '120px',
+                        width: isMobile ? '100%' : 'auto',
+                        opacity: isLocked ? 0.2 : 1,
+                      }}
                     >
-                      {match.isUserPredicted ? 'ACTUALIZAR' : 'GUARDAR'}
+                      {isLocked ? (
+                        'CERRADO'
+                      ) : isLoading ? (
+                        <CircularProgress size={20} color="inherit" />
+                      ) : (
+                        buttonLabel
+                      )}
                     </AppButton>
-                    {hasStarted && (
-                      <Typography
-                        variant="caption"
-                        color="error"
-                        sx={{ display: 'block', mt: 0.5, fontSize: '10px' }}
-                      >
-                        Mercado cerrado
-                      </Typography>
-                    )}
-                  </Box>
-                </Stack>
-              </AppCard>
-            );
-          })
-        ) : (
-          <Box sx={{ textAlign: 'center', py: 10 }}>
-            <Typography color="text.secondary">
-              No hay predicciones pendientes para mostrar.
-            </Typography>
-          </Box>
-        )}
+                  )}
+                </Box>
+              </Stack>
+            </AppCard>
+          );
+        })}
       </Stack>
     </Box>
   );

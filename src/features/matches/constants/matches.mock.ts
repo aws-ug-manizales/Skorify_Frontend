@@ -1,3 +1,4 @@
+// Definimos la interfaz para que el linter sepa exactamente qué es un "match"
 export interface Match {
   id: string;
   homeTeam: string;
@@ -8,61 +9,52 @@ export interface Match {
   isUserPredicted: boolean;
 }
 
-// Función rápida para generar fechas dinámicas
-const getDate = (offsetDays: number, hours: number) => {
-  const date = new Date();
-  date.setDate(date.getDate() + offsetDays);
-  date.setHours(hours, 0, 0, 0);
-  return date.toISOString();
-};
-
 export const MOCK_MATCHES: Match[] = [
-  // --- PARTIDOS DE AYER ---
   {
-    id: '1',
-    homeTeam: 'Francia',
-    homeTeamFlag: 'https://flagcdn.com/w80/fr.png',
-    awayTeam: 'Inglaterra',
-    awayTeamFlag: 'https://flagcdn.com/w80/gb.png',
-    date: getDate(-1, 15), // Ayer a las 3:00 PM
-    isUserPredicted: true,
-  },
-  // --- PARTIDOS DE HOY ---
-  {
-    id: '2',
-    homeTeam: 'Colombia',
-    homeTeamFlag: 'https://flagcdn.com/w80/co.png',
-    awayTeam: 'Brasil',
-    awayTeamFlag: 'https://flagcdn.com/w80/br.png',
-    date: getDate(0, 18), // Hoy a las 6:00 PM
+    id: 'test-5-min',
+    homeTeam: 'Brasil',
+    homeTeamFlag: 'https://flagcdn.com/br.svg',
+    awayTeam: 'Croacia',
+    awayTeamFlag: 'https://flagcdn.com/hr.svg',
+    // 5 minutos para bloqueo
+    date: new Date(Date.now() + 300000).toISOString(),
     isUserPredicted: false,
   },
   {
-    id: '3',
+    id: 'inaugural-2026',
+    homeTeam: 'México',
+    homeTeamFlag: 'https://flagcdn.com/mx.svg',
+    awayTeam: 'Sudáfrica',
+    awayTeamFlag: 'https://flagcdn.com/za.svg',
+    // 11 minutos para editar
+    date: new Date(Date.now() + 660000).toISOString(),
+    isUserPredicted: false,
+  },
+  {
+    id: 'usa-opener',
+    homeTeam: 'Estados Unidos',
+    homeTeamFlag: 'https://flagcdn.com/us.svg',
+    awayTeam: 'Por definir',
+    awayTeamFlag: 'https://flagcdn.com/w320/un.png',
+    date: '2026-06-12T21:00:00Z',
+    isUserPredicted: false,
+  },
+  {
+    id: 'can-opener',
+    homeTeam: 'Canadá',
+    homeTeamFlag: 'https://flagcdn.com/ca.svg',
+    awayTeam: 'Por definir',
+    awayTeamFlag: 'https://flagcdn.com/w320/un.png',
+    date: '2026-06-13T18:00:00Z',
+    isUserPredicted: false,
+  },
+  {
+    id: 'arg-classic',
     homeTeam: 'Argentina',
-    homeTeamFlag: 'https://flagcdn.com/w80/ar.png',
-    awayTeam: 'Uruguay',
-    awayTeamFlag: 'https://flagcdn.com/w80/uy.png',
-    date: getDate(0, 20), // Hoy a las 8:00 PM
-    isUserPredicted: false,
-  },
-  // --- PARTIDOS DE MAÑANA ---
-  {
-    id: '4',
-    homeTeam: 'España',
-    homeTeamFlag: 'https://flagcdn.com/w80/es.png',
-    awayTeam: 'Alemania',
-    awayTeamFlag: 'https://flagcdn.com/w80/de.png',
-    date: getDate(1, 14), // Mañana a las 2:00 PM
-    isUserPredicted: false,
-  },
-  {
-    id: '5',
-    homeTeam: 'Portugal',
-    homeTeamFlag: 'https://flagcdn.com/w80/pt.png',
-    awayTeam: 'Italia',
-    awayTeamFlag: 'https://flagcdn.com/w80/it.png',
-    date: getDate(1, 21), // Mañana a las 9:00 PM
+    homeTeamFlag: 'https://flagcdn.com/ar.svg',
+    awayTeam: 'Francia',
+    awayTeamFlag: 'https://flagcdn.com/fr.svg',
+    date: '2026-06-20T19:00:00Z',
     isUserPredicted: false,
   },
 ];
