@@ -16,6 +16,7 @@ import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import LinkIcon from '@mui/icons-material/Link';
 import ComingSoonPage from '@shared/components/organisms/ComingSoonPage';
 import { tokens } from '@lib/theme/theme';
+import { env } from '@lib/env';
 import type { Group } from '@features/groups/types';
 
 interface GroupDetailProps {
@@ -27,7 +28,7 @@ interface GroupDetailProps {
   memberCountLabel: string;
 }
 
-const GroupDetail = ({ group, inviteCodeLabel, copiedLabel }: GroupDetailProps) => {
+const GroupDetail = ({ group, inviteCodeLabel }: GroupDetailProps) => {
   const t = useTranslations('groups');
   const [successOpen, setSuccessOpen] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -41,10 +42,7 @@ const GroupDetail = ({ group, inviteCodeLabel, copiedLabel }: GroupDetailProps) 
   const [codeCopied, setCodeCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
 
-  const inviteLink =
-    typeof window !== 'undefined'
-      ? `${window.location.origin}/join/${group.inviteCode}`
-      : `/join/${group.inviteCode}`;
+  const inviteLink = `${env.NEXT_PUBLIC_APP_URL}/join/${group.inviteCode}`;
 
   const handleCopyCode = async () => {
     await navigator.clipboard.writeText(group.inviteCode);
@@ -58,10 +56,7 @@ const GroupDetail = ({ group, inviteCodeLabel, copiedLabel }: GroupDetailProps) 
     setTimeout(() => setLinkCopied(false), 2000);
   };
 
-  const handleWhatsApp = () => {
-    const text = encodeURIComponent(t('whatsappShareText', { link: inviteLink }));
-    window.open(`https://wa.me/?text=${text}`, '_blank', 'noopener,noreferrer');
-  };
+  const whatsappHref = `https://wa.me/?text=${encodeURIComponent(t('whatsappShareText', { link: inviteLink }))}`;
 
   return (
     <Box sx={{ position: 'relative', minHeight: '100%' }}>
@@ -139,7 +134,7 @@ const GroupDetail = ({ group, inviteCodeLabel, copiedLabel }: GroupDetailProps) 
                   color: tokens.onSurface,
                 }}
               >
-                ¡Grupo Creado
+                {t('successTitle1')}
               </Typography>
               <Typography
                 sx={{
@@ -154,7 +149,7 @@ const GroupDetail = ({ group, inviteCodeLabel, copiedLabel }: GroupDetailProps) 
                   backgroundClip: 'text',
                 }}
               >
-                con éxito!
+                {t('successTitle2')}
               </Typography>
               <Typography
                 sx={{
@@ -164,7 +159,7 @@ const GroupDetail = ({ group, inviteCodeLabel, copiedLabel }: GroupDetailProps) 
                   lineHeight: 1.6,
                 }}
               >
-                Tu arena digital está lista para la acción.
+                {t('successSubtitle')}
               </Typography>
             </Box>
 
@@ -194,59 +189,46 @@ const GroupDetail = ({ group, inviteCodeLabel, copiedLabel }: GroupDetailProps) 
               </Typography>
 
               <Box
+                onClick={handleCopyCode}
                 sx={{
                   width: '100%',
-                  bgcolor: tokens.surfaceContainerHighest,
+                  height: { xs: '64px', sm: '70px' },
+                  bgcolor: codeCopied ? `${tokens.secondary}0D` : tokens.surfaceContainerHighest,
                   borderRadius: '10px',
-                  py: 1.75,
-                  textAlign: 'center',
+                  px: 2,
+                  display: 'grid',
+                  gridTemplateColumns: '32px 1fr 32px',
+                  alignItems: 'center',
+                  transition: 'all 250ms ease',
+                  cursor: 'pointer',
                 }}
               >
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {codeCopied && <CheckIcon sx={{ fontSize: '1.1rem', color: tokens.secondary }} />}
+                </Box>
                 <Typography
                   sx={{
-                    fontFamily: 'monospace',
-                    fontSize: { xs: '1.5rem', sm: '1.75rem' },
+                    fontFamily: codeCopied ? 'inherit' : 'monospace',
+                    fontSize: codeCopied ? '0.9375rem' : { xs: '1.5rem', sm: '1.75rem' },
                     fontWeight: 800,
-                    letterSpacing: '0.14em',
-                    color: tokens.onSurface,
+                    letterSpacing: codeCopied ? '0.05em' : '0.14em',
+                    color: codeCopied ? tokens.secondary : tokens.onSurface,
+                    textAlign: 'center',
+                    transition: 'color 250ms ease',
                   }}
                 >
-                  {group.inviteCode}
+                  {codeCopied ? t('inviteCodeCopied') : group.inviteCode}
                 </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {!codeCopied && (
+                    <ContentCopyIcon sx={{ fontSize: '1.1rem', color: tokens.onSurfaceVariant }} />
+                  )}
+                </Box>
               </Box>
             </Box>
 
             {/* Actions */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, width: '100%' }}>
-              <Button
-                fullWidth
-                startIcon={
-                  codeCopied ? (
-                    <CheckIcon sx={{ fontSize: '1rem !important', color: tokens.secondary }} />
-                  ) : (
-                    <ContentCopyIcon sx={{ fontSize: '1rem !important' }} />
-                  )
-                }
-                onClick={handleCopyCode}
-                sx={{
-                  justifyContent: 'flex-start',
-                  px: 2,
-                  py: 1.25,
-                  borderRadius: '10px',
-                  color: codeCopied ? tokens.secondary : tokens.onSurface,
-                  bgcolor: codeCopied ? `${tokens.secondary}0D` : tokens.surfaceContainerLow,
-                  fontSize: '0.875rem',
-                  fontWeight: 600,
-                  textTransform: 'none',
-                  transition: 'all 250ms ease',
-                  '&:hover': {
-                    bgcolor: codeCopied ? `${tokens.secondary}1A` : tokens.surfaceContainer,
-                  },
-                }}
-              >
-                {codeCopied ? copiedLabel : 'Copiar código'}
-              </Button>
-
               <Button
                 fullWidth
                 startIcon={
@@ -273,13 +255,16 @@ const GroupDetail = ({ group, inviteCodeLabel, copiedLabel }: GroupDetailProps) 
                   },
                 }}
               >
-                {linkCopied ? '¡Link copiado!' : 'Copiar link de invitación'}
+                {linkCopied ? t('linkCopied') : t('copyInviteLink')}
               </Button>
 
               <Button
                 fullWidth
+                component="a"
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
                 startIcon={<WhatsAppIcon sx={{ fontSize: '1rem !important', color: '#25D366' }} />}
-                onClick={handleWhatsApp}
                 sx={{
                   justifyContent: 'flex-start',
                   px: 2,
@@ -293,7 +278,7 @@ const GroupDetail = ({ group, inviteCodeLabel, copiedLabel }: GroupDetailProps) 
                   '&:hover': { bgcolor: '#25D3660D' },
                 }}
               >
-                Compartir por WhatsApp
+                {t('shareWhatsApp')}
               </Button>
             </Box>
           </Box>

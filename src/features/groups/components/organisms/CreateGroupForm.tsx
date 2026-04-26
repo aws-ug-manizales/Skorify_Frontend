@@ -17,15 +17,7 @@ import AppButton from '@shared/components/atoms/AppButton';
 import { tokens } from '@lib/theme/theme';
 import useCreateGroup from '../../hooks/useCreateGroup';
 import type { CreateGroupFormValues } from '../../types';
-
-const getInitials = (name: string) =>
-  name
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0].toUpperCase())
-    .join('');
+import { getInitials } from '@shared/utils/string';
 
 const CreateGroupForm = () => {
   const t = useTranslations('groups');

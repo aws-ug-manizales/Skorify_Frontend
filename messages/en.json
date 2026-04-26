@@ -113,7 +113,14 @@
     "inviteLinkLabel": "Invite Link",
     "memberCount": "{count} member(s)",
     "leagueTitle": "Skorify Global League",
-    "whatsappShareText": "Join my group on Skorify! {link}"
+    "whatsappShareText": "Join my group on Skorify! {link}",
+    "successTitle1": "Group Created",
+    "successTitle2": "Successfully!",
+    "successSubtitle": "Your digital arena is ready for action.",
+    "copyCode": "Copy code",
+    "copyInviteLink": "Copy invite link",
+    "linkCopied": "Link copied!",
+    "shareWhatsApp": "Share via WhatsApp"
   },
   "dashboard": {
     "title": "Control Panel",
