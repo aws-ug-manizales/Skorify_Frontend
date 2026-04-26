@@ -1,46 +1,51 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Box, Typography, Stack, Avatar, Tab, Tabs, IconButton } from '@mui/material';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { es } from 'date-fns/locale';
+import { Box, Typography, Stack, Avatar, TextField } from '@mui/material';
+import { useLocale, useTranslations } from 'next-intl';
 
 import AppCard from '../../molecules/AppCard';
 import AppButton from '../../atoms/AppButton';
 import { MOCK_MATCHES } from '@/features/matches/constants/matches.mock';
 
+// Simulamos el import de las opciones de fecha de tu compañero
+// Cuando copies su archivo, descomenta la lógica real.
+const MOCK_WEEKS = [
+  { value: 'all', label: 'Todas las fechas' },
+  { value: '1', label: 'Semana 1 (11 jun - 17 jun)' },
+  { value: '2', label: 'Semana 2 (18 jun - 24 jun)' },
+];
+
 export const MatchList = () => {
-  // Estado para las pestañas (Ayer, Hoy, Mañana). Usamos false para cuando se activa el calendario.
-  const [selectedTab, setSelectedTab] = useState<number | false>(1);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
-  const [calendarOpen, setCalendarOpen] = useState(false);
+  const locale = useLocale();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedWeek, setSelectedWeek] = useState<string | number>('all');
   const [now, setNow] = useState(new Date());
 
-  // Timer para el tiempo restante
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // Lógica de filtrado por fecha
   const filteredMatches = useMemo(() => {
-    let targetDate = new Date();
-
-    if (selectedTab === 0) targetDate.setDate(targetDate.getDate() - 1);
-    else if (selectedTab === 2) targetDate.setDate(targetDate.getDate() + 1);
-    else if (selectedTab === false && selectedDate) targetDate = selectedDate;
-
     return MOCK_MATCHES.filter((match) => {
       const matchDate = new Date(match.date);
-      return matchDate.toDateString() === targetDate.toDateString();
+
+      // 1. FILTRO: Solo partidos que NO han terminado (posteriores a "ahora")
+      const isFuture = matchDate > now;
+
+      // 2. FILTRO: Buscador por equipo
+      const matchesSearch =
+        match.homeTeam.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        match.awayTeam.toLowerCase().includes(searchTerm.toLowerCase());
+
+      return isFuture && matchesSearch;
     });
-  }, [selectedTab, selectedDate]);
+  }, [searchTerm, now]);
 
   const getRemainingTime = (matchDate: string) => {
     const diff = new Date(matchDate).getTime() - now.getTime();
-    if (diff <= 0) return 'Cerrado';
+    if (diff <= 0) return 'EMPEZADO';
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
@@ -48,59 +53,25 @@ export const MatchList = () => {
   };
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
-      <Box sx={{ width: '100%', maxWidth: '1000px', mx: 'auto' }}>
-        {/* 📅 HEADER: FILTROS Y CALENDARIO */}
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="center"
-          spacing={1}
-          sx={{ mb: 4 }}
-        >
-          <Tabs
-            value={selectedTab}
-            onChange={(_, newValue) => setSelectedTab(newValue)}
-            sx={{
-              '& .MuiTabs-indicator': { bgcolor: 'primary.main' },
-              '& .MuiTab-root': { color: 'text.secondary', fontWeight: 'bold', minWidth: 80 },
-              '& .Mui-selected': { color: 'primary.main' },
-            }}
-          >
-            <Tab label="Ayer" />
-            <Tab label="Hoy" />
-            <Tab label="Mañana" />
-          </Tabs>
+    <Box sx={{ width: '100%', maxWidth: '1000px', mx: 'auto', p: 2 }}>
+      {/* 📅 TOOLBAR SIMPLIFICADO (Basado en lo que viste de tu compañero) */}
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 4 }}>
+        <TextField
+          placeholder="Buscar equipo..."
+          variant="outlined"
+          size="small"
+          sx={{ flex: 2, bgcolor: 'rgba(255,255,255,0.05)' }}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        {/* Aquí puedes poner un Select simple para las semanas del mundial */}
+      </Stack>
 
-          <Box>
-            <IconButton
-              onClick={() => setCalendarOpen(true)}
-              sx={{
-                bgcolor: selectedTab === false ? 'primary.main' : 'rgba(255,255,255,0.05)',
-                color: selectedTab === false ? 'white' : 'primary.main',
-                '&:hover': { bgcolor: 'rgba(147, 51, 234, 0.2)' },
-              }}
-            >
-              <CalendarMonthIcon fontSize="small" />
-            </IconButton>
+      <Stack spacing={2}>
+        {filteredMatches.length > 0 ? (
+          filteredMatches.map((match) => {
+            const hasStarted = new Date(match.date) <= now;
 
-            <DatePicker
-              open={calendarOpen}
-              onClose={() => setCalendarOpen(false)}
-              value={selectedDate}
-              onChange={(newDate) => {
-                setSelectedDate(newDate);
-                setSelectedTab(false); // Desactiva las pestañas fijas para mostrar que manda el calendario
-              }}
-              slotProps={{ textField: { sx: { display: 'none' } } }}
-            />
-          </Box>
-        </Stack>
-
-        {/* 🏟️ LISTA DE PARTIDOS (ESTILO HORIZONTAL CARD) */}
-        <Stack spacing={2}>
-          {filteredMatches.length > 0 ? (
-            filteredMatches.map((match) => (
+            return (
               <AppCard
                 key={match.id}
                 sx={{ p: 0, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)' }}
@@ -108,15 +79,15 @@ export const MatchList = () => {
                 <Stack
                   direction={{ xs: 'column', md: 'row' }}
                   alignItems="center"
-                  sx={{ minHeight: '90px' }}
+                  sx={{ minHeight: '100px' }}
                 >
-                  {/* 1. TIEMPO RESTANTE (Izquierda) */}
-                  <Box sx={{ px: 3, textAlign: 'center', minWidth: '150px', py: { xs: 2, md: 0 } }}>
+                  {/* 1. CONTADOR */}
+                  <Box sx={{ px: 3, textAlign: 'center', minWidth: '140px' }}>
                     <Typography
                       variant="caption"
-                      sx={{ color: 'text.disabled', fontWeight: 'bold', display: 'block', mb: 0.5 }}
+                      sx={{ color: 'text.disabled', fontWeight: 'bold' }}
                     >
-                      {match.date === 'Cerrado' ? 'FINALIZADO' : 'CIERRA EN'}
+                      CIERRA EN
                     </Typography>
                     <Typography
                       variant="body2"
@@ -126,7 +97,6 @@ export const MatchList = () => {
                     </Typography>
                   </Box>
 
-                  {/* DIVIDER VERTICAL */}
                   <Box
                     sx={{
                       display: { xs: 'none', md: 'block' },
@@ -136,57 +106,72 @@ export const MatchList = () => {
                     }}
                   />
 
-                  {/* 2. EQUIPOS Y VS (Centro) */}
+                  {/* 2. INPUTS DE PREDICCIÓN Y EQUIPOS */}
                   <Stack
                     direction="row"
-                    spacing={4}
+                    spacing={2}
                     alignItems="center"
                     justifyContent="center"
-                    sx={{ flex: 1, py: 2 }}
+                    sx={{ flex: 1, py: 2, px: 2 }}
                   >
+                    {/* Local */}
                     <Stack
                       direction="row"
                       alignItems="center"
-                      spacing={2}
-                      sx={{ width: '40%', justifyContent: 'flex-end' }}
+                      spacing={1}
+                      sx={{ flex: 1, justifyContent: 'flex-end' }}
                     >
-                      <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                      <Typography variant="body2" sx={{ fontWeight: 'bold', textAlign: 'right' }}>
                         {match.homeTeam}
                       </Typography>
-                      <Avatar
-                        src={match.homeTeamFlag}
-                        sx={{ width: 40, height: 40, boxShadow: '0 2px 8px rgba(0,0,0,0.4)' }}
+                      <Avatar src={match.homeTeamFlag} sx={{ width: 32, height: 32 }} />
+                    </Stack>
+
+                    {/* INPUTS NUMÉRICOS */}
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <TextField
+                        size="small"
+                        disabled={hasStarted}
+                        inputProps={{
+                          style: {
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            width: '35px',
+                            padding: '5px',
+                          },
+                        }}
+                        sx={{ bgcolor: 'rgba(255,255,255,0.1)', borderRadius: '4px' }}
+                      />
+                      <Typography sx={{ opacity: 0.5 }}>-</Typography>
+                      <TextField
+                        size="small"
+                        disabled={hasStarted}
+                        inputProps={{
+                          style: {
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            width: '35px',
+                            padding: '5px',
+                          },
+                        }}
+                        sx={{ bgcolor: 'rgba(255,255,255,0.1)', borderRadius: '4px' }}
                       />
                     </Stack>
 
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        fontWeight: '900',
-                        color: 'rgba(255,255,255,0.2)',
-                        fontStyle: 'italic',
-                      }}
-                    >
-                      VS
-                    </Typography>
-
+                    {/* Visitante */}
                     <Stack
                       direction="row"
                       alignItems="center"
-                      spacing={2}
-                      sx={{ width: '40%', justifyContent: 'flex-start' }}
+                      spacing={1}
+                      sx={{ flex: 1, justifyContent: 'flex-start' }}
                     >
-                      <Avatar
-                        src={match.awayTeamFlag}
-                        sx={{ width: 40, height: 40, boxShadow: '0 2px 8px rgba(0,0,0,0.4)' }}
-                      />
-                      <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                      <Avatar src={match.awayTeamFlag} sx={{ width: 32, height: 32 }} />
+                      <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
                         {match.awayTeam}
                       </Typography>
                     </Stack>
                   </Stack>
 
-                  {/* DIVIDER VERTICAL */}
                   <Box
                     sx={{
                       display: { xs: 'none', md: 'block' },
@@ -196,53 +181,38 @@ export const MatchList = () => {
                     }}
                   />
 
-                  {/* 3. ESTADO Y BOTÓN (Derecha) */}
-                  <Stack
-                    direction="row"
-                    alignItems="center"
-                    spacing={2}
-                    sx={{
-                      px: 3,
-                      py: { xs: 2, md: 0 },
-                      minWidth: '220px',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        border: '1px solid',
-                        borderColor: match.isUserPredicted ? 'success.main' : 'warning.main',
-                        color: match.isUserPredicted ? 'success.main' : 'warning.main',
-                        px: 1.2,
-                        py: 0.3,
-                        borderRadius: '4px',
-                        fontSize: '9px',
-                        fontWeight: 'black',
-                      }}
-                    >
-                      {match.isUserPredicted ? 'PREDICHO' : 'PENDIENTE'}
-                    </Box>
-
+                  {/* 3. BOTÓN DE ACCIÓN */}
+                  <Box sx={{ px: 3, minWidth: '160px', textAlign: 'center' }}>
                     <AppButton
                       variant="primary"
                       size="small"
-                      sx={{ minWidth: '100px', borderRadius: '8px' }}
+                      disabled={hasStarted} // Bloqueado si ya empezó
+                      sx={{ borderRadius: '8px', opacity: hasStarted ? 0.5 : 1 }}
                     >
-                      {match.isUserPredicted ? 'EDITAR' : 'PREDECIR'}
+                      {match.isUserPredicted ? 'ACTUALIZAR' : 'GUARDAR'}
                     </AppButton>
-                  </Stack>
+                    {hasStarted && (
+                      <Typography
+                        variant="caption"
+                        color="error"
+                        sx={{ display: 'block', mt: 0.5, fontSize: '10px' }}
+                      >
+                        Mercado cerrado
+                      </Typography>
+                    )}
+                  </Box>
                 </Stack>
               </AppCard>
-            ))
-          ) : (
-            <Box sx={{ textAlign: 'center', py: 10 }}>
-              <Typography color="text.secondary">
-                No hay partidos programados para esta fecha.
-              </Typography>
-            </Box>
-          )}
-        </Stack>
-      </Box>
-    </LocalizationProvider>
+            );
+          })
+        ) : (
+          <Box sx={{ textAlign: 'center', py: 10 }}>
+            <Typography color="text.secondary">
+              No hay predicciones pendientes para mostrar.
+            </Typography>
+          </Box>
+        )}
+      </Stack>
+    </Box>
   );
 };
