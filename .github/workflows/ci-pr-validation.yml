@@ -5,5 +5,5 @@ on:
     branches: [feature/ci-vulnerability-scan]                                      
                                                                                     
 jobs:                                                                                                                                      
-  sca:                                                           
+  sca-scan:                                                           
     uses: aws-ug-manizales/Skorify_DevOps/.github/workflows/shared--sca-generic.yml@develop
