@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
@@ -24,11 +24,11 @@ const CreateGroupForm = () => {
   const router = useRouter();
   const { createGroup, isLoading, error } = useCreateGroup();
 
-  const { control, handleSubmit, watch } = useForm<CreateGroupFormValues>({
+  const { control, handleSubmit } = useForm<CreateGroupFormValues>({
     defaultValues: { name: '', description: '' },
   });
 
-  const nameValue = watch('name');
+  const nameValue = useWatch({ control, name: 'name' });
 
   const onSubmit = async (values: CreateGroupFormValues) => {
     const group = await createGroup({
