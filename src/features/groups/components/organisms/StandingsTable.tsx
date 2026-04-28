@@ -7,15 +7,8 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import LeaderboardOutlinedIcon from '@mui/icons-material/LeaderboardOutlined';
 import { useTranslations } from 'next-intl';
 import { tokens } from '@lib/theme/theme';
+import { getInitials } from '@shared/utils/string';
 import type { StandingRow } from '../../types';
-
-const getInitials = (name: string) =>
-  name
-    .split(' ')
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
 
 interface StandingsTableProps {
   standings: StandingRow[];

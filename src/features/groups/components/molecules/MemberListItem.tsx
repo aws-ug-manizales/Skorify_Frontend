@@ -6,6 +6,7 @@ import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
 import { useTranslations } from 'next-intl';
 import { tokens } from '@lib/theme/theme';
+import { getInitials } from '@shared/utils/string';
 import type { GroupMember } from '../../types';
 
 const AVATAR_PALETTE = [
@@ -23,14 +24,6 @@ const getAvatarBg = (name: string) => {
   }
   return AVATAR_PALETTE[Math.abs(hash) % AVATAR_PALETTE.length];
 };
-
-const getInitials = (name: string) =>
-  name
-    .split(' ')
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
 
 interface MemberListItemProps {
   member: GroupMember;
