@@ -172,5 +172,33 @@
     "title": "Off Side!",
     "description": "Looks like you've gone out of bounds. This page is not available.",
     "cta": "Back to home"
+  },
+  "users": {
+    "title": "Users",
+    "subtitle": "Participant management",
+    "search": "Search users...",
+    "total": "registered users",
+    "filterAll": "All",
+    "filterActive": "Active",
+    "filterSuspended": "Suspended",
+    "noUsers": "No users found",
+    "status": {
+      "active": "Active",
+      "suspended": "Suspended"
+    },
+    "predictions": "predictions",
+    "groups": "groups",
+    "accuracy": "accuracy rate",
+    "suspendUser": "Suspend",
+    "activateUser": "Activate",
+    "table": {
+      "name": "Name",
+      "email": "Email",
+      "status": "Status",
+      "predictions": "Pred.",
+      "groups": "Groups",
+      "accuracy": "Accuracy",
+      "actions": "Actions"
+    }
   }
 }
