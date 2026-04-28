@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import LeaderboardOutlinedIcon from '@mui/icons-material/LeaderboardOutlined';
+import { useTranslations } from 'next-intl';
 import { tokens } from '@lib/theme/theme';
 import type { StandingRow } from '../../types';
 
@@ -16,17 +17,25 @@ const getInitials = (name: string) =>
     .join('')
     .toUpperCase();
 
-const HEADER_COLS_MOBILE = ['#', 'Jugador', 'Pts'];
-const HEADER_COLS_DESKTOP = ['#', 'Jugador', 'Pts', 'V', 'E', 'D'];
-
 interface StandingsTableProps {
   standings: StandingRow[];
   currentUserId: string;
 }
 
 const StandingsTable = ({ standings, currentUserId }: StandingsTableProps) => {
+  const t = useTranslations('groups');
   const isDesktop = useMediaQuery('(min-width:900px)');
-  const cols = isDesktop ? HEADER_COLS_DESKTOP : HEADER_COLS_MOBILE;
+
+  const headerColsMobile = ['#', t('colPlayer'), t('colPoints')];
+  const headerColsDesktop = [
+    '#',
+    t('colPlayer'),
+    t('colPoints'),
+    t('colWon'),
+    t('colDrawn'),
+    t('colLost'),
+  ];
+  const cols = isDesktop ? headerColsDesktop : headerColsMobile;
   const gridTemplate = isDesktop ? '32px 1fr 52px 36px 36px 36px' : '32px 1fr 52px';
 
   return (
@@ -44,7 +53,7 @@ const StandingsTable = ({ standings, currentUserId }: StandingsTableProps) => {
           variant="h6"
           sx={{ color: tokens.onSurface, textTransform: 'uppercase', letterSpacing: '0.04em' }}
         >
-          Tabla de Posiciones
+          {t('standingsTitle')}
         </Typography>
       </Box>
 
@@ -58,7 +67,7 @@ const StandingsTable = ({ standings, currentUserId }: StandingsTableProps) => {
           pb: 1,
         }}
       >
-        {cols.map((col) => (
+        {cols.map((col, idx) => (
           <Typography
             key={col}
             variant="body2"
@@ -66,7 +75,7 @@ const StandingsTable = ({ standings, currentUserId }: StandingsTableProps) => {
               color: tokens.onSurfaceVariant,
               fontWeight: 600,
               fontSize: '0.68rem',
-              textAlign: col === 'Jugador' ? 'left' : 'center',
+              textAlign: idx === 1 ? 'left' : 'center',
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
             }}

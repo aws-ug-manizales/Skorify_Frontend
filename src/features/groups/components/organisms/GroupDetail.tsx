@@ -5,16 +5,17 @@ import Box from '@mui/material/Box';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import IconButton from '@mui/material/IconButton';
-import Skeleton from '@mui/material/Skeleton';
 import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { useTranslations } from 'next-intl';
 import { tokens } from '@lib/theme/theme';
 import AppButton from '@shared/components/atoms/AppButton';
 import { useAuthStore } from '@features/auth/store/useAuthStore';
 import { useGroupDetail } from '../../hooks/useGroupDetail';
+import GroupDetailSkeleton from './GroupDetailSkeleton';
 import GroupHeader from './GroupHeader';
 import MatchPredictionList from './MatchPredictionList';
 import MemberList from './MemberList';
@@ -22,47 +23,13 @@ import StandingsTable from './StandingsTable';
 
 const MOCK_CURRENT_USER_ID = 'mock-admin-id';
 
-const GroupDetailSkeleton = () => (
-  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-    <Skeleton
-      variant="rounded"
-      height={116}
-      sx={{ borderRadius: '16px', bgcolor: tokens.surfaceContainerHigh }}
-    />
-    <Box
-      sx={{
-        display: 'grid',
-        gridTemplateColumns: { xs: '1fr', md: '1fr 320px' },
-        gap: 3,
-        alignItems: 'start',
-      }}
-    >
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-        <Skeleton
-          variant="rounded"
-          height={280}
-          sx={{ borderRadius: '16px', bgcolor: tokens.surfaceContainerHigh }}
-        />
-        <Skeleton
-          variant="rounded"
-          height={220}
-          sx={{ borderRadius: '16px', bgcolor: tokens.surfaceContainerHigh }}
-        />
-      </Box>
-      <Skeleton
-        variant="rounded"
-        height={260}
-        sx={{ borderRadius: '16px', bgcolor: tokens.surfaceContainerHigh }}
-      />
-    </Box>
-  </Box>
-);
-
 interface GroupDetailProps {
   groupId: string;
 }
 
 const GroupDetail = ({ groupId }: GroupDetailProps) => {
+  const t = useTranslations('groups');
+  const tCommon = useTranslations('common');
   const { data, isLoading, error } = useGroupDetail(groupId);
   const session = useAuthStore((s) => s.session);
   const [shareOpen, setShareOpen] = useState(false);
@@ -116,10 +83,10 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
         }}
       >
         <Typography variant="h6" sx={{ color: tokens.onSurface }}>
-          {error ?? 'Grupo no encontrado'}
+          {error ? t(error as Parameters<typeof t>[0]) : t('notFound')}
         </Typography>
         <AppButton variant="secondary" onClick={() => window.location.reload()}>
-          Reintentar
+          {tCommon('retry')}
         </AppButton>
       </Box>
     );
@@ -171,7 +138,7 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
           }}
         >
           <Typography variant="h6" sx={{ color: tokens.onSurface, fontWeight: 700 }}>
-            Compartir grupo
+            {t('shareTitle')}
           </Typography>
           <IconButton
             size="small"
@@ -186,7 +153,7 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
             <Box>
               <Typography variant="body2" sx={{ color: tokens.onSurfaceVariant, mb: 1 }}>
-                Código de invitación
+                {t('inviteCodeLabel')}
               </Typography>
               <Box
                 sx={{
@@ -231,7 +198,7 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
               startIcon={<ContentCopyIcon />}
               onClick={handleCopyLink}
             >
-              Copiar enlace de invitación
+              {t('inviteLinkButton')}
             </AppButton>
           </Box>
         </DialogContent>
@@ -241,7 +208,7 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
         open={snackbarOpen}
         autoHideDuration={2500}
         onClose={() => setSnackbarOpen(false)}
-        message="Enlace copiado al portapapeles"
+        message={t('linkCopied')}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       />
     </Box>

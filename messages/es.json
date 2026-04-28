@@ -106,7 +106,16 @@
     "inviteCodeLabel": "Código de invitación",
     "inviteLinkButton": "Copiar enlace de invitación",
     "pendingMatchesSingular": "partido pendiente",
-    "pendingMatchesPlural": "partidos pendientes"
+    "pendingMatchesPlural": "partidos pendientes",
+    "notFound": "Grupo no encontrado",
+    "linkCopied": "Enlace copiado al portapapeles",
+    "loadError": "No se pudo cargar el grupo",
+    "memberCount": "{count} miembros",
+    "colPlayer": "Jugador",
+    "colPoints": "Pts",
+    "colWon": "V",
+    "colDrawn": "E",
+    "colLost": "D"
   },
   "dashboard": {
     "title": "Panel de Control",

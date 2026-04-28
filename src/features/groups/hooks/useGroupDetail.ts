@@ -76,7 +76,7 @@ export const useGroupDetail = (groupId: string) => {
         // TODO: replace with real API call: GET /groups/${groupId}
         setData({ ...MOCK_DATA, group: { ...MOCK_DATA.group, id: groupId } });
       } catch {
-        setError('No se pudo cargar el grupo');
+        setError('loadError');
       } finally {
         setIsLoading(false);
       }
