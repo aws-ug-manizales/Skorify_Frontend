@@ -1,3 +1,13 @@
+export interface CreateGroupPayload {
+  name: string;
+  description?: string;
+}
+
+export interface CreateGroupFormValues {
+  name: string;
+  description: string;
+}
+
 export interface Group {
   id: string;
   name: string;

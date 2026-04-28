@@ -1,6 +1,10 @@
 import GroupDetail from '@features/groups/components/organisms/GroupDetail';
 
-const GroupDetailPage = async ({ params }: { params: Promise<{ id: string }> }) => {
+interface GroupDetailPageProps {
+  params: Promise<{ id: string }>;
+}
+
+const GroupDetailPage = async ({ params }: GroupDetailPageProps) => {
   const { id } = await params;
   return <GroupDetail groupId={id} />;
 };
