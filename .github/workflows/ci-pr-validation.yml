@@ -1,0 +1,9 @@
+name: "CI - Validación de PR"                                                      
+                                                                                             
+on:
+  push:                                                                            
+    branches: [feature/ci-vulnerability-scan]                                      
+                                                                                    
+jobs:                                                                                                                                      
+  sca:                                                           
+    uses: aws-ug-manizales/Skorify_DevOps/.github/workflows/shared--sca-generic.yml@develop
