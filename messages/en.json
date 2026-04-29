@@ -42,9 +42,27 @@
   },
   "matches": {
     "title": "Matches",
+    "matchesCount": "matches",
+    "noMatches": "No matches to show",
+    "vs": "VS",
+    "addPrediction": "Add prediction",
+    "editPrediction": "Edit",
+    "predictionLabel": "Your prediction",
+    "teamFilter": "Team",
+    "teamFilterPlaceholder": "Search by team (name or code)",
+    "date": "Date",
+    "dateAll": "All",
+    "clearFilters": "Clear",
+    "filterAll": "All",
+    "filterUpcoming": "Upcoming",
+    "filterLive": "Live",
+    "filterFinished": "Finished",
     "upcoming": "Upcoming",
     "live": "Live",
-    "finished": "Finished"
+    "finished": "Finished",
+    "worldcup": "FIFA World Cup 2026",
+    "groupStage": "Group stage",
+    "roundOf16": "Round of 16"
   },
   "tournaments": {
     "title": "Tournaments",

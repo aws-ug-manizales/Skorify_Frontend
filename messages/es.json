@@ -42,9 +42,27 @@
   },
   "matches": {
     "title": "Partidos",
+    "matchesCount": "partidos",
+    "noMatches": "No hay partidos para mostrar",
+    "vs": "VS",
+    "addPrediction": "Agregar predicción",
+    "editPrediction": "Editar",
+    "predictionLabel": "Tu predicción",
+    "teamFilter": "Equipo",
+    "teamFilterPlaceholder": "Buscar por equipo (nombre o sigla)",
+    "date": "Fecha",
+    "dateAll": "Todas",
+    "clearFilters": "Limpiar",
+    "filterAll": "Todos",
+    "filterUpcoming": "Próximos",
+    "filterLive": "En vivo",
+    "filterFinished": "Finalizados",
     "upcoming": "Próximos",
     "live": "En vivo",
-    "finished": "Finalizados"
+    "finished": "Finalizados",
+    "worldcup": "Copa del Mundo FIFA 2026",
+    "groupStage": "Fase de grupos",
+    "roundOf16": "Octavos de final"
   },
   "tournaments": {
     "title": "Torneos",
