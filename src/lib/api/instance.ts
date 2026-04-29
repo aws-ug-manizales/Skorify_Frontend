@@ -1,8 +1,9 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import { env } from '@lib/env';
 import type { ApiError, ApiFailure, ApiResult, ApiSuccess } from './types';
 
 const apiInstance: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: env.NEXT_PUBLIC_API_URL,
   timeout: 15_000,
   headers: {
     'Content-Type': 'application/json',
@@ -20,6 +21,19 @@ apiInstance.interceptors.request.use(
     return config;
   },
   (error: AxiosError) => Promise.reject(error),
+);
+
+apiInstance.interceptors.response.use(
+  (response: AxiosResponse) => response,
+  (error: AxiosError) => {
+    if (error.response?.status === 401) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token');
+        window.location.href = '/';
+      }
+    }
+    return Promise.reject(error);
+  },
 );
 
 const toSuccess = <T>(response: AxiosResponse<T>): ApiSuccess<T> => ({

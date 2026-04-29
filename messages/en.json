@@ -89,9 +89,36 @@
   "groups": {
     "title": "Groups",
     "create": "Create group",
-    "join": "Join",
+    "join": {
+      "title": "Join Skorify",
+      "subtitle": "Enter the invitation code shared with you",
+      "contactAdmin": "Issues? Contact the group administrator",
+      "codeLabel": "Invitation code"
+    },
     "invite": "Invite friends",
-    "members": "Members"
+    "members": "Members",
+    "invitationCode": "Invitation code",
+    "enterInvitationCode": "Enter your invitation code",
+    "validateCode": "Validate code",
+    "validatingCode": "Validating code...",
+    "enterCodeToJoin": "Enter an invitation code to join a group",
+    "readyToJoin": "Ready to join this group",
+    "joiningGroup": "Joining group...",
+    "successfullyJoinedGroup": "You have successfully joined the group!",
+    "redirecting": "You will be redirected in a moment...",
+    "tryAgain": "Try again",
+    "codeRequired": "Invitation code is required",
+    "shareThisCode": "Share this code so others can join",
+    "shareLink": "Shareable link",
+    "copied": "Copied!",
+    "copy": "Copy",
+    "share": "Share",
+    "shareGroupInvitation": "Join my group on Skorify!",
+    "errors": {
+      "invalidCode": "The invitation code is not valid",
+      "validationFailed": "Error validating the code",
+      "joinFailed": "Error joining the group"
+    }
   },
   "dashboard": {
     "title": "Control Panel",

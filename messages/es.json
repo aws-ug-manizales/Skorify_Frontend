@@ -89,9 +89,36 @@
   "groups": {
     "title": "Grupos",
     "create": "Crear grupo",
-    "join": "Unirse",
+    "join": {
+      "title": "Únete a Skorify",
+      "subtitle": "Ingresa el código de invitación que compartieron contigo",
+      "contactAdmin": "¿Problemas? Contacta al administrador del grupo",
+      "codeLabel": "Código de invitación"
+    },
     "invite": "Invitar amigos",
-    "members": "Miembros"
+    "members": "Miembros",
+    "invitationCode": "Código de invitación",
+    "enterInvitationCode": "Ingresa el código de invitación",
+    "validateCode": "Validar código",
+    "validatingCode": "Validando código...",
+    "enterCodeToJoin": "Ingresa un código de invitación para unirte a un grupo",
+    "readyToJoin": "Listo para unirte a este grupo",
+    "joiningGroup": "Uniéndote al grupo...",
+    "successfullyJoinedGroup": "¡Te has unido al grupo exitosamente!",
+    "redirecting": "Serás redirigido en un momento...",
+    "tryAgain": "Intentar de nuevo",
+    "codeRequired": "El código es requerido",
+    "shareThisCode": "Comparte este código para que otros se unan",
+    "shareLink": "Link compartible",
+    "copied": "¡Copiado!",
+    "copy": "Copiar",
+    "share": "Compartir",
+    "shareGroupInvitation": "¡Únete a mi grupo en Skorify!",
+    "errors": {
+      "invalidCode": "El código de invitación no es válido",
+      "validationFailed": "Error al validar el código",
+      "joinFailed": "Error al unirse al grupo"
+    }
   },
   "dashboard": {
     "title": "Panel de Control",
