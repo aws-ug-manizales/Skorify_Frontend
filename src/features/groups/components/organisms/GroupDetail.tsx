@@ -1,39 +1,47 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import IconButton from '@mui/material/IconButton';
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import Snackbar from '@mui/material/Snackbar';
+import Typography from '@mui/material/Typography';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
-import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import LinkIcon from '@mui/icons-material/Link';
-import ComingSoonPage from '@shared/components/organisms/ComingSoonPage';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import { useTranslations } from 'next-intl';
 import { tokens } from '@lib/theme/theme';
 import { env } from '@lib/env';
-import type { Group } from '@features/groups/types';
+import AppButton from '@shared/components/atoms/AppButton';
+import { useAuthStore } from '@features/auth/store/useAuthStore';
+import { useGroupDetail } from '../../hooks/useGroupDetail';
+import GroupDetailSkeleton from './GroupDetailSkeleton';
+import GroupHeader from './GroupHeader';
+import MatchPredictionList from './MatchPredictionList';
+import MemberList from './MemberList';
+import StandingsTable from './StandingsTable';
+
+const MOCK_CURRENT_USER_ID = 'mock-admin-id';
 
 interface GroupDetailProps {
-  group: Group;
-  inviteCodeLabel: string;
-  inviteLinkLabel: string;
-  copyLabel: string;
-  copiedLabel: string;
-  memberCountLabel: string;
+  groupId: string;
 }
 
-const GroupDetail = ({ group, inviteCodeLabel }: GroupDetailProps) => {
+const GroupDetail = ({ groupId }: GroupDetailProps) => {
   const t = useTranslations('groups');
+  const tCommon = useTranslations('common');
+  const { data, isLoading, error } = useGroupDetail(groupId);
+  const session = useAuthStore((s) => s.session);
+  const [shareOpen, setShareOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(() => {
     if (typeof window === 'undefined') return false;
     const flag = sessionStorage.getItem('justCreatedGroup');
-    if (flag === group.id) {
+    if (flag === groupId) {
       sessionStorage.removeItem('justCreatedGroup');
       return true;
     }
@@ -41,27 +49,89 @@ const GroupDetail = ({ group, inviteCodeLabel }: GroupDetailProps) => {
   });
   const [codeCopied, setCodeCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
-  const inviteLink = `${env.NEXT_PUBLIC_APP_URL}/join/${group.inviteCode}`;
+  const currentUserId = session?.user.id ?? MOCK_CURRENT_USER_ID;
+  const isAdmin = data?.group.adminId === currentUserId;
 
   const handleCopyCode = async () => {
-    await navigator.clipboard.writeText(group.inviteCode);
+    if (!data) return;
+    await navigator.clipboard.writeText(data.group.inviteCode);
     setCodeCopied(true);
     setTimeout(() => setCodeCopied(false), 2000);
   };
 
   const handleCopyLink = async () => {
-    await navigator.clipboard.writeText(inviteLink);
+    if (!data) return;
+    const link = `${env.NEXT_PUBLIC_APP_URL}/join/${data.group.inviteCode}`;
+    await navigator.clipboard.writeText(link);
     setLinkCopied(true);
     setTimeout(() => setLinkCopied(false), 2000);
   };
 
+  const handleCopyLinkForShare = async () => {
+    if (!data) return;
+    const link = `${env.NEXT_PUBLIC_APP_URL}/join/${data.group.inviteCode}`;
+    await navigator.clipboard.writeText(link);
+    setSnackbarOpen(true);
+  };
+
+  if (isLoading) {
+    return (
+      <Box sx={{ p: { xs: 2, md: 3 } }}>
+        <GroupDetailSkeleton />
+      </Box>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <Box
+        sx={{
+          p: { xs: 2, md: 3 },
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 2,
+          pt: 10,
+        }}
+      >
+        <Typography variant="h6" sx={{ color: tokens.onSurface }}>
+          {error ? t(error as Parameters<typeof t>[0]) : t('notFound')}
+        </Typography>
+        <AppButton variant="secondary" onClick={() => window.location.reload()}>
+          {tCommon('retry')}
+        </AppButton>
+      </Box>
+    );
+  }
+
+  const inviteLink = `${env.NEXT_PUBLIC_APP_URL}/join/${data.group.inviteCode}`;
   const whatsappHref = `https://wa.me/?text=${encodeURIComponent(t('whatsappShareText', { link: inviteLink }))}`;
 
   return (
-    <Box sx={{ position: 'relative', minHeight: '100%' }}>
-      <ComingSoonPage title={group.name} />
+    <Box sx={{ p: { xs: 2, md: 3 } }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <GroupHeader group={data.group} isAdmin={isAdmin} onShare={() => setShareOpen(true)} />
 
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', md: '1fr 320px' },
+            gap: 3,
+            alignItems: 'start',
+          }}
+        >
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <StandingsTable standings={data.standings} currentUserId={currentUserId} />
+            <MatchPredictionList matches={data.pendingMatches} />
+          </Box>
+
+          <MemberList members={data.members} currentUserId={currentUserId} />
+        </Box>
+      </Box>
+
+      {/* Success dialog — shown once after group creation */}
       <Dialog
         open={successOpen}
         onClose={() => setSuccessOpen(false)}
@@ -82,7 +152,6 @@ const GroupDetail = ({ group, inviteCodeLabel }: GroupDetailProps) => {
       >
         <DialogContent sx={{ p: 3 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2.5 }}>
-            {/* Close */}
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
               <IconButton
                 size="small"
@@ -98,7 +167,6 @@ const GroupDetail = ({ group, inviteCodeLabel }: GroupDetailProps) => {
               </IconButton>
             </Box>
 
-            {/* Trophy */}
             <Box
               sx={{
                 width: 72,
@@ -122,7 +190,6 @@ const GroupDetail = ({ group, inviteCodeLabel }: GroupDetailProps) => {
               />
             </Box>
 
-            {/* Title */}
             <Box sx={{ textAlign: 'center' }}>
               <Typography
                 sx={{
@@ -163,7 +230,7 @@ const GroupDetail = ({ group, inviteCodeLabel }: GroupDetailProps) => {
               </Typography>
             </Box>
 
-            {/* Code card */}
+            {/* Invite code card */}
             <Box
               sx={{
                 width: '100%',
@@ -185,7 +252,7 @@ const GroupDetail = ({ group, inviteCodeLabel }: GroupDetailProps) => {
                   textTransform: 'uppercase',
                 }}
               >
-                {inviteCodeLabel}
+                {t('inviteCodeLabel')}
               </Typography>
 
               <Box
@@ -217,7 +284,7 @@ const GroupDetail = ({ group, inviteCodeLabel }: GroupDetailProps) => {
                     transition: 'color 250ms ease',
                   }}
                 >
-                  {codeCopied ? t('inviteCodeCopied') : group.inviteCode}
+                  {codeCopied ? t('inviteCodeCopied') : data.group.inviteCode}
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {!codeCopied && (
@@ -227,7 +294,7 @@ const GroupDetail = ({ group, inviteCodeLabel }: GroupDetailProps) => {
               </Box>
             </Box>
 
-            {/* Actions */}
+            {/* Share actions */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, width: '100%' }}>
               <Button
                 fullWidth
@@ -284,6 +351,106 @@ const GroupDetail = ({ group, inviteCodeLabel }: GroupDetailProps) => {
           </Box>
         </DialogContent>
       </Dialog>
+
+      {/* Share dialog — visible only to admin */}
+      <Dialog
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        slotProps={{
+          paper: {
+            sx: {
+              bgcolor: tokens.surfaceContainerHigh,
+              borderRadius: '16px',
+              p: 1,
+              minWidth: { xs: '88vw', sm: 400 },
+            },
+          },
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            px: 2,
+            pt: 2,
+            pb: 1,
+          }}
+        >
+          <Typography variant="h6" sx={{ color: tokens.onSurface, fontWeight: 700 }}>
+            {t('shareTitle')}
+          </Typography>
+          <IconButton
+            size="small"
+            onClick={() => setShareOpen(false)}
+            sx={{ color: tokens.onSurfaceVariant }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Box>
+
+        <DialogContent sx={{ pt: 1 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+            <Box>
+              <Typography variant="body2" sx={{ color: tokens.onSurfaceVariant, mb: 1 }}>
+                {t('inviteCodeLabel')}
+              </Typography>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  bgcolor: tokens.surfaceContainerLowest,
+                  borderRadius: '8px',
+                  px: 2,
+                  py: 1.5,
+                }}
+              >
+                <Typography
+                  sx={{
+                    flex: 1,
+                    color: tokens.primary,
+                    fontWeight: 700,
+                    letterSpacing: '0.2em',
+                    fontFamily: 'monospace',
+                    fontSize: '1.25rem',
+                  }}
+                >
+                  {data.group.inviteCode}
+                </Typography>
+                <IconButton
+                  size="small"
+                  onClick={handleCopyCode}
+                  sx={{ color: codeCopied ? tokens.success : tokens.onSurfaceVariant }}
+                >
+                  {codeCopied ? (
+                    <CheckIcon fontSize="small" />
+                  ) : (
+                    <ContentCopyIcon fontSize="small" />
+                  )}
+                </IconButton>
+              </Box>
+            </Box>
+
+            <AppButton
+              variant="primary"
+              fullWidth
+              startIcon={<ContentCopyIcon />}
+              onClick={handleCopyLinkForShare}
+            >
+              {t('inviteLinkButton')}
+            </AppButton>
+          </Box>
+        </DialogContent>
+      </Dialog>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={2500}
+        onClose={() => setSnackbarOpen(false)}
+        message={t('linkCopied')}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      />
     </Box>
   );
 };
