@@ -1,3 +1,15 @@
+/**
+ * Barrel Export para types de groups
+ */
+
+export type {
+  GroupInvitation,
+  JoinGroupRequest,
+  JoinGroupResponse,
+  ValidateCodeResponse,
+  GroupInvitationError,
+} from './invitation.types';
+
 export interface CreateGroupPayload {
   name: string;
   description?: string;

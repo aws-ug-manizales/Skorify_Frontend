@@ -60,9 +60,27 @@
   },
   "matches": {
     "title": "Partidos",
+    "matchesCount": "partidos",
+    "noMatches": "No hay partidos para mostrar",
+    "vs": "VS",
+    "addPrediction": "Agregar predicción",
+    "editPrediction": "Editar",
+    "predictionLabel": "Tu predicción",
+    "teamFilter": "Equipo",
+    "teamFilterPlaceholder": "Buscar por equipo (nombre o sigla)",
+    "date": "Fecha",
+    "dateAll": "Todas",
+    "clearFilters": "Limpiar",
+    "filterAll": "Todos",
+    "filterUpcoming": "Próximos",
+    "filterLive": "En vivo",
+    "filterFinished": "Finalizados",
     "upcoming": "Próximos",
     "live": "En vivo",
-    "finished": "Finalizados"
+    "finished": "Finalizados",
+    "worldcup": "Copa del Mundo FIFA 2026",
+    "groupStage": "Fase de grupos",
+    "roundOf16": "Octavos de final"
   },
   "tournaments": {
     "title": "Torneos",
@@ -90,7 +108,12 @@
     "title": "Grupos",
     "subtitle": "Compite con tus amigos",
     "create": "Crear grupo",
-    "join": "Unirse",
+    "join": {
+      "title": "Únete a Skorify",
+      "subtitle": "Ingresa el código de invitación que compartieron contigo",
+      "contactAdmin": "¿Problemas? Contacta al administrador del grupo",
+      "codeLabel": "Código de invitación"
+    },
     "invite": "Invitar amigos",
     "members": "Miembros",
     "emptyState": "Aún no tienes grupos. ¡Crea el primero!",
@@ -141,7 +164,29 @@
     "colPoints": "Pts",
     "colWon": "V",
     "colDrawn": "E",
-    "colLost": "D"
+    "colLost": "D",
+    "invitationCode": "Código de invitación",
+    "enterInvitationCode": "Ingresa el código de invitación",
+    "validateCode": "Validar código",
+    "validatingCode": "Validando código...",
+    "enterCodeToJoin": "Ingresa un código de invitación para unirte a un grupo",
+    "readyToJoin": "Listo para unirte a este grupo",
+    "joiningGroup": "Uniéndote al grupo...",
+    "successfullyJoinedGroup": "¡Te has unido al grupo exitosamente!",
+    "redirecting": "Serás redirigido en un momento...",
+    "tryAgain": "Intentar de nuevo",
+    "codeRequired": "El código es requerido",
+    "shareThisCode": "Comparte este código para que otros se unan",
+    "shareLink": "Link compartible",
+    "copied": "¡Copiado!",
+    "copy": "Copiar",
+    "share": "Compartir",
+    "shareGroupInvitation": "¡Únete a mi grupo en Skorify!",
+    "errors": {
+      "invalidCode": "El código de invitación no es válido",
+      "validationFailed": "Error al validar el código",
+      "joinFailed": "Error al unirse al grupo"
+    }
   },
   "dashboard": {
     "title": "Panel de Control",
