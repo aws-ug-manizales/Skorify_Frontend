@@ -5,5 +5,8 @@ on:
     branches: [feature/ci-vulnerability-scan]                                      
                                                                                     
 jobs:                                                                                                                                      
+  lint:
+    uses: aws-ug-manizales/Skorify_DevOps/.github/workflows/shared--lint-frontend.yml@develop
+
   sca:                                                           
     uses: aws-ug-manizales/Skorify_DevOps/.github/workflows/shared--sca-generic.yml@develop

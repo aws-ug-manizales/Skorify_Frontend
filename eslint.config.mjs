@@ -13,8 +13,10 @@ const eslintConfig = defineConfig([
   ]),
   {
     rules: {
+      'no-console': 'error',
       'func-style': ['error', 'expression'],
       'prefer-arrow-callback': 'error',
+      'eqeqeq': 'error'
     },
   },
 ]);
