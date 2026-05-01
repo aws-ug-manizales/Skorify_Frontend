@@ -2,25 +2,25 @@
 
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { z } from 'zod';
-import type { AuthActionResult, AuthSession, CredentialsPayload, StoredUser } from '../types/auth';
+import { env } from '@lib/env';
+import { loginSchema as credentialsSchema, registerSchema } from '../lib/schemas';
+import type {
+  AuthActionResult,
+  AuthSession,
+  CredentialsPayload,
+  RegisterPayload,
+  StoredUser,
+} from '../types/auth';
 
 const EMAIL_CONFIRMATION_REQUIRED = false;
-
-const credentialsSchema = z.object({
-  email: z.string().trim().email('Correo electrónico inválido'),
-  password: z
-    .string()
-    .min(8, 'La contraseña debe tener al menos 8 caracteres')
-    .max(72, 'La contraseña es demasiado larga'),
-});
+const isMockMode = env.NEXT_PUBLIC_AUTH_MODE === 'mock';
 
 type AuthState = {
   hydrated: boolean;
   session: AuthSession | null;
   users: StoredUser[];
   setHydrated: (value: boolean) => void;
-  registerWithEmail: (payload: CredentialsPayload) => AuthActionResult;
+  registerWithEmail: (payload: RegisterPayload) => AuthActionResult;
   loginWithEmail: (payload: CredentialsPayload) => AuthActionResult;
   loginWithGoogle: () => AuthActionResult;
   logout: () => void;
@@ -45,6 +45,25 @@ const persistToken = (token: string | null) => {
   }
 };
 
+const buildUser = (
+  email: string,
+  provider: StoredUser['provider'],
+  password?: string,
+): StoredUser => ({
+  id: createToken(),
+  email,
+  displayName: email.split('@')[0],
+  provider,
+  emailVerified: !EMAIL_CONFIRMATION_REQUIRED,
+  password,
+});
+
+const buildSession = (user: StoredUser): AuthSession => ({
+  token: createToken(),
+  user,
+  createdAt: new Date().toISOString(),
+});
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -52,17 +71,19 @@ export const useAuthStore = create<AuthState>()(
       session: null,
       users: [],
       setHydrated: (value) => set({ hydrated: value }),
+
       registerWithEmail: (payload) => {
-        const parsed = credentialsSchema.safeParse(payload);
+        const parsed = registerSchema.safeParse(payload);
 
         if (!parsed.success) {
           const fieldErrors = parsed.error.flatten().fieldErrors;
           return {
             ok: false,
-            message: 'Corrige los errores del formulario',
+            messageKey: 'auth.errors.formInvalid',
             fieldErrors: {
               email: fieldErrors.email?.[0],
               password: fieldErrors.password?.[0],
+              nickname: fieldErrors.nickname?.[0],
             },
           };
         }
@@ -76,40 +97,37 @@ export const useAuthStore = create<AuthState>()(
         if (duplicatedEmail) {
           return {
             ok: false,
-            message: 'Este correo ya está registrado',
-            fieldErrors: { email: 'El correo debe ser único' },
+            messageKey: 'auth.errors.emailTaken',
+            fieldErrors: { email: 'auth.errors.emailMustBeUnique' },
           };
         }
 
-        const user: StoredUser = {
-          id: createToken(),
-          email: normalizedEmail,
-          displayName: normalizedEmail.split('@')[0],
-          provider: 'email',
-          emailVerified: !EMAIL_CONFIRMATION_REQUIRED,
-          password: parsed.data.password,
-        };
+        const duplicatedNickname = users.some(
+          (user) => user.displayName.toLowerCase() === parsed.data.nickname.toLowerCase(),
+        );
+        if (duplicatedNickname) {
+          return {
+            ok: false,
+            messageKey: 'auth.errors.nicknameTaken',
+            fieldErrors: { nickname: 'auth.errors.nicknameMustBeUnique' },
+          };
+        }
 
-        const session: AuthSession = {
-          token: createToken(),
-          user,
-          createdAt: new Date().toISOString(),
-        };
+        const user = buildUser(normalizedEmail, 'email', parsed.data.password);
+        user.displayName = parsed.data.nickname;
+        const session = buildSession(user);
 
-        set((state) => ({
-          users: [...state.users, user],
-          session,
-        }));
-
+        set((state) => ({ users: [...state.users, user], session }));
         persistToken(session.token);
 
         return {
           ok: true,
-          message: EMAIL_CONFIRMATION_REQUIRED
-            ? 'Cuenta creada. Revisa tu correo para confirmar el registro.'
-            : 'Cuenta creada con éxito',
+          messageKey: EMAIL_CONFIRMATION_REQUIRED
+            ? 'auth.success.checkEmail'
+            : 'auth.success.registered',
         };
       },
+
       loginWithEmail: (payload) => {
         const parsed = credentialsSchema.safeParse(payload);
 
@@ -117,7 +135,7 @@ export const useAuthStore = create<AuthState>()(
           const fieldErrors = parsed.error.flatten().fieldErrors;
           return {
             ok: false,
-            message: 'Credenciales inválidas',
+            messageKey: 'auth.errors.invalidCredentials',
             fieldErrors: {
               email: fieldErrors.email?.[0],
               password: fieldErrors.password?.[0],
@@ -126,64 +144,52 @@ export const useAuthStore = create<AuthState>()(
         }
 
         const normalizedEmail = normalizeEmail(parsed.data.email);
-        const user = get().users.find(
+        const existing = get().users.find(
           (candidate) =>
-            normalizeEmail(candidate.email) === normalizedEmail &&
-            candidate.provider === 'email' &&
-            candidate.password === parsed.data.password,
+            normalizeEmail(candidate.email) === normalizedEmail && candidate.provider === 'email',
         );
 
-        if (!user) {
-          return {
-            ok: false,
-            message: 'Correo o contraseña incorrectos',
-          };
+        if (existing) {
+          if (!isMockMode && existing.password !== parsed.data.password) {
+            return { ok: false, messageKey: 'auth.errors.invalidCredentials' };
+          }
+
+          const session = buildSession(existing);
+          set({ session });
+          persistToken(session.token);
+          return { ok: true, messageKey: 'auth.success.loggedIn' };
         }
 
-        const session: AuthSession = {
-          token: createToken(),
-          user,
-          createdAt: new Date().toISOString(),
-        };
+        if (!isMockMode) {
+          return { ok: false, messageKey: 'auth.errors.invalidCredentials' };
+        }
 
-        set({ session });
+        const user = buildUser(normalizedEmail, 'email', parsed.data.password);
+        const session = buildSession(user);
+
+        set((state) => ({ users: [...state.users, user], session }));
         persistToken(session.token);
 
-        return {
-          ok: true,
-          message: 'Inicio de sesión exitoso',
-        };
+        return { ok: true, messageKey: 'auth.success.loggedIn' };
       },
+
       loginWithGoogle: () => {
         const users = get().users;
         const existingGoogleUser = users.find((user) => user.provider === 'google');
 
-        const googleUser: StoredUser = existingGoogleUser ?? {
-          id: createToken(),
-          email: 'google.player@skorify.app',
-          displayName: 'Google Player',
-          provider: 'google',
-          emailVerified: true,
-        };
-
+        const googleUser: StoredUser =
+          existingGoogleUser ?? buildUser('google.player@skorify.app', 'google');
         if (!existingGoogleUser) {
           set((state) => ({ users: [...state.users, googleUser] }));
         }
 
-        const session: AuthSession = {
-          token: createToken(),
-          user: googleUser,
-          createdAt: new Date().toISOString(),
-        };
-
+        const session = buildSession(googleUser);
         set({ session });
         persistToken(session.token);
 
-        return {
-          ok: true,
-          message: 'Sesión iniciada con Google',
-        };
+        return { ok: true, messageKey: 'auth.success.googleLoggedIn' };
       },
+
       logout: () => {
         set({ session: null });
         persistToken(null);

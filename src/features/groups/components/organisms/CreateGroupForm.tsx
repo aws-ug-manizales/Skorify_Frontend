@@ -92,7 +92,6 @@ const CreateGroupForm = () => {
           gap: 2.5,
         }}
       >
-        {/* Avatar con iniciales */}
         <Box sx={{ display: 'flex', justifyContent: 'center', pb: 1 }}>
           <Avatar
             sx={{
@@ -102,7 +101,7 @@ const CreateGroupForm = () => {
               fontSize: nameValue.trim() ? '1.75rem' : '1.25rem',
               fontWeight: 900,
               letterSpacing: '-0.02em',
-              color: '#fff',
+              color: tokens.onSurface,
               transition: 'background 300ms, font-size 200ms',
             }}
           >

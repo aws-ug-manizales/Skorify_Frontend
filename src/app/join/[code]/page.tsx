@@ -1,25 +1,20 @@
-'use client';
-
-import { use } from 'react';
+import { getTranslations } from 'next-intl/server';
 import { JoinGroupFlow } from '@features/groups/components/organisms/JoinGroupFlow';
 import { PublicJoinLayout } from '@/shared/layouts/PublicJoinLayout';
-import { useTranslations } from 'next-intl';
 
-interface PageProps {
-  params: Promise<{
-    slug?: string[];
-  }>;
+interface JoinByCodePageProps {
+  params: Promise<{ code: string }>;
 }
 
-export default function JoinPage({ params }: PageProps) {
-  const { slug } = use(params);
-  const t = useTranslations('groups.join');
-
-  const code = slug?.[0];
+const JoinByCodePage = async ({ params }: JoinByCodePageProps) => {
+  const { code } = await params;
+  const t = await getTranslations('groups.join');
 
   return (
     <PublicJoinLayout title={t('title')} subtitle={t('subtitle')} footer={t('contactAdmin')}>
       <JoinGroupFlow initialCode={code} />
     </PublicJoinLayout>
   );
-}
+};
+
+export default JoinByCodePage;

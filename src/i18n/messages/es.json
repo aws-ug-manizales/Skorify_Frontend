@@ -17,6 +17,11 @@
     "backToHome": "Volver al inicio",
     "comingSoon": "Esta sección está en desarrollo. Vuelve pronto."
   },
+  "splash": {
+    "tagline": "Calentando el balón…",
+    "playerAriaLabel": "Jugador pateando un balón hacia el arco",
+    "goalAriaLabel": "Arco de fútbol"
+  },
   "nav": {
     "home": "Inicio",
     "predictions": "Predicciones",
@@ -48,15 +53,81 @@
     "genericError": "No se pudo completar la operación. Intenta nuevamente.",
     "confirmPasswordLabel": "Confirmar contraseña",
     "confirmPasswordPlaceholder": "Repite tu contraseña",
-    "passwordMismatch": "Las contraseñas no coinciden"
+    "passwordMismatch": "Las contraseñas no coinciden",
+    "nicknameLabel": "Nombre de usuario",
+    "nicknamePlaceholder": "ej. golazo_24",
+    "errors": {
+      "invalidEmail": "Correo electrónico inválido",
+      "passwordMin": "La contraseña debe tener al menos 8 caracteres",
+      "passwordMax": "La contraseña es demasiado larga",
+      "formInvalid": "Corrige los errores del formulario",
+      "emailTaken": "Este correo ya está registrado",
+      "emailMustBeUnique": "El correo debe ser único",
+      "invalidCredentials": "Correo o contraseña incorrectos",
+      "nicknameMin": "Mínimo 3 caracteres",
+      "nicknameMax": "Máximo 24 caracteres",
+      "nicknameFormat": "Solo letras, números, guion y punto",
+      "nicknameTaken": "Este nombre de usuario ya está en uso",
+      "nicknameMustBeUnique": "Elige un nombre de usuario distinto"
+    },
+    "success": {
+      "registered": "Cuenta creada con éxito",
+      "checkEmail": "Cuenta creada. Revisa tu correo para confirmar el registro.",
+      "loggedIn": "Inicio de sesión exitoso",
+      "googleLoggedIn": "Sesión iniciada con Google"
+    }
   },
   "predictions": {
     "title": "Mis predicciones",
+    "pageTitle": "Próximos partidos",
     "make": "Hacer predicción",
     "home": "Local",
     "away": "Visitante",
     "submit": "Enviar predicción",
-    "deadline": "Cierra"
+    "deadline": "Cierra",
+    "searchPlaceholder": "Buscar equipo...",
+    "weekLabel": "Semana",
+    "weekAll": "Todas las semanas",
+    "clearFilters": "Limpiar",
+    "loading": "Cargando...",
+    "closesIn": "Cierra en",
+    "matchStartsIn": "El partido empieza en",
+    "closed": "Cerrado",
+    "predictCta": "Predecir",
+    "editCta": "Editar",
+    "saveCta": "Guardar",
+    "scorePlaceholder": "X - X",
+    "homeGoalsLabel": "Goles local",
+    "awayGoalsLabel": "Goles visitante",
+    "noMatches": "No hay partidos que coincidan con tu búsqueda.",
+    "matchesCount": "{count, plural, =0 {sin partidos} =1 {1 partido pendiente} other {# partidos pendientes}}",
+    "clearSearchAriaLabel": "Limpiar búsqueda",
+    "openTab": "Abiertos",
+    "closedTab": "Cerrados",
+    "openPanelTitle": "Partidos abiertos",
+    "closedPanelTitle": "Partidos cerrados",
+    "noOpenMatches": "No hay partidos abiertos para predecir.",
+    "noClosedMatches": "No hay partidos cerrados aún.",
+    "savedMessages": [
+      "¡El más veloz del oeste!",
+      "¡Predicción guardada! ¿Futuro pulpo Paul?",
+      "¡Apuntado! Ojalá le pegues al marcador...",
+      "¡Hecho! Ojalá no sea un 0-0...",
+      "¡Guardado! ¿Seguro que no quieres cambiarlo?"
+    ],
+    "unit": {
+      "month": "mes",
+      "day": "d",
+      "hour": "h",
+      "minute": "m",
+      "second": "s"
+    },
+    "errors": {
+      "required": "Ingresa un valor",
+      "min": "No puede ser negativo",
+      "max": "Máximo 99",
+      "integerOnly": "Solo números enteros"
+    }
   },
   "matches": {
     "title": "Partidos",
@@ -186,7 +257,9 @@
       "invalidCode": "El código de invitación no es válido",
       "validationFailed": "Error al validar el código",
       "joinFailed": "Error al unirse al grupo"
-    }
+    },
+    "showLess": "Ver menos",
+    "showMore": "Ver {count} más"
   },
   "dashboard": {
     "title": "Panel de Control",
@@ -265,6 +338,24 @@
       "groups": "Grupos",
       "accuracy": "Aciertos",
       "actions": "Acciones"
+    }
+  },
+  "errors": {
+    "generic": "No se pudo completar la operación. Intenta nuevamente.",
+    "network": "Error de conexión. Verifica tu internet e intenta nuevamente.",
+    "skorify": {
+      "NotGottenUserDomainEvent": "No se pudo encontrar el usuario.",
+      "NotificationTokenAssignmentFailedDomainEvent": "No se pudo registrar el token de notificación.",
+      "MatchDoesNotExistDomainEvent": "El partido no existe.",
+      "MatchCannotBeBetedDomainEvent": "No se pueden hacer predicciones para este partido.",
+      "MatchCannotBeEditedDomainEvent": "Este partido ya no se puede editar.",
+      "MatchCannotChangeTeamsDomainEvent": "No se pueden cambiar los equipos: ya hay predicciones registradas.",
+      "MatchCannotBeSavedDomainEvent": "No se pudo guardar el partido.",
+      "EntityNotInstanciableDomainEvent": "No se pudo crear el recurso solicitado.",
+      "TournamentNotSavedDomainEvent": "No se pudo guardar el torneo.",
+      "NotGottenTournamentDomainEvent": "No se pudo encontrar el torneo.",
+      "TournamentInstanceWithSameNameDomainEvent": "Ya existe una instancia del torneo con ese nombre.",
+      "NotValidParams": "Los datos enviados no son válidos."
     }
   }
 }

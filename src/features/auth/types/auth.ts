@@ -14,18 +14,25 @@ export interface AuthSession {
   createdAt: string;
 }
 
+export interface AuthFieldErrors {
+  email?: string;
+  password?: string;
+  nickname?: string;
+}
+
 export interface AuthActionResult {
   ok: boolean;
-  message?: string;
-  fieldErrors?: {
-    email?: string;
-    password?: string;
-  };
+  messageKey?: string;
+  fieldErrors?: AuthFieldErrors;
 }
 
 export interface CredentialsPayload {
   email: string;
   password: string;
+}
+
+export interface RegisterPayload extends CredentialsPayload {
+  nickname: string;
 }
 
 export interface StoredUser extends AuthUser {

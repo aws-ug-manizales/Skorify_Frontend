@@ -1,9 +1,12 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, type Resolver } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
+import { loginSchema, registerFormSchema } from '@features/auth/lib/schemas';
+import type { RegisterFormInput } from '@features/auth/lib/schemas';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
@@ -18,14 +21,40 @@ import AppCard from '@shared/components/molecules/AppCard';
 import { tokens } from '@lib/theme/theme';
 import { useAuthStore } from '@features/auth/store/useAuthStore';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
-import FloatingParticles from './FloatingParticles';
+import FloatingParticles from '@shared/components/organisms/FloatingParticles';
 
 type Mode = 'login' | 'register';
 
-type AuthFormData = {
-  email: string;
-  password: string;
-  confirmPassword?: string;
+type AuthFormData = RegisterFormInput;
+
+type ErrorNode = Record<string, unknown>;
+
+const translateErrorTree = (
+  errors: ErrorNode | undefined,
+  translate: (key: string) => string,
+): ErrorNode => {
+  if (!errors) return {};
+  const out: ErrorNode = {};
+  for (const [key, value] of Object.entries(errors)) {
+    if (value && typeof value === 'object') {
+      const node = value as ErrorNode;
+      if (typeof node.message === 'string' && node.message) {
+        out[key] = { ...node, message: translate(node.message) };
+      } else {
+        out[key] = translateErrorTree(node, translate);
+      }
+    } else {
+      out[key] = value;
+    }
+  }
+  return out;
+};
+
+const EMPTY_FORM: AuthFormData = {
+  email: '',
+  password: '',
+  nickname: '',
+  confirmPassword: '',
 };
 
 const AuthGateway = () => {
@@ -34,19 +63,29 @@ const AuthGateway = () => {
   const [mode, setMode] = useState<Mode>('login');
   const [pendingMode, setPendingMode] = useState<Mode | null>(null);
   const [exiting, setExiting] = useState(false);
+  const [entering, setEntering] = useState(false);
+  const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+  const isTransitioning = exiting || entering;
+
   const handleModeChange = (_: React.SyntheticEvent, value: Mode) => {
-    if (value === mode) return;
+    if (value === mode || isTransitioning) return;
+    setDirection(value === 'register' ? 'forward' : 'backward');
     setPendingMode(value);
     setExiting(true);
   };
 
-  const handleAnimationEnd = () => {
-    if (exiting && pendingMode) {
+  const handlePanelAnimationEnd = (event: React.AnimationEvent<HTMLDivElement>) => {
+    if (event.animationName === 'authPanelExit' && exiting && pendingMode) {
       setMode(pendingMode);
-      setPendingMode(null);
       setExiting(false);
+      setEntering(true);
+      return;
+    }
+    if (event.animationName === 'authPanelEnter' && entering) {
+      setEntering(false);
+      setPendingMode(null);
     }
   };
 
@@ -54,19 +93,44 @@ const AuthGateway = () => {
   const loginWithEmail = useAuthStore((state) => state.loginWithEmail);
   const loginWithGoogle = useAuthStore((state) => state.loginWithGoogle);
 
+  const tRoot = useTranslations();
+  const translateKey = useCallback(
+    (key?: string, fallback?: string) => (key ? tRoot(key) : (fallback ?? '')),
+    [tRoot],
+  );
+
+  const resolver = useMemo<Resolver<AuthFormData>>(() => {
+    const base = zodResolver(
+      mode === 'register' ? registerFormSchema : loginSchema,
+    ) as unknown as Resolver<AuthFormData>;
+
+    const wrapped: Resolver<AuthFormData> = async (values, context, options) => {
+      const result = await base(values, context, options);
+      return {
+        ...result,
+        errors: translateErrorTree(result.errors as ErrorNode, translateKey),
+      } as Awaited<ReturnType<Resolver<AuthFormData>>>;
+    };
+    return wrapped;
+  }, [mode, translateKey]);
+
   const {
     handleSubmit,
     control,
     formState: { isSubmitting },
     setError,
     reset,
+    clearErrors,
   } = useForm<AuthFormData>({
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-    mode: 'onSubmit',
+    defaultValues: EMPTY_FORM,
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+    resolver,
   });
+
+  useEffect(() => {
+    clearErrors();
+  }, [mode, clearErrors]);
 
   const submitLabel = useMemo(
     () => (mode === 'login' ? t('loginCta') : t('registerCta')),
@@ -76,27 +140,35 @@ const AuthGateway = () => {
   const onSubmit = (values: AuthFormData) => {
     setNotice(null);
 
-    if (mode === 'register' && values.confirmPassword !== values.password) {
-      setError('confirmPassword', { message: t('passwordMismatch') });
-      return;
-    }
-
-    const result = mode === 'register' ? registerWithEmail(values) : loginWithEmail(values);
+    const result =
+      mode === 'register'
+        ? registerWithEmail({
+            email: values.email,
+            password: values.password,
+            nickname: values.nickname,
+          })
+        : loginWithEmail({ email: values.email, password: values.password });
 
     if (!result.ok) {
       if (result.fieldErrors?.email) {
-        setError('email', { message: result.fieldErrors.email });
+        setError('email', { message: translateKey(result.fieldErrors.email) });
       }
       if (result.fieldErrors?.password) {
-        setError('password', { message: result.fieldErrors.password });
+        setError('password', { message: translateKey(result.fieldErrors.password) });
       }
-      if (result.message) {
-        setNotice({ type: 'error', text: result.message });
+      if (result.fieldErrors?.nickname) {
+        setError('nickname', { message: translateKey(result.fieldErrors.nickname) });
+      }
+      if (result.messageKey) {
+        setNotice({ type: 'error', text: translateKey(result.messageKey, t('genericError')) });
       }
       return;
     }
 
-    setNotice({ type: 'success', text: result.message ?? t('sessionCreated') });
+    setNotice({
+      type: 'success',
+      text: translateKey(result.messageKey, t('sessionCreated')),
+    });
     reset();
     router.replace('/home');
   };
@@ -105,11 +177,14 @@ const AuthGateway = () => {
     const result = loginWithGoogle();
 
     if (!result.ok) {
-      setNotice({ type: 'error', text: result.message ?? t('genericError') });
+      setNotice({ type: 'error', text: translateKey(result.messageKey, t('genericError')) });
       return;
     }
 
-    setNotice({ type: 'success', text: result.message ?? t('sessionCreated') });
+    setNotice({
+      type: 'success',
+      text: translateKey(result.messageKey, t('sessionCreated')),
+    });
     router.replace('/home');
   };
 
@@ -118,10 +193,11 @@ const AuthGateway = () => {
       component="section"
       sx={{
         minHeight: '100vh',
-        display: 'grid',
-        placeItems: 'center',
-        px: 2,
-        py: 5,
+        display: 'flex',
+        alignItems: { xs: 'flex-end', sm: 'center' },
+        justifyContent: 'center',
+        px: { xs: 0, sm: 2 },
+        py: { xs: 0, sm: 5 },
         background: `radial-gradient(circle at 25% 20%, ${tokens.primaryContainer}3D 0%, transparent 55%), linear-gradient(180deg, ${tokens.background}, ${tokens.surfaceContainerLow})`,
       }}
     >
@@ -130,12 +206,47 @@ const AuthGateway = () => {
         variant="elevated"
         sx={{
           width: '100%',
-          maxWidth: 520,
-          borderRadius: 4,
+          maxWidth: { xs: '100%', sm: 520 },
+          borderRadius: { xs: '24px 24px 0 0', sm: 4 },
           overflow: 'hidden',
+          boxShadow: { xs: `0 -8px 32px ${tokens.background}CC`, sm: tokens.shadowMd },
+          animation: {
+            xs: 'snackbarSlideUp 320ms cubic-bezier(0.2, 0.9, 0.3, 1)',
+            sm: 'none',
+          },
+          '@keyframes snackbarSlideUp': {
+            '0%': { transform: 'translateY(100%)', opacity: 0 },
+            '100%': { transform: 'translateY(0)', opacity: 1 },
+          },
         }}
       >
-        <Stack spacing={3.5} sx={{ p: { xs: 2.5, sm: 4 } }}>
+        <Box
+          aria-hidden
+          sx={{
+            display: { xs: 'flex', sm: 'none' },
+            justifyContent: 'center',
+            pt: 1.25,
+            pb: 0.5,
+          }}
+        >
+          <Box
+            sx={{
+              width: 36,
+              height: 4,
+              borderRadius: 2,
+              bgcolor: tokens.outlineVariant,
+              opacity: 0.5,
+            }}
+          />
+        </Box>
+        <Stack
+          spacing={3.5}
+          sx={{
+            p: { xs: 2.5, sm: 4 },
+            pt: { xs: 1, sm: 4 },
+            pb: { xs: 'calc(env(safe-area-inset-bottom, 0px) + 24px)', sm: 4 },
+          }}
+        >
           <Stack spacing={1}>
             <Typography
               variant="h4"
@@ -232,60 +343,149 @@ const AuthGateway = () => {
             <Tab label={t('registerTab')} value="register" />
           </Tabs>
 
-          <Box key={mode}>
-            <Stack spacing={2} component="form" onSubmit={handleSubmit(onSubmit)}>
-              <FormField<AuthFormData>
-                name="email"
-                control={control}
-                label={t('emailLabel')}
-                placeholder={t('emailPlaceholder')}
-                autoComplete="email"
-                fullWidth
-              />
-
-              <FormField<AuthFormData>
-                name="password"
-                control={control}
-                type="password"
-                label={t('passwordLabel')}
-                placeholder={t('passwordPlaceholder')}
-                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-                fullWidth
-              />
-              {mode === 'register' && (
-                <FormField<AuthFormData>
-                  name="confirmPassword"
-                  control={control}
-                  type="password"
-                  label={t('confirmPasswordLabel')}
-                  placeholder={t('confirmPasswordPlaceholder')}
-                  autoComplete="new-password"
-                  fullWidth
-                />
-              )}
-              <AppButton
-                key={mode}
-                type="submit"
-                loading={isSubmitting}
-                fullWidth
-                onAnimationEnd={handleAnimationEnd}
+          <Box sx={{ position: 'relative', overflow: 'hidden' }}>
+            {isTransitioning && (
+              <Box
+                aria-hidden
                 sx={{
-                  animation: exiting
-                    ? `fadeOutDown 0.3s ease-in forwards`
-                    : `fadeInLeft 0.4s ease-out`,
-                  '@keyframes fadeOutDown': {
-                    '0%': { opacity: 1, transform: 'translateY(0)' },
-                    '100%': { opacity: 0, transform: 'translateY(20px)' },
-                  },
-                  '@keyframes fadeInLeft': {
-                    '0%': { opacity: 0, transform: 'translateX(-20px)' },
-                    '100%': { opacity: 1, transform: 'translateX(0)' },
-                  },
+                  position: 'absolute',
+                  top: '50%',
+                  left: 0,
+                  right: 0,
+                  display: 'flex',
+                  justifyContent: 'flex-start',
+                  pointerEvents: 'none',
+                  zIndex: 5,
+                  transform: 'translateY(-50%)',
+                  filter: `drop-shadow(0 6px 12px ${tokens.primary}66)`,
                 }}
               >
-                {submitLabel}
-              </AppButton>
-            </Stack>
+                <Box
+                  sx={{
+                    width: 56,
+                    height: 56,
+                    animation: `authBallRoll${direction === 'forward' ? 'Right' : 'Left'} 600ms linear forwards`,
+                    '@keyframes authBallRollRight': {
+                      '0%': { transform: 'translateX(-72px) rotate(0deg)', opacity: 0 },
+                      '12%': { opacity: 1 },
+                      '88%': { opacity: 1 },
+                      '100%': {
+                        transform: 'translateX(calc(100% + 72px)) rotate(900deg)',
+                        opacity: 0,
+                      },
+                    },
+                    '@keyframes authBallRollLeft': {
+                      '0%': {
+                        transform: 'translateX(calc(100% + 72px)) rotate(0deg)',
+                        opacity: 0,
+                      },
+                      '12%': { opacity: 1 },
+                      '88%': { opacity: 1 },
+                      '100%': {
+                        transform: 'translateX(-72px) rotate(-900deg)',
+                        opacity: 0,
+                      },
+                    },
+                  }}
+                >
+                  <SportsSoccerIcon
+                    sx={{
+                      fontSize: 56,
+                      color: tokens.primary,
+                      animation: 'authBallSpin 200ms linear infinite',
+                      '@keyframes authBallSpin': {
+                        '0%': { transform: 'rotate(0deg)' },
+                        '100%': { transform: 'rotate(360deg)' },
+                      },
+                    }}
+                  />
+                </Box>
+              </Box>
+            )}
+
+            <Box
+              key={exiting ? `${mode}-exit` : mode}
+              onAnimationEnd={handlePanelAnimationEnd}
+              sx={{
+                willChange: 'transform, opacity, filter',
+                animation: exiting
+                  ? `authPanelExit 240ms cubic-bezier(0.4, 0, 1, 1) forwards`
+                  : `authPanelEnter 360ms cubic-bezier(0.2, 0.9, 0.3, 1)`,
+                '@keyframes authPanelExit': {
+                  '0%': { opacity: 1, transform: 'translateX(0)', filter: 'blur(0)' },
+                  '100%': {
+                    opacity: 0,
+                    transform: `translateX(${direction === 'forward' ? '-16px' : '16px'})`,
+                    filter: 'blur(2px)',
+                  },
+                },
+                '@keyframes authPanelEnter': {
+                  '0%': {
+                    opacity: 0,
+                    transform: `translateX(${direction === 'forward' ? '16px' : '-16px'})`,
+                    filter: 'blur(2px)',
+                  },
+                  '60%': { opacity: 1, filter: 'blur(0)' },
+                  '100%': { opacity: 1, transform: 'translateX(0)', filter: 'blur(0)' },
+                },
+              }}
+            >
+              <Stack spacing={2} component="form" onSubmit={handleSubmit(onSubmit)} sx={{ pt: 1 }}>
+                {mode === 'register' && (
+                  <FormField<AuthFormData>
+                    name="nickname"
+                    control={control}
+                    label={t('nicknameLabel')}
+                    placeholder={t('nicknamePlaceholder')}
+                    autoComplete="username"
+                    fullWidth
+                    sx={{
+                      animation: !exiting ? `authFieldStagger 420ms ease-out 40ms both` : 'none',
+                      '@keyframes authFieldStagger': {
+                        '0%': { opacity: 0, transform: 'translateY(8px)' },
+                        '100%': { opacity: 1, transform: 'translateY(0)' },
+                      },
+                    }}
+                  />
+                )}
+
+                <FormField<AuthFormData>
+                  name="email"
+                  control={control}
+                  label={t('emailLabel')}
+                  placeholder={t('emailPlaceholder')}
+                  autoComplete="email"
+                  fullWidth
+                />
+
+                <FormField<AuthFormData>
+                  name="password"
+                  control={control}
+                  type="password"
+                  label={t('passwordLabel')}
+                  placeholder={t('passwordPlaceholder')}
+                  autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                  fullWidth
+                />
+                {mode === 'register' && (
+                  <FormField<AuthFormData>
+                    name="confirmPassword"
+                    control={control}
+                    type="password"
+                    label={t('confirmPasswordLabel')}
+                    placeholder={t('confirmPasswordPlaceholder')}
+                    autoComplete="new-password"
+                    fullWidth
+                    sx={{
+                      animation: !exiting ? `authFieldStagger 420ms ease-out 80ms both` : 'none',
+                    }}
+                  />
+                )}
+                <AppButton type="submit" loading={isSubmitting} fullWidth>
+                  {submitLabel}
+                </AppButton>
+              </Stack>
+            </Box>
           </Box>
 
           <Divider>{t('or')}</Divider>
@@ -300,10 +500,6 @@ const AuthGateway = () => {
           </AppButton>
 
           {notice && <Alert severity={notice.type}>{notice.text}</Alert>}
-
-          {/* <Typography variant="caption" sx={{ color: tokens.onSurfaceVariant }}>
-            {t('registrationConfirmationOptional')}
-          </Typography> */}
         </Stack>
       </AppCard>
     </Box>

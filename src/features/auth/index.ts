@@ -5,9 +5,11 @@ export { default as RequireAuth } from './components/organisms/RequireAuth';
 export { default as RequireGuest } from './components/organisms/RequireGuest';
 export type {
   AuthActionResult,
+  AuthFieldErrors,
   AuthProvider,
   AuthSession,
   AuthUser,
   CredentialsPayload,
+  RegisterPayload,
   StoredUser,
 } from './types/auth';

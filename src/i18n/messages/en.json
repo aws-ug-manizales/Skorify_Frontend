@@ -17,6 +17,11 @@
     "backToHome": "Back to home",
     "comingSoon": "This section is under development. Come back soon."
   },
+  "splash": {
+    "tagline": "Warming up the ball…",
+    "playerAriaLabel": "Player kicking a ball into the goal",
+    "goalAriaLabel": "Football goal"
+  },
   "nav": {
     "home": "Home",
     "predictions": "Predictions",
@@ -48,15 +53,81 @@
     "genericError": "The operation could not be completed. Please try again.",
     "confirmPasswordLabel": "Confirm password",
     "confirmPasswordPlaceholder": "Repeat your password",
-    "passwordMismatch": "Passwords do not match"
+    "passwordMismatch": "Passwords do not match",
+    "nicknameLabel": "Username",
+    "nicknamePlaceholder": "e.g. golazo_24",
+    "errors": {
+      "invalidEmail": "Invalid email address",
+      "passwordMin": "Password must be at least 8 characters",
+      "passwordMax": "Password is too long",
+      "formInvalid": "Fix the form errors",
+      "emailTaken": "This email is already registered",
+      "emailMustBeUnique": "Email must be unique",
+      "invalidCredentials": "Incorrect email or password",
+      "nicknameMin": "At least 3 characters",
+      "nicknameMax": "At most 24 characters",
+      "nicknameFormat": "Only letters, numbers, dot, dash and underscore",
+      "nicknameTaken": "This username is already taken",
+      "nicknameMustBeUnique": "Pick a different username"
+    },
+    "success": {
+      "registered": "Account created successfully",
+      "checkEmail": "Account created. Check your inbox to confirm.",
+      "loggedIn": "Signed in successfully",
+      "googleLoggedIn": "Signed in with Google"
+    }
   },
   "predictions": {
     "title": "My predictions",
+    "pageTitle": "Upcoming matches",
     "make": "Make prediction",
     "home": "Home",
     "away": "Away",
     "submit": "Submit prediction",
-    "deadline": "Closes"
+    "deadline": "Closes",
+    "searchPlaceholder": "Search team...",
+    "weekLabel": "Week",
+    "weekAll": "All weeks",
+    "clearFilters": "Clear",
+    "loading": "Loading...",
+    "closesIn": "Closes in",
+    "matchStartsIn": "Match starts in",
+    "closed": "Closed",
+    "predictCta": "Predict",
+    "editCta": "Edit",
+    "saveCta": "Save",
+    "scorePlaceholder": "X - X",
+    "homeGoalsLabel": "Home goals",
+    "awayGoalsLabel": "Away goals",
+    "noMatches": "No matches found.",
+    "matchesCount": "{count, plural, =0 {no matches} =1 {1 pending match} other {# pending matches}}",
+    "clearSearchAriaLabel": "Clear search",
+    "openTab": "Open",
+    "closedTab": "Closed",
+    "openPanelTitle": "Open matches",
+    "closedPanelTitle": "Closed matches",
+    "noOpenMatches": "No matches available to predict.",
+    "noClosedMatches": "No closed matches yet.",
+    "savedMessages": [
+      "Fastest in the west!",
+      "Saved! Future Paul the octopus?",
+      "Locked in! Hope you nail the score...",
+      "Done! Hopefully not a 0-0...",
+      "Stored! Sure you don't want to tweak it?"
+    ],
+    "unit": {
+      "month": "mo",
+      "day": "d",
+      "hour": "h",
+      "minute": "m",
+      "second": "s"
+    },
+    "errors": {
+      "required": "Enter a value",
+      "min": "Cannot be negative",
+      "max": "Max 99",
+      "integerOnly": "Whole numbers only"
+    }
   },
   "matches": {
     "title": "Matches",
@@ -186,7 +257,9 @@
       "invalidCode": "The invitation code is not valid",
       "validationFailed": "Error validating the code",
       "joinFailed": "Error joining the group"
-    }
+    },
+    "showLess": "Show less",
+    "showMore": "Show {count} more"
   },
   "dashboard": {
     "title": "Control Panel",
@@ -265,6 +338,24 @@
       "groups": "Groups",
       "accuracy": "Accuracy",
       "actions": "Actions"
+    }
+  },
+  "errors": {
+    "generic": "The operation could not be completed. Please try again.",
+    "network": "Connection error. Check your internet and try again.",
+    "skorify": {
+      "NotGottenUserDomainEvent": "User not found.",
+      "NotificationTokenAssignmentFailedDomainEvent": "Could not register notification token.",
+      "MatchDoesNotExistDomainEvent": "The match does not exist.",
+      "MatchCannotBeBetedDomainEvent": "Predictions are not allowed for this match.",
+      "MatchCannotBeEditedDomainEvent": "This match can no longer be edited.",
+      "MatchCannotChangeTeamsDomainEvent": "Teams cannot be changed: predictions already exist.",
+      "MatchCannotBeSavedDomainEvent": "The match could not be saved.",
+      "EntityNotInstanciableDomainEvent": "The requested resource could not be created.",
+      "TournamentNotSavedDomainEvent": "The tournament could not be saved.",
+      "NotGottenTournamentDomainEvent": "Tournament not found.",
+      "TournamentInstanceWithSameNameDomainEvent": "A tournament instance with that name already exists.",
+      "NotValidParams": "The submitted data is not valid."
     }
   }
 }

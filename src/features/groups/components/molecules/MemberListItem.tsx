@@ -6,24 +6,8 @@ import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
 import { useTranslations } from 'next-intl';
 import { tokens } from '@lib/theme/theme';
-import { getInitials } from '@shared/utils/string';
+import { getAvatarColor, getInitials } from '@shared/utils/string';
 import type { GroupMember } from '../../types';
-
-const AVATAR_PALETTE = [
-  tokens.primaryContainer,
-  tokens.secondaryContainer,
-  tokens.surfaceContainerHighest,
-  '#1a4a2e',
-  '#2a1f4a',
-];
-
-const getAvatarBg = (name: string) => {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return AVATAR_PALETTE[Math.abs(hash) % AVATAR_PALETTE.length];
-};
 
 interface MemberListItemProps {
   member: GroupMember;
@@ -50,7 +34,7 @@ const MemberListItem = ({ member, isCurrentUser }: MemberListItemProps) => {
         sx={{
           width: 36,
           height: 36,
-          bgcolor: getAvatarBg(member.name),
+          bgcolor: getAvatarColor(member.name),
           fontSize: '0.7rem',
           fontWeight: 700,
           color: tokens.onSurface,

@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTranslations } from 'next-intl';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
@@ -20,6 +21,7 @@ interface MemberListProps {
 }
 
 const MemberList = ({ members, currentUserId }: MemberListProps) => {
+  const t = useTranslations('groups');
   const [expanded, setExpanded] = useState(false);
   const isDesktop = useMediaQuery('(min-width:900px)');
 
@@ -57,7 +59,7 @@ const MemberList = ({ members, currentUserId }: MemberListProps) => {
             letterSpacing: '0.04em',
           }}
         >
-          Miembros ({members.length})
+          {t('membersTitle')} ({members.length})
         </Typography>
         {!isDesktop && (
           <IconButton size="small" sx={{ color: tokens.onSurfaceVariant, pointerEvents: 'none' }}>
@@ -86,7 +88,9 @@ const MemberList = ({ members, currentUserId }: MemberListProps) => {
           onClick={() => setExpanded((e) => !e)}
         >
           <Typography variant="body2" sx={{ color: tokens.primary, fontWeight: 600 }}>
-            {expanded ? 'Ver menos' : `Ver ${members.length - MOBILE_PREVIEW_COUNT} más`}
+            {expanded
+              ? t('showLess')
+              : t('showMore', { count: members.length - MOBILE_PREVIEW_COUNT })}
           </Typography>
         </Box>
       )}

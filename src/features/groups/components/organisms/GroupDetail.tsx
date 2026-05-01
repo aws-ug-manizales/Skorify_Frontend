@@ -331,7 +331,9 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
                 href={whatsappHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                startIcon={<WhatsAppIcon sx={{ fontSize: '1rem !important', color: '#25D366' }} />}
+                startIcon={
+                  <WhatsAppIcon sx={{ fontSize: '1rem !important', color: tokens.whatsapp }} />
+                }
                 sx={{
                   justifyContent: 'flex-start',
                   px: 2,
@@ -342,7 +344,7 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
                   fontSize: '0.875rem',
                   fontWeight: 600,
                   textTransform: 'none',
-                  '&:hover': { bgcolor: '#25D3660D' },
+                  '&:hover': { bgcolor: `${tokens.whatsapp}0D` },
                 }}
               >
                 {t('shareWhatsApp')}
