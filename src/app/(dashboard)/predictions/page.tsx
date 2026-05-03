@@ -1,9 +1,5 @@
-import { getTranslations } from 'next-intl/server';
-import ComingSoonPage from '@shared/components/organisms/ComingSoonPage';
+import PredictionsView from '@features/predictions/components/organisms/PredictionsView';
 
-const PredictionsPage = async () => {
-  const t = await getTranslations('nav');
-  return <ComingSoonPage title={t('predictions')} />;
-};
+const PredictionsPage = () => <PredictionsView />;
 
 export default PredictionsPage;

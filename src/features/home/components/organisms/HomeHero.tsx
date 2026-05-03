@@ -85,7 +85,7 @@ const HomeHero = () => {
         </Typography>
 
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center', mt: 2 }}>
-          <AppButton component={Link} href="/predictions" variant="primary">
+          <AppButton component={Link} href="/auth" variant="primary">
             {t('cta')}
           </AppButton>
           <AppButton component={Link} href="/matches" variant="secondary">
