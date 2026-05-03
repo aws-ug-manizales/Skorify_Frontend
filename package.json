@@ -32,7 +32,7 @@
       "prettier --write",
       "eslint --fix"
     ],
-    "*.{scss,css,json,md}": [
+    "*.{scss,css,md}": [
       "prettier --write"
     ]
   },

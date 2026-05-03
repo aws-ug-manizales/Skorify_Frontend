@@ -6,7 +6,7 @@ on:
                                                                                     
 jobs:                                                                                                                                      
   lint:
-    uses: aws-ug-manizales/Skorify_DevOps/.github/workflows/shared--lint-frontend.yml@develop
+    uses: aws-ug-manizales/Skorify_DevOps/.github/workflows/shared--lint-frontend.yml@feature/ci-pr-validation-workflows
 
   sca:                                                           
-    uses: aws-ug-manizales/Skorify_DevOps/.github/workflows/shared--sca-generic.yml@develop
+    uses: aws-ug-manizales/Skorify_DevOps/.github/workflows/shared--sca-generic.yml@feature/ci-pr-validation-workflows
