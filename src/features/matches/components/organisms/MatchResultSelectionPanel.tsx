@@ -34,7 +34,7 @@ const MatchResultSelectionPanel = () => {
   const { matches, teams, tournaments, updateMatchResult } = useMatchesStore();
   const [submitFeedback, setSubmitFeedback] = useState<SubmitFeedback | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const isAdmin = true; // Role estatico hay que cambiarlo por el real
+  const isAdmin = true; // TODO: Replace with real user role check
 
   const {
     control,

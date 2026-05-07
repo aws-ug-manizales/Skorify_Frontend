@@ -21,6 +21,39 @@ cd skorify_frontend
 yarn
 ```
 
+## ⚙️ Variables de entorno
+
+El proyecto valida las variables de entorno al arrancar. Si alguna falta o es inválida, el servidor no levanta y muestra un mensaje claro con lo que falta.
+
+### Configuración inicial
+
+```bash
+cp .env.example .env.local
+```
+
+Edita `.env.local` con los valores de tu entorno. **Nunca subas este archivo al repositorio.**
+
+### Variables disponibles
+
+| Variable              | Requerida | Descripción                                               |
+| --------------------- | --------- | --------------------------------------------------------- |
+| `NEXT_PUBLIC_API_URL` | Sí        | URL base del backend (ej. `http://localhost:8080/api/v1`) |
+
+### Archivos de entorno por ambiente
+
+Next.js carga los archivos en este orden (mayor prioridad primero):
+
+| Archivo            | Commiteado | Uso                                                    |
+| ------------------ | ---------- | ------------------------------------------------------ |
+| `.env.local`       | No         | Overrides locales — tiene la prioridad más alta        |
+| `.env.development` | No         | Valores por defecto para `NODE_ENV=development`        |
+| `.env.production`  | No         | Valores por defecto para `NODE_ENV=production`         |
+| `.env.example`     | **Sí**     | Plantilla con todas las variables — sin valores reales |
+
+> Las variables con prefijo `NEXT_PUBLIC_` son accesibles en el navegador. Las demás solo están disponibles en el servidor.
+
+---
+
 ## 🚀 Correr el proyecto en desarrollo
 
 ```bash
@@ -31,12 +64,12 @@ Abre [http://localhost:3000](http://localhost:3000) en tu navegador para ver la 
 
 ## 🛠️ Otros comandos
 
-| Comando | Descripción |
-|---|---|
-| `yarn dev` | ⚡ Inicia el servidor de desarrollo con hot-reload |
-| `yarn build` | 🏗️ Genera el build de producción |
-| `yarn start` | ▶️ Corre el build de producción en local |
-| `yarn lint` | 🔍 Ejecuta el linter |
+| Comando      | Descripción                                        |
+| ------------ | -------------------------------------------------- |
+| `yarn dev`   | ⚡ Inicia el servidor de desarrollo con hot-reload |
+| `yarn build` | 🏗️ Genera el build de producción                   |
+| `yarn start` | ▶️ Corre el build de producción en local           |
+| `yarn lint`  | 🔍 Ejecuta el linter                               |
 
 ---
 
@@ -100,6 +133,7 @@ Se usa el **App Router nativo de Next.js** (sin prefijo de locale en la URL).
 Manejada con [next-intl](https://next-intl.dev) **sin routing por URL**. El idioma se determina desde una cookie `locale` (default: `es`).
 
 **Archivos de traducción:**
+
 ```
 messages/
 ├── es.json   ← español (idioma por defecto)
@@ -107,6 +141,7 @@ messages/
 ```
 
 **Uso en Server Components:**
+
 ```tsx
 import { useTranslations } from 'next-intl';
 
@@ -117,6 +152,7 @@ export default function Page() {
 ```
 
 **Uso en Client Components:**
+
 ```tsx
 'use client';
 import { useTranslations } from 'next-intl';
@@ -135,12 +171,12 @@ Para cambiar el idioma en runtime, actualiza la cookie `locale` con el valor `'e
 
 Los componentes siguen una jerarquía de complejidad creciente:
 
-| Nivel | Descripción | Ejemplo |
-|---|---|---|
-| **Atom** | Unidad mínima, sin dependencias de negocio | `FormField`, `Badge`, `Avatar` |
-| **Molecule** | Combinación de átomos con una función concreta | `MatchCard`, `ScoreInput` |
-| **Organism** | Sección completa de UI con lógica propia | `PredictionForm`, `LeaderboardTable` |
-| **Layout** | Plantilla de página (navbar, sidebar, footer) | `DashboardLayout` |
+| Nivel        | Descripción                                    | Ejemplo                              |
+| ------------ | ---------------------------------------------- | ------------------------------------ |
+| **Atom**     | Unidad mínima, sin dependencias de negocio     | `FormField`, `Badge`, `Avatar`       |
+| **Molecule** | Combinación de átomos con una función concreta | `MatchCard`, `ScoreInput`            |
+| **Organism** | Sección completa de UI con lógica propia       | `PredictionForm`, `LeaderboardTable` |
+| **Layout**   | Plantilla de página (navbar, sidebar, footer)  | `DashboardLayout`                    |
 
 Los átomos y moléculas compartidos entre features van en `src/shared/components/`.
 Los específicos de un módulo van dentro de `src/features/<modulo>/components/`.
@@ -157,7 +193,7 @@ Las variables del tema viven en `src/styles/_variables.scss` y están sincroniza
 ```scss
 // En cualquier .module.scss
 @use '@/styles/variables' as v;
-@use '@/styles/mixins'   as m;
+@use '@/styles/mixins' as m;
 
 .card {
   @include m.surface;
@@ -208,14 +244,14 @@ La URL base se configura con la variable de entorno `NEXT_PUBLIC_API_URL`.
 
 ## 🧱 Stack
 
-| Herramienta | Uso |
-|---|---|
-| [Next.js 16](https://nextjs.org/) | Framework (App Router) |
-| [React 19](https://react.dev/) | UI |
-| [TypeScript](https://www.typescriptlang.org/) | Tipado estático |
-| [MUI Material v7](https://mui.com/) | Sistema de diseño |
-| [SCSS (Sass)](https://sass-lang.com/) | Estilos adicionales |
-| [next-intl](https://next-intl.dev/) | Internacionalización |
-| [Zustand](https://zustand-demo.pmnd.rs/) | Estado global |
-| [Axios](https://axios-http.com/) | Cliente HTTP |
-| [React Hook Form](https://react-hook-form.com/) | Formularios |
+| Herramienta                                     | Uso                    |
+| ----------------------------------------------- | ---------------------- |
+| [Next.js 16](https://nextjs.org/)               | Framework (App Router) |
+| [React 19](https://react.dev/)                  | UI                     |
+| [TypeScript](https://www.typescriptlang.org/)   | Tipado estático        |
+| [MUI Material v7](https://mui.com/)             | Sistema de diseño      |
+| [SCSS (Sass)](https://sass-lang.com/)           | Estilos adicionales    |
+| [next-intl](https://next-intl.dev/)             | Internacionalización   |
+| [Zustand](https://zustand-demo.pmnd.rs/)        | Estado global          |
+| [Axios](https://axios-http.com/)                | Cliente HTTP           |
+| [React Hook Form](https://react-hook-form.com/) | Formularios            |

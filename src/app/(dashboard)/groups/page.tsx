@@ -1,9 +1,5 @@
-import { getTranslations } from 'next-intl/server';
-import ComingSoonPage from '@shared/components/organisms/ComingSoonPage';
+import { GroupsView } from '@features/groups';
 
-const GroupsPage = async () => {
-  const t = await getTranslations('nav');
-  return <ComingSoonPage title={t('groups')} />;
-};
+const GroupsPage = () => <GroupsView />;
 
 export default GroupsPage;
