@@ -8,9 +8,9 @@ import {
   Camera, Mail, Users, X 
 } from 'lucide-react';
 
-import AppButton from '@/shared/components/atoms/AppButton';
-import AppCard from '@/shared/components/molecules/AppCard';
-import FormField from '@/shared/components/atoms/FormField';
+import AppButton from '../../../shared/components/atoms/AppButton';
+import AppCard from '../../../shared/components/molecules/AppCard';
+import FormField from '../../../shared/components/atoms/FormField';
 
 export default function ProfileDashboard() {
   const [mounted, setMounted] = useState(false);
