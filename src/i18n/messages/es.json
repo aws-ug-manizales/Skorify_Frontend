@@ -15,6 +15,8 @@
     "edit": "Editar",
     "back": "Volver",
     "backToHome": "Volver al inicio",
+    "close": "Cerrar",
+    "showMore": "Ver más",
     "comingSoon": "Esta sección está en desarrollo. Vuelve pronto."
   },
   "splash": {
@@ -96,6 +98,7 @@
     "predictCta": "Predecir",
     "editCta": "Editar",
     "saveCta": "Guardar",
+    "confirmCta": "Confirmar",
     "scorePlaceholder": "X - X",
     "homeGoalsLabel": "Goles local",
     "awayGoalsLabel": "Goles visitante",
@@ -108,6 +111,14 @@
     "closedPanelTitle": "Partidos cerrados",
     "noOpenMatches": "No hay partidos abiertos para predecir.",
     "noClosedMatches": "No hay partidos cerrados aún.",
+    "predictionSaved": "Predicción guardada",
+    "modalConfirmMessage": "Tu predicción quedó registrada. Puedes editarla hasta que el partido cierre.",
+    "undoPrediction": "Deshacer",
+    "undoWarning": "Las predicciones no se pueden deshacer una vez que el partido está cerrado.",
+    "overwriteTitle": "Editar predicción",
+    "overwriteMessage": "¿Deseas sobreescribir tu predicción actual?",
+    "editCancelledToast": "Edición cancelada. Tu predicción original no fue modificada.",
+    "saveErrorToast": "No se pudo guardar tu predicción. Intenta de nuevo.",
     "savedMessages": [
       "¡El más veloz del oeste!",
       "¡Predicción guardada! ¿Futuro pulpo Paul?",

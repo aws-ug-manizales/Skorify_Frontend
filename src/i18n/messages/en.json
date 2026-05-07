@@ -15,6 +15,8 @@
     "edit": "Edit",
     "back": "Back",
     "backToHome": "Back to home",
+    "close": "Close",
+    "showMore": "Show more",
     "comingSoon": "This section is under development. Come back soon."
   },
   "splash": {
@@ -96,6 +98,7 @@
     "predictCta": "Predict",
     "editCta": "Edit",
     "saveCta": "Save",
+    "confirmCta": "Confirm",
     "scorePlaceholder": "X - X",
     "homeGoalsLabel": "Home goals",
     "awayGoalsLabel": "Away goals",
@@ -108,6 +111,14 @@
     "closedPanelTitle": "Closed matches",
     "noOpenMatches": "No matches available to predict.",
     "noClosedMatches": "No closed matches yet.",
+    "predictionSaved": "Prediction saved",
+    "modalConfirmMessage": "Your prediction has been recorded. You can edit it until the match closes.",
+    "undoPrediction": "Undo",
+    "undoWarning": "Predictions cannot be undone once the match is locked.",
+    "overwriteTitle": "Edit prediction",
+    "overwriteMessage": "Do you want to overwrite your current prediction?",
+    "editCancelledToast": "Edit cancelled. Your original prediction is unchanged.",
+    "saveErrorToast": "Could not save your prediction. Please try again.",
     "savedMessages": [
       "Fastest in the west!",
       "Saved! Future Paul the octopus?",

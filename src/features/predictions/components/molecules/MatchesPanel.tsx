@@ -18,6 +18,7 @@ interface MatchesPanelProps {
   title?: string;
   emptyMessage: string;
   savedPredictions: Record<string, MatchesPanelSavedPrediction>;
+  editResetKeys?: Record<string, number>;
   onSave: (
     matchId: string,
     values: { homeGoals: number; awayGoals: number },
@@ -30,6 +31,7 @@ const MatchesPanel = ({
   title,
   emptyMessage,
   savedPredictions,
+  editResetKeys,
   onSave,
   showHeader = true,
 }: MatchesPanelProps) => (
@@ -91,6 +93,7 @@ const MatchesPanel = ({
               isSaved={!!saved}
               initialHomeGoals={saved?.homeGoals}
               initialAwayGoals={saved?.awayGoals}
+              editResetKey={editResetKeys?.[match.id]}
               onSave={onSave}
             />
           );

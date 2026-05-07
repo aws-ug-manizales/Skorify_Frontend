@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -20,6 +20,7 @@ interface MatchPredictionCardProps {
   isSaved: boolean;
   initialHomeGoals?: number;
   initialAwayGoals?: number;
+  editResetKey?: number;
   onSave: (
     matchId: string,
     values: { homeGoals: number; awayGoals: number },
@@ -49,17 +50,19 @@ const MatchPredictionCard = ({
   isSaved,
   initialHomeGoals,
   initialAwayGoals,
+  editResetKey,
   onSave,
 }: MatchPredictionCardProps) => {
   const t = useTranslations('predictions');
   const { isLocked } = useMatchCountdown(match.date);
 
-  const [isEditing, setIsEditing] = useState<boolean>(!isSaved);
+  const [mode, setMode] = useState<'display' | 'editing'>(isSaved ? 'display' : 'editing');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     control,
     handleSubmit,
+    reset,
     formState: { isValid },
   } = useForm<RowFormValues>({
     defaultValues: buildDefaults(isSaved, initialHomeGoals, initialAwayGoals),
@@ -75,6 +78,23 @@ const MatchPredictionCard = ({
   const homeGoals = useWatch({ control, name: 'homeGoals' });
   const awayGoals = useWatch({ control, name: 'awayGoals' });
 
+  const valuesChanged =
+    isSaved &&
+    (Number(homeGoals) !== (initialHomeGoals ?? -1) ||
+      Number(awayGoals) !== (initialAwayGoals ?? -1));
+
+  useEffect(() => {
+    if (mode === 'editing' && isSaved) setMode('display');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialHomeGoals, initialAwayGoals]);
+
+  useEffect(() => {
+    if (!editResetKey) return;
+    reset(buildDefaults(isSaved, initialHomeGoals, initialAwayGoals));
+    setMode('display');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editResetKey]);
+
   const onSubmit = handleSubmit(async (values) => {
     setIsSubmitting(true);
     const ok = await onSave(match.id, {
@@ -82,20 +102,24 @@ const MatchPredictionCard = ({
       awayGoals: Number(values.awayGoals),
     });
     setIsSubmitting(false);
-    if (ok) setIsEditing(false);
+    if (ok) setMode('display');
   });
 
   const handlePrimaryClick = () => {
     if (isLocked) return;
-    if (isSaved && !isEditing) {
-      setIsEditing(true);
+    if (mode === 'display') {
+      setMode('editing');
+      return;
+    }
+    if (isSaved && !valuesChanged) {
+      setMode('display');
       return;
     }
     void onSubmit();
   };
 
-  const buttonLabel = isSaved ? (isEditing ? t('saveCta') : t('editCta')) : t('predictCta');
-  const showInputs = isEditing && !isLocked;
+  const buttonLabel = mode === 'display' ? t('editCta') : isSaved ? t('saveCta') : t('predictCta');
+  const showInputs = mode === 'editing' && !isLocked;
   const submitDisabled = isSubmitting || (showInputs && !isValid);
 
   return (
@@ -172,9 +196,9 @@ const MatchPredictionCard = ({
           <AppButton
             variant="primary"
             size="small"
-            type={showInputs ? 'submit' : 'button'}
+            type="button"
             disabled={submitDisabled}
-            onClick={!showInputs ? handlePrimaryClick : undefined}
+            onClick={handlePrimaryClick}
             sx={{ minWidth: 180 }}
           >
             {isSubmitting ? <CircularProgress size={18} color="inherit" /> : buttonLabel}
