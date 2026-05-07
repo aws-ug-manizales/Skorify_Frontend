@@ -2,7 +2,9 @@ name: "CI - Validación de PR"
                                                                                              
 on:
   push:                                                                            
-    branches: [feature/ci-vulnerability-scan]                                      
+    branches: [feature/*]
+  pull_request:
+    branches: [develop]
                                                                                     
 jobs:                                                                                                                                      
   lint:
@@ -10,3 +12,7 @@ jobs:
 
   sca:                                                           
     uses: aws-ug-manizales/Skorify_DevOps/.github/workflows/shared--sca-generic.yml@feature/ci-pr-validation-workflows
+  
+  build:
+    #needs: [lint, sca]
+    uses: aws-ug-manizales/Skorify_DevOps/.github/workflows/shared--build-frontend.yml@feature/ci-pr-validation-workflows
