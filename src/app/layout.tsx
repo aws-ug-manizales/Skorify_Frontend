@@ -3,7 +3,7 @@ import { Lexend } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 import ThemeRegistry from '@/lib/theme/ThemeRegistry';
-import SnackbarHost from '@shared/components/organisms/SnackbarHost';
+import { NotificationProvider } from '@shared/notifications';
 import './globals.scss';
 
 const lexend = Lexend({
@@ -30,8 +30,7 @@ const RootLayout = async ({ children }: Readonly<{ children: React.ReactNode }>)
       <body>
         <ThemeRegistry>
           <NextIntlClientProvider locale={locale} messages={messages}>
-            {children}
-            <SnackbarHost />
+            <NotificationProvider>{children}</NotificationProvider>
           </NextIntlClientProvider>
         </ThemeRegistry>
       </body>

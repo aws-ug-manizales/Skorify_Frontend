@@ -9,7 +9,13 @@ import Tabs from '@mui/material/Tabs';
 import { useLocale, useTranslations } from 'next-intl';
 import PageHeader from '@shared/components/molecules/PageHeader';
 import { tokens } from '@lib/theme/theme';
-import useSnackbar from '@shared/hooks/useSnackbar';
+import {
+  useNotification,
+  NotificationType,
+  ToastSeverity,
+  NotificationVertical,
+  NotificationHorizontal,
+} from '@shared/notifications';
 import { MOCK_MATCHES } from '@features/matches/constants/matches.mock';
 import { getWorldCupWeekOptions2026 } from '@shared/components/organisms/MatchList/weekOptions';
 import PredictionsToolbar, { type PredictionsToolbarValues } from '../molecules/PredictionsToolbar';
@@ -44,7 +50,7 @@ const PANEL_PAPER_SX = {
 const PredictionsView = () => {
   const t = useTranslations('predictions');
   const locale = useLocale();
-  const snackbar = useSnackbar();
+  const { show: notify } = useNotification();
 
   const matches = useMemo(() => MOCK_MATCHES as unknown as PredictionMatch[], []);
   const weekOptions = useMemo(() => getWorldCupWeekOptions2026(locale), [locale]);
@@ -56,6 +62,8 @@ const PredictionsView = () => {
     mode: 'onChange',
   });
   const filterValues = useWatch({ control });
+
+  const [editResetKeys, setEditResetKeys] = useState<Record<string, number>>({});
 
   const [savedPredictions, setSavedPredictions] = useState<
     Record<string, MatchesPanelSavedPrediction>
@@ -103,14 +111,65 @@ const PredictionsView = () => {
     (matchId: string, values: { homeGoals: number; awayGoals: number }) => Promise<boolean>
   >(
     async (matchId, values) => {
-      // TODO: replace with useMakePrediction once the backend wires up.
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      setSavedPredictions((prev) => ({ ...prev, [matchId]: values }));
-      const message = savedMessages[Math.floor(Math.random() * savedMessages.length)];
-      snackbar.success(message);
-      return true;
+      const doSave = async () => {
+        // TODO: replace with useMakePrediction once the backend wires up.
+        await new Promise((resolve) => setTimeout(resolve, 800));
+        setSavedPredictions((prev) => ({ ...prev, [matchId]: values }));
+        const message = savedMessages[Math.floor(Math.random() * savedMessages.length)];
+        notify({
+          type: NotificationType.TOAST,
+          titleKey: 'predictions.predictionSaved',
+          message,
+          severity: ToastSeverity.SUCCESS,
+          position: {
+            vertical: NotificationVertical.TOP,
+            horizontal: NotificationHorizontal.RIGHT,
+          },
+        });
+      };
+
+      if (!(matchId in savedPredictions)) {
+        await doSave();
+        return true;
+      }
+
+      const existing = savedPredictions[matchId];
+      if (existing.homeGoals === values.homeGoals && existing.awayGoals === values.awayGoals) {
+        return true;
+      }
+
+      notify({
+        type: NotificationType.MODAL,
+        titleKey: 'predictions.overwriteTitle',
+        messageKey: 'predictions.overwriteMessage',
+        hasTwoButtons: true,
+        actions: [
+          {
+            labelKey: 'common.confirm',
+            onClick: () => {
+              doSave();
+            },
+          },
+          {
+            labelKey: 'common.cancel',
+            onClick: () => {
+              setEditResetKeys((prev) => ({ ...prev, [matchId]: (prev[matchId] ?? 0) + 1 }));
+              notify({
+                type: NotificationType.TOAST,
+                messageKey: 'predictions.editCancelledToast',
+                severity: ToastSeverity.WARNING,
+                position: {
+                  vertical: NotificationVertical.TOP,
+                  horizontal: NotificationHorizontal.RIGHT,
+                },
+              });
+            },
+          },
+        ],
+      });
+      return false;
     },
-    [savedMessages, snackbar],
+    [savedPredictions, savedMessages, notify, setEditResetKeys],
   );
 
   const renderOpenPanel = (showHeader: boolean) => (
@@ -119,6 +178,7 @@ const PredictionsView = () => {
       title={t('openPanelTitle')}
       emptyMessage={t('noOpenMatches')}
       savedPredictions={savedPredictions}
+      editResetKeys={editResetKeys}
       onSave={handleSave}
       showHeader={showHeader}
     />
@@ -130,6 +190,7 @@ const PredictionsView = () => {
       title={t('closedPanelTitle')}
       emptyMessage={t('noClosedMatches')}
       savedPredictions={savedPredictions}
+      editResetKeys={editResetKeys}
       onSave={handleSave}
       showHeader={showHeader}
     />

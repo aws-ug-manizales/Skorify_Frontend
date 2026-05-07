@@ -1,43 +1,49 @@
 'use client';
 
 import { useMemo } from 'react';
-import {
-  useSnackbarStore,
-  type SnackbarInput,
-  type SnackbarSeverity,
-} from '@store/useSnackbarStore';
+import { NotificationType, ToastSeverity, useNotification } from '@shared/notifications';
+
+export type SnackbarSeverity = ToastSeverity;
+
+export interface SnackbarInput {
+  severity: SnackbarSeverity;
+  message: string;
+  duration?: number;
+  action?: { label: string; onClick: () => void };
+}
 
 export interface SnackbarApi {
-  enqueue: (input: SnackbarInput) => string;
-  dismiss: (id?: string) => void;
-  clear: () => void;
-  show: (severity: SnackbarSeverity, message: string, options?: Partial<SnackbarInput>) => string;
-  success: (message: string, options?: Partial<SnackbarInput>) => string;
-  error: (message: string, options?: Partial<SnackbarInput>) => string;
-  warning: (message: string, options?: Partial<SnackbarInput>) => string;
-  info: (message: string, options?: Partial<SnackbarInput>) => string;
+  enqueue: (input: SnackbarInput) => void;
+  dismiss: () => void;
+  show: (severity: SnackbarSeverity, message: string, options?: Partial<SnackbarInput>) => void;
+  success: (message: string, options?: Partial<SnackbarInput>) => void;
+  error: (message: string, options?: Partial<SnackbarInput>) => void;
+  warning: (message: string, options?: Partial<SnackbarInput>) => void;
+  info: (message: string, options?: Partial<SnackbarInput>) => void;
 }
 
 export const useSnackbar = (): SnackbarApi => {
-  const enqueue = useSnackbarStore((state) => state.enqueue);
-  const dismiss = useSnackbarStore((state) => state.dismiss);
-  const clear = useSnackbarStore((state) => state.clear);
+  const { show: notify } = useNotification();
 
   return useMemo<SnackbarApi>(() => {
     const show = (severity: SnackbarSeverity, message: string, options?: Partial<SnackbarInput>) =>
-      enqueue({ ...options, severity, message });
+      notify({
+        type: NotificationType.TOAST,
+        message,
+        severity,
+        duration: options?.duration,
+      });
 
     return {
-      enqueue,
-      dismiss,
-      clear,
+      enqueue: (input) => show(input.severity, input.message, input),
+      dismiss: () => {},
       show,
-      success: (message, options) => show('success', message, options),
-      error: (message, options) => show('error', message, options),
-      warning: (message, options) => show('warning', message, options),
-      info: (message, options) => show('info', message, options),
+      success: (message, options) => show(ToastSeverity.SUCCESS, message, options),
+      error: (message, options) => show(ToastSeverity.ERROR, message, options),
+      warning: (message, options) => show(ToastSeverity.WARNING, message, options),
+      info: (message, options) => show(ToastSeverity.INFO, message, options),
     };
-  }, [enqueue, dismiss, clear]);
+  }, [notify]);
 };
 
 export default useSnackbar;
