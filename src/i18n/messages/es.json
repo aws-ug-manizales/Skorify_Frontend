@@ -151,7 +151,56 @@
     "finished": "Finalizados",
     "worldcup": "Copa del Mundo FIFA 2026",
     "groupStage": "Fase de grupos",
-    "roundOf16": "Octavos de final"
+    "roundOf16": "Octavos de final",
+    "resultForm": {
+      "title": "Cargar resultado del partido",
+      "subtitle": "Selecciona un partido para revisar su información antes de cargar el resultado final.",
+      "matchLabel": "Partido",
+      "matchPlaceholder": "Busca por equipos, torneo o fecha",
+      "matchHelper": "Los partidos mostrados son datos simulados de frontend.",
+      "selectionSummaryTitle": "Resumen del partido seleccionado",
+      "selectionEmpty": "Selecciona un partido para ver sus datos.",
+      "editor": {
+        "title": "Editar resultado",
+        "description": "Actualiza únicamente los goles y el estado del partido seleccionado.",
+        "homeGoalsLabel": "Goles local",
+        "awayGoalsLabel": "Goles visitante",
+        "statusLabel": "Estado del partido",
+        "statusHelper": "Para partidos finalizados, usa el estado Finalizado.",
+        "saveButton": "Guardar resultado"
+      },
+      "saveSuccess": "Resultado actualizado correctamente. Última actualización: {updatedAt}.",
+      "saveError": "No se pudo actualizar el resultado. Intenta nuevamente.",
+      "fields": {
+        "teams": "Equipos",
+        "tournament": "Torneo",
+        "kickOff": "Inicio",
+        "stage": "Fase",
+        "venue": "Sede",
+        "status": "Estado"
+      },
+      "statusOptions": {
+        "scheduled": "Programado",
+        "in_progress": "En juego",
+        "finished": "Finalizado"
+      },
+      "stageOptions": {
+        "group": "Fase de grupos",
+        "finals": "Fase final"
+      },
+      "validation": {
+        "matchRequired": "Selecciona un partido para continuar.",
+        "homeGoalsRequired": "Ingresa los goles del equipo local.",
+        "awayGoalsRequired": "Ingresa los goles del equipo visitante.",
+        "statusRequired": "Selecciona el estado del partido.",
+        "goalsInteger": "Ingresa un número entero mayor o igual a 0."
+      },
+      "fallbackTeam": "Equipo",
+      "fallbackTournament": "Torneo",
+      "modifyButton": "Modificar Resultado",
+      "fallbackHome": "Local",
+      "fallbackAway": "Visitante"
+    }
   },
   "tournaments": {
     "title": "Torneos",
