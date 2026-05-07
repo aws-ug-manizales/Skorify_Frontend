@@ -14,5 +14,5 @@ jobs:
     uses: aws-ug-manizales/Skorify_DevOps/.github/workflows/shared--sca-generic.yml@feature/ci-pr-validation-workflows
   
   build:
-    #needs: [lint, sca]
+    needs: [lint, sca]
     uses: aws-ug-manizales/Skorify_DevOps/.github/workflows/shared--build-frontend.yml@feature/ci-pr-validation-workflows
