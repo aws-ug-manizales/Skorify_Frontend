@@ -231,6 +231,8 @@
     "pendingMatchesPlural": "matches pending",
     "notFound": "Group not found",
     "loadError": "Could not load the group",
+    "showMore": "Show {count} more",
+    "showLess": "Show less",
     "colPlayer": "Player",
     "colPoints": "Pts",
     "colWon": "W",

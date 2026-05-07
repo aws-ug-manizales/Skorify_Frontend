@@ -16,6 +16,8 @@ interface MemberListItemProps {
 
 const MemberListItem = ({ member, isCurrentUser }: MemberListItemProps) => {
   const t = useTranslations('groups');
+  const isFirst = member.rank === 1;
+
   return (
     <Box
       sx={{
@@ -26,10 +28,35 @@ const MemberListItem = ({ member, isCurrentUser }: MemberListItemProps) => {
         px: 1.5,
         borderRadius: '8px',
         bgcolor: isCurrentUser ? `${tokens.primaryContainer}18` : 'transparent',
+        borderLeft: isCurrentUser ? `3px solid ${tokens.primary}` : '3px solid transparent',
         transition: 'background-color 150ms ease',
         '&:hover': { bgcolor: `${tokens.primary}0D` },
       }}
     >
+      {/* Rank */}
+      {member.rank !== undefined && (
+        <Typography
+          variant="body2"
+          sx={{
+            width: 18,
+            textAlign: 'center',
+            fontWeight: 700,
+            fontSize: '0.75rem',
+            flexShrink: 0,
+            ...(isFirst
+              ? {
+                  background: tokens.ctaGradient,
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }
+              : { color: tokens.onSurfaceVariant }),
+          }}
+        >
+          {member.rank}
+        </Typography>
+      )}
+
       <Avatar
         sx={{
           width: 36,
@@ -39,6 +66,7 @@ const MemberListItem = ({ member, isCurrentUser }: MemberListItemProps) => {
           fontWeight: 700,
           color: tokens.onSurface,
           flexShrink: 0,
+          ...(isFirst && { boxShadow: `0 0 0 2px ${tokens.secondary}` }),
         }}
       >
         {getInitials(member.name)}
@@ -51,38 +79,66 @@ const MemberListItem = ({ member, isCurrentUser }: MemberListItemProps) => {
           color: isCurrentUser ? tokens.primary : tokens.onSurface,
           fontWeight: isCurrentUser ? 600 : 400,
           fontSize: '0.82rem',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
         }}
       >
         {member.name}
       </Typography>
 
-      <Box sx={{ display: 'flex', gap: 0.5 }}>
-        {member.isAdmin && (
-          <Chip
-            label={t('adminBadge')}
-            size="small"
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+        {/* Points */}
+        {member.points !== undefined && (
+          <Typography
+            variant="body2"
             sx={{
-              bgcolor: `${tokens.secondary}22`,
-              color: tokens.secondary,
-              fontSize: '0.65rem',
-              height: 20,
+              color: isCurrentUser ? tokens.primary : tokens.onSurface,
               fontWeight: 700,
+              fontSize: '0.82rem',
+              minWidth: 28,
+              textAlign: 'right',
             }}
-          />
+          >
+            {member.points}
+            <Typography
+              component="span"
+              sx={{ fontSize: '0.6rem', color: tokens.onSurfaceVariant, ml: 0.25 }}
+            >
+              {t('colPoints')}
+            </Typography>
+          </Typography>
         )}
-        {isCurrentUser && (
-          <Chip
-            label={t('youBadge')}
-            size="small"
-            sx={{
-              bgcolor: `${tokens.primary}22`,
-              color: tokens.primary,
-              fontSize: '0.65rem',
-              height: 20,
-              fontWeight: 700,
-            }}
-          />
-        )}
+
+        {/* Badges */}
+        <Box sx={{ display: 'flex', gap: 0.5 }}>
+          {member.isAdmin && (
+            <Chip
+              label={t('adminBadge')}
+              size="small"
+              sx={{
+                bgcolor: `${tokens.secondary}22`,
+                color: tokens.secondary,
+                fontSize: '0.65rem',
+                height: 20,
+                fontWeight: 700,
+              }}
+            />
+          )}
+          {isCurrentUser && (
+            <Chip
+              label={t('youBadge')}
+              size="small"
+              sx={{
+                bgcolor: `${tokens.primary}22`,
+                color: tokens.primary,
+                fontSize: '0.65rem',
+                height: 20,
+                fontWeight: 700,
+              }}
+            />
+          )}
+        </Box>
       </Box>
     </Box>
   );

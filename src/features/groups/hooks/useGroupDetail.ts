@@ -47,11 +47,11 @@ const MOCK_DATA: GroupDetailData = {
     },
   ],
   members: [
-    { id: 'mock-admin-id', name: 'Narboleda', isAdmin: true },
-    { id: 'user-2', name: 'Ana López', isAdmin: false },
-    { id: 'user-3', name: 'Carlos R.', isAdmin: false },
-    { id: 'user-4', name: 'María S.', isAdmin: false },
-    { id: 'user-5', name: 'Jorge M.', isAdmin: false },
+    { id: 'mock-admin-id', name: 'Narboleda', isAdmin: true, points: 45, rank: 1 },
+    { id: 'user-2', name: 'Ana López', isAdmin: false, points: 38, rank: 2 },
+    { id: 'user-3', name: 'Carlos R.', isAdmin: false, points: 30, rank: 3 },
+    { id: 'user-4', name: 'María S.', isAdmin: false, points: 22, rank: 4 },
+    { id: 'user-5', name: 'Jorge M.', isAdmin: false, points: 18, rank: 5 },
   ],
 };
 
