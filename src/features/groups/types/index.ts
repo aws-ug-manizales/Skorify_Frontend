@@ -62,3 +62,10 @@ export interface GroupDetailData {
   pendingMatches: PendingMatch[];
   members: GroupMember[];
 }
+
+export interface LeaveGroupResponse {
+  success: boolean;
+  dissolved?: boolean;
+  newAdminId?: string;
+  message?: string;
+}
