@@ -18,10 +18,9 @@ export enum NotificationHorizontal {
   RIGHT = 'right',
 }
 
-export type NotificationAction = {
-  labelKey: string;
-  onClick: () => void;
-};
+export type NotificationAction =
+  | { labelKey: string; label?: string; onClick: () => void }
+  | { label: string; labelKey?: string; onClick: () => void };
 
 type NotificationBase = {
   /** i18n key resolved via useTranslations. Takes priority over `message`. */

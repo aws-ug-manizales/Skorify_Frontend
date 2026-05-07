@@ -47,7 +47,7 @@ const ModalHost = () => {
             }}
             color="inherit"
           >
-            {tFn(cancel.labelKey)}
+            {resolveNotificationText(tFn, cancel.labelKey, cancel.label) || tFn('common.cancel')}
           </Button>
           <Button
             onClick={() => {
@@ -57,7 +57,7 @@ const ModalHost = () => {
             variant="contained"
             color="primary"
           >
-            {tFn(confirm.labelKey)}
+            {resolveNotificationText(tFn, confirm.labelKey, confirm.label) || tFn('common.confirm')}
           </Button>
         </>
       );
@@ -74,7 +74,7 @@ const ModalHost = () => {
           variant="contained"
           color="primary"
         >
-          {tFn(action.labelKey)}
+          {resolveNotificationText(tFn, action.labelKey, action.label) || tFn('common.confirm')}
         </Button>
       );
     }

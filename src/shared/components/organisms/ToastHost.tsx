@@ -15,10 +15,10 @@ import { resolveNotificationText } from '@shared/notifications/utils';
 import { BOTTOM_NAV_HEIGHT } from '@shared/layouts/DrawerShell';
 
 const SEVERITY_DURATION: Record<ToastSeverity, number> = {
-  [ToastSeverity.SUCCESS]: 4000,
-  [ToastSeverity.INFO]: 4000,
-  [ToastSeverity.WARNING]: 5500,
-  [ToastSeverity.ERROR]: 7000,
+  [ToastSeverity.SUCCESS]: 2000,
+  [ToastSeverity.INFO]: 2000,
+  [ToastSeverity.WARNING]: 2750,
+  [ToastSeverity.ERROR]: 3500,
 };
 
 const SEVERITY_COLOR: Record<ToastSeverity, string> = {
@@ -36,9 +36,17 @@ const ToastItemEl = ({ toast, onDismiss }: { toast: ToastItem; onDismiss: () => 
   const [expanded, setExpanded] = useState(false);
   const [capturedHeight, setCapturedHeight] = useState<number | null>(null);
   const boxRef = useRef<HTMLDivElement>(null);
+  const dismissedRef = useRef(false);
+  const autoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const timerIds = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const startDismiss = useCallback(() => {
+    if (dismissedRef.current) return;
+    dismissedRef.current = true;
+    if (autoTimerRef.current) {
+      clearTimeout(autoTimerRef.current);
+      autoTimerRef.current = null;
+    }
     if (boxRef.current) setCapturedHeight(boxRef.current.offsetHeight);
     setPhase('fading');
     timerIds.current.push(setTimeout(() => setPhase('collapsing'), 200));
@@ -49,27 +57,18 @@ const ToastItemEl = ({ toast, onDismiss }: { toast: ToastItem; onDismiss: () => 
   const severityColor = SEVERITY_COLOR[severity];
   const duration = toast.duration ?? SEVERITY_DURATION[severity];
 
-  const title = resolveNotificationText(
-    t as (k: string, v?: Record<string, string | number>) => string,
-    toast.titleKey,
-    toast.title,
-    toast.i18nValues,
-  );
-  const message = resolveNotificationText(
-    t as (k: string, v?: Record<string, string | number>) => string,
-    toast.messageKey,
-    toast.message,
-    toast.i18nValues,
-  );
+  const tFn = t as (k: string, v?: Record<string, string | number>) => string;
+  const title = resolveNotificationText(tFn, toast.titleKey, toast.title, toast.i18nValues);
+  const message = resolveNotificationText(tFn, toast.messageKey, toast.message, toast.i18nValues);
 
   const isLong = message.length > MAX_PREVIEW_CHARS;
   const preview = isLong ? `${message.slice(0, MAX_PREVIEW_CHARS).trimEnd()}…` : message;
   const remainder = isLong ? message.slice(MAX_PREVIEW_CHARS) : '';
 
   useEffect(() => {
-    const id = setTimeout(startDismiss, duration);
+    autoTimerRef.current = setTimeout(startDismiss, duration);
     return () => {
-      clearTimeout(id);
+      if (autoTimerRef.current) clearTimeout(autoTimerRef.current);
       timerIds.current.forEach(clearTimeout);
       timerIds.current = [];
     };
