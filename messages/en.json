@@ -89,7 +89,10 @@
         "goalsInteger": "Enter an integer value greater than or equal to 0."
       },
       "fallbackTeam": "Team",
-      "fallbackTournament": "Tournament"
+      "fallbackTournament": "Tournament",
+      "modifyButton": "Modify Result",
+      "fallbackHome": "Home",
+      "fallbackAway": "Away"
     }
   },
   "tournaments": {

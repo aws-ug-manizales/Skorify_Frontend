@@ -89,7 +89,10 @@
         "goalsInteger": "Ingresa un número entero mayor o igual a 0."
       },
       "fallbackTeam": "Equipo",
-      "fallbackTournament": "Torneo"
+      "fallbackTournament": "Torneo",
+      "modifyButton": "Modificar Resultado",
+      "fallbackHome": "Local",
+      "fallbackAway": "Visitante"
     }
   },
   "tournaments": {
