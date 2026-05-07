@@ -8,22 +8,30 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useTranslations } from 'next-intl';
 import { useModalStore } from '@shared/notifications/strategies/ModalStrategy';
+import { resolveNotificationText } from '@shared/notifications/utils';
+
+type TranslateFn = (key: string, values?: Record<string, string | number>) => string;
 
 const ModalHost = () => {
   const current = useModalStore((state) => state.current);
   const open = useModalStore((state) => state.open);
   const hide = useModalStore((state) => state.hide);
+  const clearAfterClose = useModalStore((state) => state.clearAfterClose);
   const t = useTranslations();
-  const tDyn = t as (key: string, values?: Record<string, string | number>) => string;
+  const tFn = t as unknown as TranslateFn;
 
-  const resolveText = (key?: string, raw?: string): string => {
-    if (raw) return raw;
-    if (key) return tDyn(key, current?.i18nValues);
-    return '';
-  };
-
-  const title = resolveText(current?.titleKey, current?.title);
-  const message = resolveText(current?.messageKey, current?.message);
+  const title = resolveNotificationText(
+    tFn,
+    current?.titleKey,
+    current?.title,
+    current?.i18nValues,
+  );
+  const message = resolveNotificationText(
+    tFn,
+    current?.messageKey,
+    current?.message,
+    current?.i18nValues,
+  );
 
   const renderActions = () => {
     if (!current) return null;
@@ -39,7 +47,7 @@ const ModalHost = () => {
             }}
             color="inherit"
           >
-            {tDyn(cancel.labelKey)}
+            {tFn(cancel.labelKey)}
           </Button>
           <Button
             onClick={() => {
@@ -49,7 +57,7 @@ const ModalHost = () => {
             variant="contained"
             color="primary"
           >
-            {tDyn(confirm.labelKey)}
+            {tFn(confirm.labelKey)}
           </Button>
         </>
       );
@@ -66,14 +74,14 @@ const ModalHost = () => {
           variant="contained"
           color="primary"
         >
-          {tDyn(action.labelKey)}
+          {tFn(action.labelKey)}
         </Button>
       );
     }
 
     return (
       <Button onClick={hide} variant="contained" color="primary">
-        {tDyn('common.close')}
+        {tFn('common.close')}
       </Button>
     );
   };
@@ -88,6 +96,7 @@ const ModalHost = () => {
       disableEscapeKeyDown
       maxWidth="sm"
       fullWidth
+      TransitionProps={{ onExited: clearAfterClose }}
     >
       {title && <DialogTitle>{title}</DialogTitle>}
       <DialogContent>

@@ -12,31 +12,34 @@ import ToastHost from '@shared/components/organisms/ToastHost';
 
 interface NotificationContextValue {
   show: (config: NotificationConfig) => void;
-  hide: () => void;
+  hide: (type?: NotificationType, id?: string) => void;
   builder: () => NotificationBuilder;
 }
 
 const NotificationContext = createContext<NotificationContextValue | null>(null);
 
-const toastStrategy = new ToastStrategy();
-const modalStrategy = new ModalStrategy();
-
-const strategies: Record<NotificationType, INotificationStrategy> = {
-  [NotificationType.TOAST]: toastStrategy,
-  [NotificationType.MODAL]: modalStrategy,
-};
-
 export const NotificationProvider = ({ children }: { children: ReactNode }) => {
+  const strategies = useMemo<Record<NotificationType, INotificationStrategy>>(
+    () => ({
+      [NotificationType.TOAST]: new ToastStrategy(),
+      [NotificationType.MODAL]: new ModalStrategy(),
+    }),
+    [],
+  );
+
   const value = useMemo<NotificationContextValue>(
     () => ({
       show: (config) => strategies[config.type].show(config),
-      hide: () => {
-        toastStrategy.hide();
-        modalStrategy.hide();
+      hide: (type, id) => {
+        if (type !== undefined) {
+          strategies[type].hide(id);
+        } else {
+          Object.values(strategies).forEach((s) => s.hide());
+        }
       },
       builder: () => new NotificationBuilder(),
     }),
-    [],
+    [strategies],
   );
 
   return (

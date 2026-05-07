@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import Box from '@mui/material/Box';
@@ -11,6 +11,7 @@ import { tokens } from '@lib/theme/theme';
 import { ToastSeverity, NotificationVertical, NotificationHorizontal } from '@shared/notifications';
 import type { ToastItem } from '@shared/notifications/strategies/ToastStrategy';
 import { useToastStore } from '@shared/notifications/strategies/ToastStrategy';
+import { resolveNotificationText } from '@shared/notifications/utils';
 import { BOTTOM_NAV_HEIGHT } from '@shared/layouts/DrawerShell';
 
 const SEVERITY_DURATION: Record<ToastSeverity, number> = {
@@ -31,41 +32,48 @@ const MAX_PREVIEW_CHARS = 60;
 
 const ToastItemEl = ({ toast, onDismiss }: { toast: ToastItem; onDismiss: () => void }) => {
   const t = useTranslations();
-  const tDyn = t as (key: string, values?: Record<string, string | number>) => string;
   const [phase, setPhase] = useState<'visible' | 'fading' | 'collapsing'>('visible');
   const [expanded, setExpanded] = useState(false);
   const [capturedHeight, setCapturedHeight] = useState<number | null>(null);
   const boxRef = useRef<HTMLDivElement>(null);
+  const timerIds = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  const startDismiss = () => {
+  const startDismiss = useCallback(() => {
     if (boxRef.current) setCapturedHeight(boxRef.current.offsetHeight);
     setPhase('fading');
-    setTimeout(() => setPhase('collapsing'), 200);
-    setTimeout(() => onDismiss(), 400);
-  };
+    timerIds.current.push(setTimeout(() => setPhase('collapsing'), 200));
+    timerIds.current.push(setTimeout(onDismiss, 400));
+  }, [onDismiss]);
 
   const severity = toast.severity ?? ToastSeverity.INFO;
   const severityColor = SEVERITY_COLOR[severity];
   const duration = toast.duration ?? SEVERITY_DURATION[severity];
 
-  const resolveText = (key?: string, raw?: string) => {
-    if (raw) return raw;
-    if (key) return tDyn(key, toast.i18nValues);
-    return '';
-  };
-
-  const title = resolveText(toast.titleKey, toast.title);
-  const message = resolveText(toast.messageKey, toast.message);
+  const title = resolveNotificationText(
+    t as (k: string, v?: Record<string, string | number>) => string,
+    toast.titleKey,
+    toast.title,
+    toast.i18nValues,
+  );
+  const message = resolveNotificationText(
+    t as (k: string, v?: Record<string, string | number>) => string,
+    toast.messageKey,
+    toast.message,
+    toast.i18nValues,
+  );
 
   const isLong = message.length > MAX_PREVIEW_CHARS;
   const preview = isLong ? `${message.slice(0, MAX_PREVIEW_CHARS).trimEnd()}…` : message;
   const remainder = isLong ? message.slice(MAX_PREVIEW_CHARS) : '';
 
   useEffect(() => {
-    const timer = setTimeout(startDismiss, duration);
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [duration]);
+    const id = setTimeout(startDismiss, duration);
+    return () => {
+      clearTimeout(id);
+      timerIds.current.forEach(clearTimeout);
+      timerIds.current = [];
+    };
+  }, [duration, startDismiss]);
 
   return (
     <Box
@@ -124,7 +132,7 @@ const ToastItemEl = ({ toast, onDismiss }: { toast: ToastItem; onDismiss: () => 
               '&:hover': { textDecoration: 'underline' },
             }}
           >
-            {tDyn('common.showMore')}
+            {t('common.showMore')}
           </Typography>
         )}
         {expanded && remainder && (

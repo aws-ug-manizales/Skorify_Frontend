@@ -1,7 +1,8 @@
 'use client';
 
 import { create } from 'zustand';
-import type { NotificationConfig } from '../types';
+import { NotificationType } from '../NotificationType';
+import type { ToastConfig, NotificationConfig } from '../types';
 import type { INotificationStrategy } from './INotificationStrategy';
 
 const createId = () =>
@@ -9,11 +10,11 @@ const createId = () =>
     ? crypto.randomUUID()
     : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-export type ToastItem = NotificationConfig & { id: string };
+export type ToastItem = ToastConfig & { id: string };
 
 interface ToastStore {
   queue: ToastItem[];
-  enqueue: (config: NotificationConfig) => string;
+  enqueue: (config: ToastConfig) => string;
   dismiss: (id?: string) => void;
 }
 
@@ -32,10 +33,11 @@ export const useToastStore = create<ToastStore>((set) => ({
 
 export class ToastStrategy implements INotificationStrategy {
   show(config: NotificationConfig): void {
+    if (config.type !== NotificationType.TOAST) return;
     useToastStore.getState().enqueue(config);
   }
 
-  hide(): void {
-    useToastStore.getState().dismiss();
+  hide(id?: string): void {
+    useToastStore.getState().dismiss(id);
   }
 }

@@ -23,8 +23,7 @@ export type NotificationAction = {
   onClick: () => void;
 };
 
-export type NotificationConfig = {
-  type: NotificationType;
+type NotificationBase = {
   /** i18n key resolved via useTranslations. Takes priority over `message`. */
   messageKey?: string;
   /** Raw resolved string — used by legacy callers that pre-resolve messages. */
@@ -32,14 +31,24 @@ export type NotificationConfig = {
   i18nValues?: Record<string, string | number>;
   titleKey?: string;
   title?: string;
+  actions?: NotificationAction[];
+};
+
+export type ToastConfig = NotificationBase & {
+  type: NotificationType.TOAST;
   severity?: ToastSeverity;
   position?: {
     vertical: NotificationVertical;
     horizontal: NotificationHorizontal;
   };
-  actions?: NotificationAction[];
-  /** Modal only: renders confirm + cancel from actions[0] and actions[1]. */
-  hasTwoButtons?: boolean;
-  /** Toast auto-hide ms. Defaults to SEVERITY_DURATION map in ToastHost. */
+  /** Auto-hide ms. Defaults to SEVERITY_DURATION map in ToastHost. */
   duration?: number;
 };
+
+export type ModalConfig = NotificationBase & {
+  type: NotificationType.MODAL;
+  /** Renders confirm + cancel from actions[0] and actions[1]. */
+  hasTwoButtons?: boolean;
+};
+
+export type NotificationConfig = ToastConfig | ModalConfig;
