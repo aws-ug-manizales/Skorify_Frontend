@@ -6,6 +6,7 @@ import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
 import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined';
 import IosShareIcon from '@mui/icons-material/IosShare';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { useTranslations } from 'next-intl';
 import { tokens } from '@lib/theme/theme';
 import { getInitials } from '@shared/utils/string';
@@ -16,9 +17,10 @@ interface GroupHeaderProps {
   group: Group;
   isAdmin: boolean;
   onShare: () => void;
+  onLeave: () => void;
 }
 
-const GroupHeader = ({ group, isAdmin, onShare }: GroupHeaderProps) => {
+const GroupHeader = ({ group, isAdmin, onShare, onLeave }: GroupHeaderProps) => {
   const t = useTranslations('groups');
   return (
     <Box
@@ -98,22 +100,41 @@ const GroupHeader = ({ group, isAdmin, onShare }: GroupHeaderProps) => {
           />
         </Box>
 
-        {isAdmin && (
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 1,
+            flexShrink: 0,
+            alignSelf: { xs: 'flex-start', sm: 'center' },
+            ml: { xs: 'auto', sm: 0 },
+          }}
+        >
+          {isAdmin && (
+            <AppButton
+              variant="primary"
+              startIcon={<IosShareIcon />}
+              onClick={onShare}
+              size="small"
+              sx={{ borderRadius: '8px' }}
+            >
+              {t('shareButton')}
+            </AppButton>
+          )}
           <AppButton
-            variant="primary"
-            startIcon={<IosShareIcon />}
-            onClick={onShare}
+            variant="secondary"
+            startIcon={<ExitToAppIcon />}
+            onClick={onLeave}
             size="small"
             sx={{
               borderRadius: '8px',
-              flexShrink: 0,
-              alignSelf: { xs: 'flex-start', sm: 'center' },
-              ml: { xs: 'auto', sm: 0 },
+              color: tokens.error,
+              borderColor: tokens.error,
+              '&:hover': { bgcolor: `${tokens.error}14` },
             }}
           >
-            {t('shareButton')}
+            {t('leaveButton')}
           </AppButton>
-        )}
+        </Box>
       </Box>
     </Box>
   );

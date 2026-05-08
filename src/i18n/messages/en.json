@@ -270,7 +270,19 @@
       "joinFailed": "Error joining the group"
     },
     "showLess": "Show less",
-    "showMore": "Show {count} more"
+    "showMore": "Show {count} more",
+    "leaveButton": "Leave group",
+    "leaveDialogTitle": "Leave group?",
+    "leaveConfirm": "Yes, leave",
+    "leaveBody": "You will no longer be able to see the predictions or standings for this group.",
+    "leaveBodyOnlyAdmin": "You are the only administrator. Choose what to do with the group before leaving.",
+    "leaveBodyDissolve": "You are the only member. Upon leaving, the group will be permanently dissolved.",
+    "leaveAssignAdmin": "Assign new admin",
+    "leaveDissolveCta": "Dissolve group",
+    "leaveError": "Could not leave the group. Please try again.",
+    "leaveSuccess": "You have successfully left the group.",
+    "leaveSuccessNewAdmin": "You have left the group. A new admin has been assigned.",
+    "dissolveSuccess": "The group has been dissolved."
   },
   "dashboard": {
     "title": "Control Panel",

@@ -270,7 +270,19 @@
       "joinFailed": "Error al unirse al grupo"
     },
     "showLess": "Ver menos",
-    "showMore": "Ver {count} más"
+    "showMore": "Ver {count} más",
+    "leaveButton": "Abandonar grupo",
+    "leaveDialogTitle": "¿Abandonar grupo?",
+    "leaveConfirm": "Sí, abandonar",
+    "leaveBody": "Ya no podrás ver las predicciones ni la tabla de posiciones de este grupo.",
+    "leaveBodyOnlyAdmin": "Eres el único administrador. Elige qué hacer con el grupo antes de salir.",
+    "leaveBodyDissolve": "Eres el único miembro. Al salir, el grupo será disuelto permanentemente.",
+    "leaveAssignAdmin": "Asignar nuevo admin",
+    "leaveDissolveCta": "Disolver grupo",
+    "leaveError": "No se pudo abandonar el grupo. Inténtalo de nuevo.",
+    "leaveSuccess": "Has abandonado el grupo exitosamente.",
+    "leaveSuccessNewAdmin": "Has abandonado el grupo. Se asignó un nuevo administrador.",
+    "dissolveSuccess": "El grupo ha sido disuelto."
   },
   "dashboard": {
     "title": "Panel de Control",
