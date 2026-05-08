@@ -16,7 +16,6 @@ interface MemberListItemProps {
 
 const MemberListItem = ({ member, isCurrentUser }: MemberListItemProps) => {
   const t = useTranslations('groups');
-  const isFirst = member.rank === 1;
 
   return (
     <Box
@@ -33,30 +32,6 @@ const MemberListItem = ({ member, isCurrentUser }: MemberListItemProps) => {
         '&:hover': { bgcolor: `${tokens.primary}0D` },
       }}
     >
-      {/* Rank */}
-      {member.rank !== undefined && (
-        <Typography
-          variant="body2"
-          sx={{
-            width: 18,
-            textAlign: 'center',
-            fontWeight: 700,
-            fontSize: '0.75rem',
-            flexShrink: 0,
-            ...(isFirst
-              ? {
-                  background: tokens.ctaGradient,
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }
-              : { color: tokens.onSurfaceVariant }),
-          }}
-        >
-          {member.rank}
-        </Typography>
-      )}
-
       <Avatar
         sx={{
           width: 36,
@@ -66,7 +41,6 @@ const MemberListItem = ({ member, isCurrentUser }: MemberListItemProps) => {
           fontWeight: 700,
           color: tokens.onSurface,
           flexShrink: 0,
-          ...(isFirst && { boxShadow: `0 0 0 2px ${tokens.secondary}` }),
         }}
       >
         {getInitials(member.name)}
@@ -87,59 +61,57 @@ const MemberListItem = ({ member, isCurrentUser }: MemberListItemProps) => {
         {member.name}
       </Typography>
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-        {/* Points */}
-        {member.points !== undefined && (
-          <Typography
-            variant="body2"
+      {/* Badges */}
+      <Box sx={{ display: 'flex', gap: 0.5 }}>
+        {member.isAdmin && (
+          <Chip
+            label={t('adminBadge')}
+            size="small"
             sx={{
-              color: isCurrentUser ? tokens.primary : tokens.onSurface,
+              bgcolor: `${tokens.secondary}22`,
+              color: tokens.secondary,
+              fontSize: '0.65rem',
+              height: 20,
               fontWeight: 700,
-              fontSize: '0.82rem',
-              minWidth: 28,
-              textAlign: 'right',
             }}
-          >
-            {member.points}
-            <Typography
-              component="span"
-              sx={{ fontSize: '0.6rem', color: tokens.onSurfaceVariant, ml: 0.25 }}
-            >
-              {t('colPoints')}
-            </Typography>
-          </Typography>
+          />
         )}
-
-        {/* Badges */}
-        <Box sx={{ display: 'flex', gap: 0.5 }}>
-          {member.isAdmin && (
-            <Chip
-              label={t('adminBadge')}
-              size="small"
-              sx={{
-                bgcolor: `${tokens.secondary}22`,
-                color: tokens.secondary,
-                fontSize: '0.65rem',
-                height: 20,
-                fontWeight: 700,
-              }}
-            />
-          )}
-          {isCurrentUser && (
-            <Chip
-              label={t('youBadge')}
-              size="small"
-              sx={{
-                bgcolor: `${tokens.primary}22`,
-                color: tokens.primary,
-                fontSize: '0.65rem',
-                height: 20,
-                fontWeight: 700,
-              }}
-            />
-          )}
-        </Box>
+        {isCurrentUser && (
+          <Chip
+            label={t('youBadge')}
+            size="small"
+            sx={{
+              bgcolor: `${tokens.primary}22`,
+              color: tokens.primary,
+              fontSize: '0.65rem',
+              height: 20,
+              fontWeight: 700,
+            }}
+          />
+        )}
       </Box>
+
+      {/* Points */}
+      {member.points !== undefined && (
+        <Typography
+          variant="body2"
+          sx={{
+            color: isCurrentUser ? tokens.primary : tokens.onSurface,
+            fontWeight: 700,
+            fontSize: '0.82rem',
+            minWidth: 28,
+            textAlign: 'right',
+          }}
+        >
+          {member.points}
+          <Typography
+            component="span"
+            sx={{ fontSize: '0.6rem', color: tokens.onSurfaceVariant, ml: 0.25 }}
+          >
+            {t('colPoints')}
+          </Typography>
+        </Typography>
+      )}
     </Box>
   );
 };
