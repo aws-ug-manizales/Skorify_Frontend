@@ -2,48 +2,13 @@
 
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { type Control, type RegisterOptions } from 'react-hook-form';
-import FormField, { type FormFieldOption } from '@shared/components/atoms/FormField';
+import FormField from '@shared/components/atoms/FormField';
 import AppButton from '@shared/components/atoms/AppButton';
 import { tokens } from '@lib/theme/theme';
-import { type MatchStatus } from '../../types/match';
-
-export interface MatchResultFormValues {
-  matchId: string;
-  homeGoals: string;
-  awayGoals: string;
-  status: MatchStatus;
-}
-
-type MatchResultEditorLabels = {
-  title: string;
-  description: string;
-  homeGoals: string;
-  awayGoals: string;
-  status: string;
-  statusHelper: string;
-  save: string;
-  fallbackHome?: string;
-  fallbackAway?: string;
-};
-
-type MatchResultEditorValidation = {
-  homeGoals: RegisterOptions<MatchResultFormValues, 'homeGoals'>;
-  awayGoals: RegisterOptions<MatchResultFormValues, 'awayGoals'>;
-  status: RegisterOptions<MatchResultFormValues, 'status'>;
-};
-
-type MatchResultEditorProps = {
-  control: Control<MatchResultFormValues>;
-  labels: MatchResultEditorLabels;
-  validation: MatchResultEditorValidation;
-  statusOptions: FormFieldOption[];
-  disabled: boolean;
-  saveDisabled: boolean;
-  homeTeamName?: string;
-  awayTeamName?: string;
-  onSubmit: () => void;
-};
+import type {
+  MatchResultFormValues,
+  MatchResultEditorProps,
+} from '../../models/matchResultForm.model';
 
 const MatchResultEditor = ({
   control,

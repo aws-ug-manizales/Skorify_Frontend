@@ -15,18 +15,13 @@ import { tokens } from '@lib/theme/theme';
 import MatchAutocompleteField, {
   type MatchAutocompleteOption,
 } from '../atoms/MatchAutocompleteField';
-import MatchResultEditor, { type MatchResultFormValues } from '../molecules/MatchResultEditor';
+import MatchResultEditor from '../molecules/MatchResultEditor';
 import SelectedMatchSummary from '../molecules/SelectedMatchSummary';
 import { useMatchesStore } from '../../store';
 import { type MatchStatus } from '../../types/match';
+import type { MatchResultFormValues, SubmitFeedback } from '../../models/matchResultForm.model';
 
 const DEFAULT_STATUS: MatchStatus = 'finished';
-
-type SubmitFeedback = {
-  kind: 'success' | 'error';
-  message: string;
-  matchId: string;
-};
 
 const MatchResultSelectionPanel = () => {
   const t = useTranslations('matches.resultForm');
