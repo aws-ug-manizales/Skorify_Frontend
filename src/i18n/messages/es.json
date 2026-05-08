@@ -15,6 +15,8 @@
     "edit": "Editar",
     "back": "Volver",
     "backToHome": "Volver al inicio",
+    "close": "Cerrar",
+    "showMore": "Ver más",
     "comingSoon": "Esta sección está en desarrollo. Vuelve pronto."
   },
   "splash": {
@@ -96,6 +98,7 @@
     "predictCta": "Predecir",
     "editCta": "Editar",
     "saveCta": "Guardar",
+    "confirmCta": "Confirmar",
     "scorePlaceholder": "X - X",
     "homeGoalsLabel": "Goles local",
     "awayGoalsLabel": "Goles visitante",
@@ -108,6 +111,14 @@
     "closedPanelTitle": "Partidos cerrados",
     "noOpenMatches": "No hay partidos abiertos para predecir.",
     "noClosedMatches": "No hay partidos cerrados aún.",
+    "predictionSaved": "Predicción guardada",
+    "modalConfirmMessage": "Tu predicción quedó registrada. Puedes editarla hasta que el partido cierre.",
+    "undoPrediction": "Deshacer",
+    "undoWarning": "Las predicciones no se pueden deshacer una vez que el partido está cerrado.",
+    "overwriteTitle": "Editar predicción",
+    "overwriteMessage": "¿Deseas sobreescribir tu predicción actual?",
+    "editCancelledToast": "Edición cancelada. Tu predicción original no fue modificada.",
+    "saveErrorToast": "No se pudo guardar tu predicción. Intenta de nuevo.",
     "savedMessages": [
       "¡El más veloz del oeste!",
       "¡Predicción guardada! ¿Futuro pulpo Paul?",
@@ -308,7 +319,19 @@
       "joinFailed": "Error al unirse al grupo"
     },
     "showLess": "Ver menos",
-    "showMore": "Ver {count} más"
+    "showMore": "Ver {count} más",
+    "leaveButton": "Abandonar grupo",
+    "leaveDialogTitle": "¿Abandonar grupo?",
+    "leaveConfirm": "Sí, abandonar",
+    "leaveBody": "Ya no podrás ver las predicciones ni la tabla de posiciones de este grupo.",
+    "leaveBodyOnlyAdmin": "Eres el único administrador. Elige qué hacer con el grupo antes de salir.",
+    "leaveBodyDissolve": "Eres el único miembro. Al salir, el grupo será disuelto permanentemente.",
+    "leaveAssignAdmin": "Asignar nuevo admin",
+    "leaveDissolveCta": "Disolver grupo",
+    "leaveError": "No se pudo abandonar el grupo. Inténtalo de nuevo.",
+    "leaveSuccess": "Has abandonado el grupo exitosamente.",
+    "leaveSuccessNewAdmin": "Has abandonado el grupo. Se asignó un nuevo administrador.",
+    "dissolveSuccess": "El grupo ha sido disuelto."
   },
   "dashboard": {
     "title": "Panel de Control",

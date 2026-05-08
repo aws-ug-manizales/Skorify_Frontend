@@ -15,6 +15,8 @@
     "edit": "Edit",
     "back": "Back",
     "backToHome": "Back to home",
+    "close": "Close",
+    "showMore": "Show more",
     "comingSoon": "This section is under development. Come back soon."
   },
   "splash": {
@@ -96,6 +98,7 @@
     "predictCta": "Predict",
     "editCta": "Edit",
     "saveCta": "Save",
+    "confirmCta": "Confirm",
     "scorePlaceholder": "X - X",
     "homeGoalsLabel": "Home goals",
     "awayGoalsLabel": "Away goals",
@@ -108,6 +111,14 @@
     "closedPanelTitle": "Closed matches",
     "noOpenMatches": "No matches available to predict.",
     "noClosedMatches": "No closed matches yet.",
+    "predictionSaved": "Prediction saved",
+    "modalConfirmMessage": "Your prediction has been recorded. You can edit it until the match closes.",
+    "undoPrediction": "Undo",
+    "undoWarning": "Predictions cannot be undone once the match is locked.",
+    "overwriteTitle": "Edit prediction",
+    "overwriteMessage": "Do you want to overwrite your current prediction?",
+    "editCancelledToast": "Edit cancelled. Your original prediction is unchanged.",
+    "saveErrorToast": "Could not save your prediction. Please try again.",
     "savedMessages": [
       "Fastest in the west!",
       "Saved! Future Paul the octopus?",
@@ -308,7 +319,19 @@
       "joinFailed": "Error joining the group"
     },
     "showLess": "Show less",
-    "showMore": "Show {count} more"
+    "showMore": "Show {count} more",
+    "leaveButton": "Leave group",
+    "leaveDialogTitle": "Leave group?",
+    "leaveConfirm": "Yes, leave",
+    "leaveBody": "You will no longer be able to see the predictions or standings for this group.",
+    "leaveBodyOnlyAdmin": "You are the only administrator. Choose what to do with the group before leaving.",
+    "leaveBodyDissolve": "You are the only member. Upon leaving, the group will be permanently dissolved.",
+    "leaveAssignAdmin": "Assign new admin",
+    "leaveDissolveCta": "Dissolve group",
+    "leaveError": "Could not leave the group. Please try again.",
+    "leaveSuccess": "You have successfully left the group.",
+    "leaveSuccessNewAdmin": "You have left the group. A new admin has been assigned.",
+    "dissolveSuccess": "The group has been dissolved."
   },
   "dashboard": {
     "title": "Control Panel",
