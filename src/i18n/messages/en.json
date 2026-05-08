@@ -268,7 +268,10 @@
     "leaveBodyDissolve": "You are the only member. Upon leaving, the group will be permanently dissolved.",
     "leaveAssignAdmin": "Assign new admin",
     "leaveDissolveCta": "Dissolve group",
-    "leaveError": "Could not leave the group. Please try again."
+    "leaveError": "Could not leave the group. Please try again.",
+    "leaveSuccess": "You have successfully left the group.",
+    "leaveSuccessNewAdmin": "You have left the group. A new admin has been assigned.",
+    "dissolveSuccess": "The group has been dissolved."
   },
   "dashboard": {
     "title": "Control Panel",

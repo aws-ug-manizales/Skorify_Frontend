@@ -268,7 +268,10 @@
     "leaveBodyDissolve": "Eres el único miembro. Al salir, el grupo será disuelto permanentemente.",
     "leaveAssignAdmin": "Asignar nuevo admin",
     "leaveDissolveCta": "Disolver grupo",
-    "leaveError": "No se pudo abandonar el grupo. Inténtalo de nuevo."
+    "leaveError": "No se pudo abandonar el grupo. Inténtalo de nuevo.",
+    "leaveSuccess": "Has abandonado el grupo exitosamente.",
+    "leaveSuccessNewAdmin": "Has abandonado el grupo. Se asignó un nuevo administrador.",
+    "dissolveSuccess": "El grupo ha sido disuelto."
   },
   "dashboard": {
     "title": "Panel de Control",

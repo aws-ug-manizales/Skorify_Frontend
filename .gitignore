@@ -47,3 +47,6 @@ next-env.d.ts
 #IA
 CLAUDE.md
 AGENTS.md
+
+# usar yarn, no npm
+package-lock.json
