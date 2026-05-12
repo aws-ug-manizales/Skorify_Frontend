@@ -242,6 +242,8 @@
     "pendingMatchesPlural": "partidos pendientes",
     "notFound": "Grupo no encontrado",
     "loadError": "No se pudo cargar el grupo",
+    "showMore": "Ver {count} más",
+    "showLess": "Ver menos",
     "colPlayer": "Jugador",
     "colPoints": "Pts",
     "colWon": "V",

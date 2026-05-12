@@ -35,6 +35,8 @@ export interface GroupMember {
   name: string;
   avatarUrl?: string;
   isAdmin: boolean;
+  points?: number;
+  rank?: number;
 }
 
 export interface StandingRow {

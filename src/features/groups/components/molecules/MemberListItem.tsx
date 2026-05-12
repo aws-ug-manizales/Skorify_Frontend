@@ -16,6 +16,7 @@ interface MemberListItemProps {
 
 const MemberListItem = ({ member, isCurrentUser }: MemberListItemProps) => {
   const t = useTranslations('groups');
+
   return (
     <Box
       sx={{
@@ -26,6 +27,7 @@ const MemberListItem = ({ member, isCurrentUser }: MemberListItemProps) => {
         px: 1.5,
         borderRadius: '8px',
         bgcolor: isCurrentUser ? `${tokens.primaryContainer}18` : 'transparent',
+        borderLeft: isCurrentUser ? `3px solid ${tokens.primary}` : '3px solid transparent',
         transition: 'background-color 150ms ease',
         '&:hover': { bgcolor: `${tokens.primary}0D` },
       }}
@@ -51,11 +53,15 @@ const MemberListItem = ({ member, isCurrentUser }: MemberListItemProps) => {
           color: isCurrentUser ? tokens.primary : tokens.onSurface,
           fontWeight: isCurrentUser ? 600 : 400,
           fontSize: '0.82rem',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
         }}
       >
         {member.name}
       </Typography>
 
+      {/* Badges */}
       <Box sx={{ display: 'flex', gap: 0.5 }}>
         {member.isAdmin && (
           <Chip
@@ -84,6 +90,28 @@ const MemberListItem = ({ member, isCurrentUser }: MemberListItemProps) => {
           />
         )}
       </Box>
+
+      {/* Points */}
+      {member.points !== undefined && (
+        <Typography
+          variant="body2"
+          sx={{
+            color: isCurrentUser ? tokens.primary : tokens.onSurface,
+            fontWeight: 700,
+            fontSize: '0.82rem',
+            minWidth: 28,
+            textAlign: 'right',
+          }}
+        >
+          {member.points}
+          <Typography
+            component="span"
+            sx={{ fontSize: '0.6rem', color: tokens.onSurfaceVariant, ml: 0.25 }}
+          >
+            {t('colPoints')}
+          </Typography>
+        </Typography>
+      )}
     </Box>
   );
 };

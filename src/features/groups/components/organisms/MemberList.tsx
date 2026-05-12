@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
+import Pagination from '@mui/material/Pagination';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTranslations } from 'next-intl';
@@ -14,6 +15,7 @@ import MemberListItem from '../molecules/MemberListItem';
 import type { GroupMember } from '../../types';
 
 const MOBILE_PREVIEW_COUNT = 4;
+const DESKTOP_PAGE_SIZE = 10;
 
 interface MemberListProps {
   members: GroupMember[];
@@ -23,10 +25,26 @@ interface MemberListProps {
 const MemberList = ({ members, currentUserId }: MemberListProps) => {
   const t = useTranslations('groups');
   const [expanded, setExpanded] = useState(false);
+  const [page, setPage] = useState(1);
   const isDesktop = useMediaQuery('(min-width:900px)');
 
-  const visibleMembers = !isDesktop && !expanded ? members.slice(0, MOBILE_PREVIEW_COUNT) : members;
-  const hasMore = !isDesktop && members.length > MOBILE_PREVIEW_COUNT;
+  const sortedMembers = [...members].sort((a, b) => {
+    if (a.isAdmin !== b.isAdmin) return a.isAdmin ? -1 : 1;
+    return a.name.localeCompare(b.name);
+  });
+
+  const totalPages = Math.ceil(sortedMembers.length / DESKTOP_PAGE_SIZE);
+  const desktopMembers = sortedMembers.slice(
+    (page - 1) * DESKTOP_PAGE_SIZE,
+    page * DESKTOP_PAGE_SIZE,
+  );
+
+  const visibleMembers = isDesktop
+    ? desktopMembers
+    : expanded
+      ? sortedMembers
+      : sortedMembers.slice(0, MOBILE_PREVIEW_COUNT);
+  const hasMore = !isDesktop && sortedMembers.length > MOBILE_PREVIEW_COUNT;
 
   return (
     <Box
@@ -82,7 +100,7 @@ const MemberList = ({ members, currentUserId }: MemberListProps) => {
         ))}
       </Box>
 
-      {hasMore && (
+      {!isDesktop && hasMore && (
         <Box
           sx={{ mt: 1.5, textAlign: 'center', cursor: 'pointer' }}
           onClick={() => setExpanded((e) => !e)}
@@ -92,6 +110,19 @@ const MemberList = ({ members, currentUserId }: MemberListProps) => {
               ? t('showLess')
               : t('showMore', { count: members.length - MOBILE_PREVIEW_COUNT })}
           </Typography>
+        </Box>
+      )}
+
+      {isDesktop && totalPages > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1.5 }}>
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={(_, next) => setPage(next)}
+            color="primary"
+            shape="rounded"
+            size="small"
+          />
         </Box>
       )}
     </Box>

@@ -10,7 +10,7 @@ const MOCK_DATA: GroupDetailData = {
     description: 'El grupo de las apuestas del trabajo',
     inviteCode: 'AMIGOS24',
     adminId: 'mock-admin-id',
-    memberCount: 5,
+    memberCount: 12,
     createdAt: new Date().toISOString(),
   },
   standings: [
@@ -47,11 +47,18 @@ const MOCK_DATA: GroupDetailData = {
     },
   ],
   members: [
-    { id: 'mock-admin-id', name: 'Narboleda', isAdmin: true },
-    { id: 'user-2', name: 'Ana López', isAdmin: false },
-    { id: 'user-3', name: 'Carlos R.', isAdmin: false },
-    { id: 'user-4', name: 'María S.', isAdmin: false },
-    { id: 'user-5', name: 'Jorge M.', isAdmin: false },
+    { id: 'mock-admin-id', name: 'Narboleda', isAdmin: true, points: 45, rank: 1 },
+    { id: 'user-2', name: 'Ana López', isAdmin: false, points: 38, rank: 2 },
+    { id: 'user-3', name: 'Carlos R.', isAdmin: false, points: 30, rank: 3 },
+    { id: 'user-4', name: 'María S.', isAdmin: false, points: 22, rank: 4 },
+    { id: 'user-5', name: 'Jorge M.', isAdmin: false, points: 18, rank: 5 },
+    { id: 'user-6', name: 'Laura P.', isAdmin: false, points: 15, rank: 6 },
+    { id: 'user-7', name: 'Sebastián V.', isAdmin: false, points: 12, rank: 7 },
+    { id: 'user-8', name: 'Camila T.', isAdmin: false, points: 10, rank: 8 },
+    { id: 'user-9', name: 'Andrés F.', isAdmin: false, points: 8, rank: 9 },
+    { id: 'user-10', name: 'Valentina G.', isAdmin: false, points: 6, rank: 10 },
+    { id: 'user-11', name: 'Diego H.', isAdmin: false, points: 4, rank: 11 },
+    { id: 'user-12', name: 'Isabella R.', isAdmin: false, points: 2, rank: 12 },
   ],
 };
 
