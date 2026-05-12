@@ -85,7 +85,7 @@ export const MatchList = () => {
   });
 
   useEffect(() => {
-     
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
     const timer = setInterval(() => setNow(new Date()), 1000);
 
@@ -145,7 +145,7 @@ export const MatchList = () => {
       return;
     }
     setLoadingMatchId(matchId);
-    // eslint-disable-next-line react-hooks/purity
+     
     setCurrentFunnyMessage(FUNNY_MESSAGES[Math.floor(Math.random() * FUNNY_MESSAGES.length)]);
     setTimeout(() => {
       setLoadingMatchId(null);

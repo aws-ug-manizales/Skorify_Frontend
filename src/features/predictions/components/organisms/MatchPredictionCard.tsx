@@ -84,6 +84,7 @@ const MatchPredictionCard = ({
       Number(awayGoals) !== (initialAwayGoals ?? -1));
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (mode === 'editing' && isSaved) setMode('display');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialHomeGoals, initialAwayGoals]);
@@ -91,6 +92,7 @@ const MatchPredictionCard = ({
   useEffect(() => {
     if (!editResetKey) return;
     reset(buildDefaults(isSaved, initialHomeGoals, initialAwayGoals));
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMode('display');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editResetKey]);

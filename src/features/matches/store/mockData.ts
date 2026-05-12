@@ -1,0 +1,75 @@
+import { type MatchRecord, type MatchTeam, type MatchTournament } from '../types/match';
+
+export const MOCK_TEAMS: MatchTeam[] = [
+  { id: 'team-001', name: 'Real Madrid', short_name: 'RMA' },
+  { id: 'team-002', name: 'FC Barcelona', short_name: 'BAR' },
+  { id: 'team-003', name: 'Manchester City', short_name: 'MCI' },
+  { id: 'team-004', name: 'Bayern Munich', short_name: 'BAY' },
+  { id: 'team-005', name: 'Liverpool', short_name: 'LIV' },
+  { id: 'team-006', name: 'Arsenal', short_name: 'ARS' },
+];
+
+export const MOCK_TOURNAMENTS: MatchTournament[] = [
+  { id: 'tour-001', name: 'UEFA Champions League' },
+  { id: 'tour-002', name: 'La Liga' },
+  { id: 'tour-003', name: 'Premier League' },
+];
+
+export const MOCK_MATCHES: MatchRecord[] = [
+  {
+    id: 'match-001',
+    home_team_id: 'team-001',
+    away_team_id: 'team-002',
+    tournament_id: 'tour-002',
+    kick_off: '2026-04-20T19:00:00.000Z',
+    home_goals: 2,
+    away_goals: 1,
+    status: 'finished',
+    stage: 'group',
+    venue: 'Santiago Bernabeu',
+    created_at: '2026-04-14T09:00:00.000Z',
+    updated_at: '2026-04-20T21:05:00.000Z',
+  },
+  {
+    id: 'match-002',
+    home_team_id: 'team-003',
+    away_team_id: 'team-004',
+    tournament_id: 'tour-001',
+    kick_off: '2026-04-22T20:00:00.000Z',
+    home_goals: null,
+    away_goals: null,
+    status: 'in_progress',
+    stage: 'finals',
+    venue: 'Etihad Stadium',
+    created_at: '2026-04-14T09:30:00.000Z',
+    updated_at: '2026-04-22T20:40:00.000Z',
+  },
+  {
+    id: 'match-003',
+    home_team_id: 'team-005',
+    away_team_id: 'team-006',
+    tournament_id: 'tour-003',
+    kick_off: '2026-04-23T18:30:00.000Z',
+    home_goals: null,
+    away_goals: null,
+    status: 'scheduled',
+    stage: 'group',
+    venue: 'Anfield',
+    created_at: '2026-04-15T10:00:00.000Z',
+    updated_at: '2026-04-15T10:00:00.000Z',
+  },
+  {
+    id: 'match-004',
+    home_team_id: 'team-002',
+    away_team_id: 'team-003',
+    tournament_id: 'tour-001',
+    kick_off: '2026-04-26T19:45:00.000Z',
+    home_goals: null,
+    away_goals: null,
+    status: 'scheduled',
+    stage: 'finals',
+    venue: 'Olympic Stadium',
+    created_at: '2026-04-16T11:00:00.000Z',
+    updated_at: '2026-04-16T11:00:00.000Z',
+  },
+];

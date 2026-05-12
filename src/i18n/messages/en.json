@@ -162,7 +162,56 @@
     "finished": "Finished",
     "worldcup": "FIFA World Cup 2026",
     "groupStage": "Group stage",
-    "roundOf16": "Round of 16"
+    "roundOf16": "Round of 16",
+    "resultForm": {
+      "title": "Load Match Result",
+      "subtitle": "Select a match and review its details before loading the final result.",
+      "matchLabel": "Match",
+      "matchPlaceholder": "Search by teams, tournament, or date",
+      "matchHelper": "Listed matches are simulated frontend data.",
+      "selectionSummaryTitle": "Selected Match Summary",
+      "selectionEmpty": "Select a match to view its details.",
+      "editor": {
+        "title": "Edit result",
+        "description": "Update only goals and match status for the selected match.",
+        "homeGoalsLabel": "Home goals",
+        "awayGoalsLabel": "Away goals",
+        "statusLabel": "Match status",
+        "statusHelper": "For finished matches, use the Finished status.",
+        "saveButton": "Save result"
+      },
+      "saveSuccess": "Result updated successfully. Last update: {updatedAt}.",
+      "saveError": "Could not update the result. Please try again.",
+      "fields": {
+        "teams": "Teams",
+        "tournament": "Tournament",
+        "kickOff": "Kick Off",
+        "stage": "Stage",
+        "venue": "Venue",
+        "status": "Status"
+      },
+      "statusOptions": {
+        "scheduled": "Scheduled",
+        "in_progress": "In Progress",
+        "finished": "Finished"
+      },
+      "stageOptions": {
+        "group": "Group Stage",
+        "finals": "Final Stage"
+      },
+      "validation": {
+        "matchRequired": "Select a match to continue.",
+        "homeGoalsRequired": "Enter home team goals.",
+        "awayGoalsRequired": "Enter away team goals.",
+        "statusRequired": "Select the match status.",
+        "goalsInteger": "Enter an integer value greater than or equal to 0."
+      },
+      "fallbackTeam": "Team",
+      "fallbackTournament": "Tournament",
+      "modifyButton": "Modify Result",
+      "fallbackHome": "Home",
+      "fallbackAway": "Away"
+    }
   },
   "tournaments": {
     "title": "Tournaments",

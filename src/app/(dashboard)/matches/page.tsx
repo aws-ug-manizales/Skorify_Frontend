@@ -1,5 +1,10 @@
-import { MatchesHome } from '@features/matches';
+import { MatchResultSelectionPanel, MatchesHome } from '@features/matches';
 
-const MatchesPage = () => <MatchesHome />;
+const MatchesPage = () => (
+  <>
+    <MatchesHome />
+    <MatchResultSelectionPanel />
+  </>
+);
 
 export default MatchesPage;
