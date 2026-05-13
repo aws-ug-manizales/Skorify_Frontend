@@ -30,7 +30,7 @@ interface GroupDetailProps {
 const GroupDetail = ({ groupId }: GroupDetailProps) => {
   const t = useTranslations('groups');
   const tCommon = useTranslations('common');
-  const { data, isLoading, error } = useGroupDetail(groupId);
+  const { data, isLoading, error, refetch } = useGroupDetail(groupId);
   const session = useAuthStore((s) => s.session);
   const [shareOpen, setShareOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(() => {
@@ -116,7 +116,12 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
           }}
         >
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <StandingsTable standings={data.standings} currentUserId={currentUserId} />
+            <StandingsTable
+              standings={data.standings}
+              currentUserId={currentUserId}
+              onRefresh={refetch}
+              isRefreshing={isLoading}
+            />
             <MatchPredictionList matches={data.pendingMatches} />
           </Box>
 

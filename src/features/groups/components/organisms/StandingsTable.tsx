@@ -2,9 +2,12 @@
 
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import LeaderboardOutlinedIcon from '@mui/icons-material/LeaderboardOutlined';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { useTranslations } from 'next-intl';
 import { tokens } from '@lib/theme/theme';
 import { getInitials } from '@shared/utils/string';
@@ -13,23 +16,25 @@ import type { StandingRow } from '../../types';
 interface StandingsTableProps {
   standings: StandingRow[];
   currentUserId: string;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
 }
 
-const StandingsTable = ({ standings, currentUserId }: StandingsTableProps) => {
+const StandingsTable = ({
+  standings,
+  currentUserId,
+  onRefresh,
+  isRefreshing = false,
+}: StandingsTableProps) => {
   const t = useTranslations('groups');
   const isDesktop = useMediaQuery('(min-width:900px)');
 
+  const sorted = [...standings].sort((a, b) => b.points - a.points);
+
   const headerColsMobile = ['#', t('colPlayer'), t('colPoints')];
-  const headerColsDesktop = [
-    '#',
-    t('colPlayer'),
-    t('colPoints'),
-    t('colWon'),
-    t('colDrawn'),
-    t('colLost'),
-  ];
+  const headerColsDesktop = ['#', t('colPlayer'), t('colPoints'), t('colPredictedMatches')];
   const cols = isDesktop ? headerColsDesktop : headerColsMobile;
-  const gridTemplate = isDesktop ? '32px 1fr 52px 36px 36px 36px' : '32px 1fr 52px';
+  const gridTemplate = isDesktop ? '32px 1fr 60px 80px' : '32px 1fr 52px';
 
   return (
     <Box
@@ -44,10 +49,39 @@ const StandingsTable = ({ standings, currentUserId }: StandingsTableProps) => {
         <LeaderboardOutlinedIcon sx={{ color: tokens.primary, fontSize: 20 }} />
         <Typography
           variant="h6"
-          sx={{ color: tokens.onSurface, textTransform: 'uppercase', letterSpacing: '0.04em' }}
+          sx={{
+            color: tokens.onSurface,
+            textTransform: 'uppercase',
+            letterSpacing: '0.04em',
+            flex: 1,
+          }}
         >
           {t('standingsTitle')}
         </Typography>
+
+        {onRefresh && (
+          <Tooltip title={t('standingsRefresh')}>
+            <span>
+              <IconButton
+                size="small"
+                onClick={onRefresh}
+                disabled={isRefreshing}
+                sx={{
+                  color: tokens.onSurfaceVariant,
+                  '&:hover': { color: tokens.primary },
+                  transition: 'transform 400ms ease',
+                  ...(isRefreshing && { animation: 'spin 0.8s linear infinite' }),
+                  '@keyframes spin': {
+                    from: { transform: 'rotate(0deg)' },
+                    to: { transform: 'rotate(360deg)' },
+                  },
+                }}
+              >
+                <RefreshIcon sx={{ fontSize: 18 }} />
+              </IconButton>
+            </span>
+          </Tooltip>
+        )}
       </Box>
 
       {/* Column headers */}
@@ -78,7 +112,7 @@ const StandingsTable = ({ standings, currentUserId }: StandingsTableProps) => {
         ))}
       </Box>
 
-      {standings.map((row, idx) => {
+      {sorted.map((row, idx) => {
         const isCurrentUser = row.userId === currentUserId;
         const isFirst = row.rank === 1;
 
@@ -166,43 +200,19 @@ const StandingsTable = ({ standings, currentUserId }: StandingsTableProps) => {
               {row.points}
             </Typography>
 
-            {/* W / D / L — desktop only */}
+            {/* Predicted matches — desktop only */}
             {isDesktop && (
-              <>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: tokens.success,
-                    textAlign: 'center',
-                    fontWeight: 600,
-                    fontSize: '0.78rem',
-                  }}
-                >
-                  {row.won}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: tokens.onSurfaceVariant,
-                    textAlign: 'center',
-                    fontWeight: 600,
-                    fontSize: '0.78rem',
-                  }}
-                >
-                  {row.drawn}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: tokens.error,
-                    textAlign: 'center',
-                    fontWeight: 600,
-                    fontSize: '0.78rem',
-                  }}
-                >
-                  {row.lost}
-                </Typography>
-              </>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: tokens.onSurfaceVariant,
+                  textAlign: 'center',
+                  fontWeight: 500,
+                  fontSize: '0.78rem',
+                }}
+              >
+                {row.predictedMatches}
+              </Typography>
             )}
           </Box>
         );

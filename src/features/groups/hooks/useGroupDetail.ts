@@ -14,11 +14,18 @@ const MOCK_DATA: GroupDetailData = {
     createdAt: new Date().toISOString(),
   },
   standings: [
-    { rank: 1, userId: 'mock-admin-id', name: 'Narboleda', points: 45, won: 9, drawn: 2, lost: 1 },
-    { rank: 2, userId: 'user-2', name: 'Ana López', points: 38, won: 7, drawn: 3, lost: 2 },
-    { rank: 3, userId: 'user-3', name: 'Carlos R.', points: 30, won: 6, drawn: 0, lost: 4 },
-    { rank: 4, userId: 'user-4', name: 'María S.', points: 22, won: 4, drawn: 2, lost: 5 },
-    { rank: 5, userId: 'user-5', name: 'Jorge M.', points: 18, won: 3, drawn: 1, lost: 6 },
+    { rank: 1, userId: 'mock-admin-id', name: 'Narboleda', points: 45, predictedMatches: 12 },
+    { rank: 2, userId: 'user-2', name: 'Ana López', points: 38, predictedMatches: 10 },
+    { rank: 3, userId: 'user-3', name: 'Carlos R.', points: 30, predictedMatches: 10 },
+    { rank: 4, userId: 'user-4', name: 'María S.', points: 22, predictedMatches: 11 },
+    { rank: 5, userId: 'user-5', name: 'Jorge M.', points: 18, predictedMatches: 9 },
+    { rank: 6, userId: 'user-6', name: 'Laura P.', points: 15, predictedMatches: 8 },
+    { rank: 7, userId: 'user-7', name: 'Sebastián V.', points: 12, predictedMatches: 7 },
+    { rank: 8, userId: 'user-8', name: 'Camila T.', points: 10, predictedMatches: 6 },
+    { rank: 9, userId: 'user-9', name: 'Andrés F.', points: 8, predictedMatches: 5 },
+    { rank: 10, userId: 'user-10', name: 'Valentina G.', points: 6, predictedMatches: 4 },
+    { rank: 11, userId: 'user-11', name: 'Diego H.', points: 4, predictedMatches: 3 },
+    { rank: 12, userId: 'user-12', name: 'Isabella R.', points: 2, predictedMatches: 2 },
   ],
   pendingMatches: [
     {
@@ -66,6 +73,13 @@ export const useGroupDetail = (groupId: string) => {
   const [data, setData] = useState<GroupDetailData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const refetch = () => {
+    setIsLoading(true);
+    setError(null);
+    setRefreshKey((k) => k + 1);
+  };
 
   useEffect(() => {
     const isMock = process.env.NEXT_PUBLIC_MOCK_GROUPS === 'true';
@@ -90,7 +104,7 @@ export const useGroupDetail = (groupId: string) => {
     };
 
     fetchData();
-  }, [groupId]);
+  }, [groupId, refreshKey]);
 
-  return { data, isLoading, error };
+  return { data, isLoading, error, refetch };
 };
