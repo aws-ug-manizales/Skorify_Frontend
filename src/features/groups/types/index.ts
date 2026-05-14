@@ -44,9 +44,7 @@ export interface StandingRow {
   userId: string;
   name: string;
   points: number;
-  won: number;
-  drawn: number;
-  lost: number;
+  predictedMatches: number;
 }
 
 export interface PendingMatch {

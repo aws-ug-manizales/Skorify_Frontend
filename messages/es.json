@@ -122,7 +122,12 @@
     "create": "Crear grupo",
     "join": "Unirse",
     "invite": "Invitar amigos",
-    "members": "Miembros"
+    "members": "Miembros",
+    "standingsTitle": "Clasificación",
+    "standingsRefresh": "Actualizar clasificación",
+    "colPlayer": "Jugador",
+    "colPoints": "Pts",
+    "colPredictedMatches": "Predichos"
   },
   "dashboard": {
     "title": "Panel de Control",

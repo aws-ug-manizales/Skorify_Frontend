@@ -122,7 +122,12 @@
     "create": "Create group",
     "join": "Join",
     "invite": "Invite friends",
-    "members": "Members"
+    "members": "Members",
+    "standingsTitle": "Standings",
+    "standingsRefresh": "Refresh standings",
+    "colPlayer": "Player",
+    "colPoints": "Pts",
+    "colPredictedMatches": "Predicted"
   },
   "dashboard": {
     "title": "Control Panel",
