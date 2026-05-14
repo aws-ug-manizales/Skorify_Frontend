@@ -295,6 +295,8 @@
     "showLess": "Show less",
     "colPlayer": "Player",
     "colPoints": "Pts",
+    "standingsRefresh": "Refresh standings",
+    "colPredictedMatches": "Predicted",
     "colWon": "W",
     "colDrawn": "D",
     "colLost": "L",
