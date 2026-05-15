@@ -36,6 +36,7 @@ const tokens = {
   // Status
   success: '#00C853',
   error: '#ff6e84',
+  info: '#38bdf8',
 
   // Gradient — purple → orange (kinetic brand)
   ctaGradient: 'linear-gradient(135deg, #8A2BE2 0%, #FF8A00 100%)',
@@ -82,6 +83,9 @@ const theme = createTheme({
     },
     success: {
       main: tokens.success,
+    },
+    info: {
+      main: tokens.info,
     },
     background: {
       default: tokens.background,
@@ -142,10 +146,12 @@ const theme = createTheme({
       },
       styleOverrides: {
         root: {
-          textTransform: 'none',
+          textTransform: 'uppercase',
+          letterSpacing: '0.06em',
           borderRadius: 8,
           transition: 'all 250ms ease-in-out',
           fontWeight: 700,
+          minHeight: 44,
         },
         containedPrimary: {
           background: tokens.ctaGradient,

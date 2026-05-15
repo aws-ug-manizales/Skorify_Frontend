@@ -12,7 +12,12 @@ import type {
   GroupInvitationError,
 } from '../types/invitation.types';
 
-interface UseJoinGroupReturn {
+type ApiErrorShape = { response?: { data?: { message?: string; code?: string } } };
+
+const extractApiError = (err: unknown): { message?: string; code?: string } =>
+  (err as ApiErrorShape)?.response?.data ?? {};
+
+export interface UseJoinGroupReturn {
   loading: boolean;
   error: GroupInvitationError | null;
   validateCode: (code: string) => Promise<ValidateCodeResponse | null>;
@@ -63,8 +68,9 @@ export const useJoinGroup = (): UseJoinGroupReturn => {
 
       return response.data;
     } catch (err: unknown) {
-      const errorMessage = err?.response?.data?.message || t('errors.validationFailed');
-      const errorCode = err?.response?.data?.code || 'INVALID_CODE';
+      const apiError = extractApiError(err);
+      const errorMessage = apiError.message || t('errors.validationFailed');
+      const errorCode = apiError.code || 'INVALID_CODE';
 
       setError({
         code: errorCode as GroupInvitationError['code'],
@@ -100,8 +106,7 @@ export const useJoinGroup = (): UseJoinGroupReturn => {
       if (!response.data?.success) {
         setError({
           code: response.data?.error?.code || 'UNAUTHORIZED',
-          message:
-            response.data?.error?.message || response.error?.message || t('errors.joinFailed'),
+          message: response.data?.error?.message || t('errors.joinFailed'),
         });
 
         return null;
@@ -117,8 +122,9 @@ export const useJoinGroup = (): UseJoinGroupReturn => {
 
       return null;
     } catch (err: unknown) {
-      const errorMessage = err?.response?.data?.message || t('errors.joinFailed');
-      const errorCode = err?.response?.data?.code || 'UNAUTHORIZED';
+      const apiError = extractApiError(err);
+      const errorMessage = apiError.message || t('errors.joinFailed');
+      const errorCode = apiError.code || 'UNAUTHORIZED';
 
       setError({
         code: errorCode as GroupInvitationError['code'],

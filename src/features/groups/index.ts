@@ -6,12 +6,15 @@
 export { default as GroupDetail } from './components/organisms/GroupDetail';
 export { default as CreateGroupForm } from './components/organisms/CreateGroupForm';
 export { default as CreateGroupDrawer } from './components/organisms/CreateGroupDrawer';
+export { default as JoinGroupDialog } from './components/organisms/JoinGroupDialog';
+export { default as MemberDetailDialog } from './components/organisms/MemberDetailDialog';
 export { default as GroupsView } from './components/organisms/GroupsView';
 export { InvitationCodeInput, JoinGroupCard, JoinGroupFlow } from './components/index';
 
 // Hooks
 export { useGroupDetail } from './hooks/useGroupDetail';
 export { useJoinGroup } from './hooks/index';
+export { useUserGroups, type UserGroupSummary } from './hooks/useUserGroups';
 
 // Types
 export type {

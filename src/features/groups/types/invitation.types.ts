@@ -23,6 +23,10 @@ export interface JoinGroupResponse {
   groupId: string;
   groupName: string;
   message: string;
+  error?: {
+    code: GroupInvitationError['code'];
+    message: string;
+  };
 }
 
 export interface ValidateCodeResponse {

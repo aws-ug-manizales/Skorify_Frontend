@@ -3,9 +3,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
+import AppButton from '@shared/components/atoms/AppButton';
 import CheckCircle from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import { InvitationCodeInput } from '../molecules/InvitationCodeInput';
@@ -90,15 +90,15 @@ export const JoinGroupFlow = ({ initialCode }: JoinGroupFlowProps) => {
           helperText={inputError ? t('codeRequired') : ''}
           disabled={loading}
         />
-        <Button
-          variant="contained"
+        <AppButton
           fullWidth
           onClick={() => handleValidateCode()}
           disabled={!code.trim() || loading}
+          loading={loading}
           size="large"
         >
-          {loading ? <CircularProgress size={24} /> : t('validateCode')}
-        </Button>
+          {t('validateCode')}
+        </AppButton>
       </Box>
     );
   }
@@ -119,24 +119,24 @@ export const JoinGroupFlow = ({ initialCode }: JoinGroupFlowProps) => {
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <JoinGroupCard groupName={validationData.groupName} groupDescription={t('readyToJoin')} />
         <Box sx={{ display: 'flex', gap: 2, flexDirection: 'column' }}>
-          <Button
-            variant="contained"
+          <AppButton
             fullWidth
             onClick={handleJoinGroup}
             disabled={loading}
+            loading={loading}
             size="large"
           >
-            {loading ? <CircularProgress size={24} /> : t('joinGroup')}
-          </Button>
-          <Button
-            variant="outlined"
+            {t('joinGroup')}
+          </AppButton>
+          <AppButton
+            variant="secondary"
             fullWidth
             onClick={handleReset}
             disabled={loading}
             size="large"
           >
             {t('cancel')}
-          </Button>
+          </AppButton>
         </Box>
       </Box>
     );
@@ -174,9 +174,9 @@ export const JoinGroupFlow = ({ initialCode }: JoinGroupFlowProps) => {
         </Box>
         <Alert severity="error">{error.message}</Alert>
         <Box sx={{ display: 'flex', gap: 2, flexDirection: 'column' }}>
-          <Button variant="contained" fullWidth onClick={handleReset} size="large">
+          <AppButton fullWidth onClick={handleReset} size="large">
             {t('tryAgain')}
-          </Button>
+          </AppButton>
         </Box>
       </Box>
     );

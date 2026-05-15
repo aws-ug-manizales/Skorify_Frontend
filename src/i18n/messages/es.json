@@ -28,9 +28,41 @@
     "home": "Inicio",
     "predictions": "Predicciones",
     "matches": "Partidos",
+    "matchesList": "Partidos",
+    "loadResults": "Cargar resultados",
     "tournaments": "Torneos",
     "groups": "Grupos",
     "profile": "Perfil"
+  },
+  "profile": {
+    "title": "Tu perfil",
+    "subtitle": "Tu carrera Skorify",
+    "totalPointsLabel": "Puntaje total",
+    "editProfile": "Editar perfil",
+    "editPersonalData": "Editar datos personales",
+    "fullNameLabel": "Nombre completo",
+    "handleLabel": "Apodo",
+    "emailLabel": "Correo electrónico",
+    "saveChanges": "Guardar cambios",
+    "stats": {
+      "title": "Estadísticas",
+      "exact": "Exactos",
+      "partial": "Parciales",
+      "accuracy": "Aciertos",
+      "total": "Predicciones"
+    },
+    "participation": "Participación",
+    "streakTitle": "¡Imparable!",
+    "streakSubtitle": "{count} aciertos seguidos",
+    "groups": {
+      "title": "Mis grupos",
+      "rank": "Puesto #{rank}",
+      "members": "{count, plural, one {# miembro} other {# miembros}}",
+      "emptyTitle": "Aún no estás en ningún grupo",
+      "emptySubtitle": "Crea uno y empieza a competir con tus amigos.",
+      "emptyCta": "Crear mi primer grupo",
+      "viewAll": "Ver todos"
+    }
   },
   "auth": {
     "title": "Accede a Skorify",
@@ -239,6 +271,16 @@
     "title": "Grupos",
     "subtitle": "Compite con tus amigos",
     "create": "Crear grupo",
+    "joinGroup": "Unirme al grupo",
+    "cancel": "Cancelar",
+    "listSubtitle": "{count, plural, one {# grupo activo} other {# grupos activos}}",
+    "memberCount": "{count, plural, one {# miembro} other {# miembros}}",
+    "rankLabel": "Puesto",
+    "pointsLabel": "pts",
+    "viewGroup": "Ver grupo",
+    "pageEmptyTitle": "Aún no tienes grupos",
+    "pageEmptySubtitle": "Crea un grupo nuevo o únete a uno con un código de invitación.",
+    "pageEmptyCta": "Crear mi primer grupo",
     "join": {
       "title": "Únete a Skorify",
       "subtitle": "Ingresa el código de invitación que compartieron contigo",
@@ -276,19 +318,15 @@
     "linkCopied": "¡Link copiado!",
     "shareWhatsApp": "Compartir por WhatsApp",
     "standingsTitle": "Tabla de Posiciones",
-    "matchesTitle": "Próximos Partidos",
+    "predictionsCardTitle": "Próximos partidos",
+    "predictionsCardSubtitle": "Haz tus predicciones y suma puntos",
+    "predictionsCardCta": "Ir a predicciones",
     "membersTitle": "Miembros",
     "shareButton": "Compartir",
     "shareTitle": "Compartir grupo",
-    "predictButton": "Predecir",
-    "editPredictionButton": "Editar predicción",
     "adminBadge": "Admin",
     "youBadge": "Tú",
-    "noMatchesTitle": "Todo al día",
-    "noMatchesSubtitle": "No hay partidos pendientes de predicción por ahora.",
     "inviteLinkButton": "Copiar enlace de invitación",
-    "pendingMatchesSingular": "partido pendiente",
-    "pendingMatchesPlural": "partidos pendientes",
     "notFound": "Grupo no encontrado",
     "loadError": "No se pudo cargar el grupo",
     "showMore": "Ver {count} más",
@@ -335,7 +373,32 @@
     "leaveError": "No se pudo abandonar el grupo. Inténtalo de nuevo.",
     "leaveSuccess": "Has abandonado el grupo exitosamente.",
     "leaveSuccessNewAdmin": "Has abandonado el grupo. Se asignó un nuevo administrador.",
-    "dissolveSuccess": "El grupo ha sido disuelto."
+    "dissolveSuccess": "El grupo ha sido disuelto.",
+    "groupTagLabel": "Liga Privada",
+    "memberDetail": {
+      "roleAdmin": "Admin",
+      "roleMember": "Miembro",
+      "roleLabel": "Rol",
+      "rankLabel": "Posición",
+      "pointsLabel": "Puntos",
+      "youBadge": "Tú",
+      "viewProfile": "Ver perfil"
+    }
+  },
+  "userProfile": {
+    "backToGroups": "Volver a grupos",
+    "publicProfileLabel": "Perfil público",
+    "memberSince": "Miembro desde {date}",
+    "totalPoints": "Puntos",
+    "accuracy": "Precisión",
+    "predictionsMade": "Predicciones",
+    "streak": "Racha",
+    "sharedGroupsTitle": "Grupos en común",
+    "sharedGroupsEmpty": "No comparten grupos por ahora.",
+    "rankInGroup": "Posición #{rank}",
+    "recentPredictionsTitle": "Predicciones recientes",
+    "hit": "+{points} pts",
+    "miss": "0 pts"
   },
   "dashboard": {
     "title": "Panel de Control",
@@ -372,6 +435,43 @@
       "tournamentsDesc": "Competiciones activas"
     }
   },
+  "userDashboard": {
+    "eyebrow": "Tu cancha de juego",
+    "greeting": "Hola, {name}",
+    "streakText": "Tu racha actual es de <highlight>{count} aciertos</highlight>. Hay partidos esperando tus predicciones.",
+    "defaultUser": "predictor",
+    "createGroup": "Crear grupo",
+    "joinGroup": "Unirme a un grupo",
+    "myGroupsTitle": "Mis grupos",
+    "myGroupsEmpty": "Aún no estás en ningún grupo. Crea uno o únete con un código.",
+    "groupRank": "Posición #{rank} · {members} miembros",
+    "seeAll": "Ver todos",
+    "rankingTitle": "Ranking global",
+    "pointsShort": "pts",
+    "youLabel": "Tú",
+    "upcomingMatches": "Próximos partidos",
+    "liveBadge": "EN VIVO",
+    "viewAllMatches": "Ver todos",
+    "pointsSummaryTitle": "Resumen de puntos",
+    "totalPoints": "Puntos totales",
+    "weekLabel": "Semana",
+    "accuracyLabel": "Precisión",
+    "recentPredictionsTitle": "Últimas predicciones",
+    "predictionPointsPlus": "+{points} pts",
+    "predictionPointsZero": "0 pts",
+    "friendActivityTitle": "Actividad de amigos",
+    "activity": {
+      "friend1Name": "Juan P.",
+      "friend1Text": "superó tu récord en \"Liga Colombiana 2026\".",
+      "friend1Time": "Hace 5 min",
+      "friend2Name": "María Dev",
+      "friend2Text": "predijo 2-0 a favor del local.",
+      "friend2Time": "Hace 22 min",
+      "friend3Name": "Carlos R.",
+      "friend3Text": "se unió a tu grupo \"Champions Elite\".",
+      "friend3Time": "Hace 1 h"
+    }
+  },
   "home": {
     "hero": {
       "eyebrow": "El juego definitivo de predicciones",
@@ -379,6 +479,72 @@
       "description": "Reta a tus amigos, únete a grupos y escala en la tabla con tus predicciones deportivas.",
       "cta": "Empezar a predecir",
       "ctaSecondary": "Saber más"
+    },
+    "stats": {
+      "title": "La comunidad que vive cada partido",
+      "predictions": "predicciones registradas",
+      "groups": "grupos activos",
+      "users": "predictores compitiendo",
+      "matches": "partidos del Mundial"
+    },
+    "features": {
+      "eyebrow": "Por qué Skorify",
+      "title": "Pensado para los fanáticos",
+      "subtitle": "Todo lo que necesitas para vivir cada jornada deportiva con tus amigos.",
+      "predict": {
+        "title": "Predice cada partido",
+        "description": "Marca el resultado exacto antes del pitazo inicial. Suma puntos por aciertos exactos y parciales."
+      },
+      "groups": {
+        "title": "Compite en grupos",
+        "description": "Crea tu liga privada, invita a tu gente y mide quién la rompe en cada fecha."
+      },
+      "ranking": {
+        "title": "Escala el ranking",
+        "description": "Tabla de posiciones en vivo, rachas, estadísticas y el codiciado puesto #1."
+      }
+    },
+    "howItWorks": {
+      "eyebrow": "Cómo funciona",
+      "title": "En tres pasos estás dentro",
+      "step1": {
+        "title": "Crea tu cuenta",
+        "description": "Regístrate en segundos. Sin tarjeta, sin compromiso."
+      },
+      "step2": {
+        "title": "Únete a un grupo",
+        "description": "Con un código de invitación o crea el tuyo y suma a tus amigos."
+      },
+      "step3": {
+        "title": "Predice y gana",
+        "description": "Marca cada resultado, escala posiciones y celebra cada acierto."
+      }
+    },
+    "finalCta": {
+      "eyebrow": "Listo para jugar",
+      "title": "El próximo pitazo te espera",
+      "description": "Crea tu cuenta gratis, únete a un grupo y empieza a sumar puntos con tus aciertos.",
+      "cta": "Crear mi cuenta",
+      "secondaryCta": "Tengo un código de invitación",
+      "perks": {
+        "free": "100% gratis",
+        "noCard": "Sin tarjeta de crédito",
+        "instant": "Listo en 30 segundos"
+      },
+      "inviteModal": {
+        "title": "Únete a un grupo",
+        "description": "Ingresa el código de invitación que te compartieron. Te llevaremos al registro para terminar.",
+        "codeLabel": "Código de invitación",
+        "codePlaceholder": "Ej. AMIGOS24",
+        "continue": "Continuar al registro",
+        "cancel": "Cancelar"
+      }
+    },
+    "footer": {
+      "madeIn": "Hecho en Manizales",
+      "community": "Construido por la comunidad AWS User Group Manizales",
+      "socialTitle": "Síguenos",
+      "rights": "© {year} Skorify · Todos los derechos reservados"
     }
   },
   "notFound": {

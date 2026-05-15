@@ -1,1 +1,7 @@
-npx lint-staged
+echo ""
+echo "🔍 Validando commit..."
+echo "   1/2 Lint + format en archivos staged"
+echo "   2/2 Build de Next.js (puede tardar ~30s)"
+echo ""
+
+npx lint-staged && yarn build

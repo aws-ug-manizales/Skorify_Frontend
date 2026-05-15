@@ -6,6 +6,8 @@ interface JoinByCodePageProps {
   params: Promise<{ code: string }>;
 }
 
+export const generateStaticParams = () => [{ code: '_' }];
+
 const JoinByCodePage = async ({ params }: JoinByCodePageProps) => {
   const { code } = await params;
   const t = await getTranslations('groups.join');

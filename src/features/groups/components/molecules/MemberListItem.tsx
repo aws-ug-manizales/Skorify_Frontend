@@ -12,13 +12,29 @@ import type { GroupMember } from '../../types';
 interface MemberListItemProps {
   member: GroupMember;
   isCurrentUser: boolean;
+  onClick?: (member: GroupMember) => void;
 }
 
-const MemberListItem = ({ member, isCurrentUser }: MemberListItemProps) => {
+const MemberListItem = ({ member, isCurrentUser, onClick }: MemberListItemProps) => {
   const t = useTranslations('groups');
+
+  const isClickable = !!onClick;
 
   return (
     <Box
+      role={isClickable ? 'button' : undefined}
+      tabIndex={isClickable ? 0 : undefined}
+      onClick={isClickable ? () => onClick(member) : undefined}
+      onKeyDown={
+        isClickable
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClick(member);
+              }
+            }
+          : undefined
+      }
       sx={{
         display: 'flex',
         alignItems: 'center',
@@ -28,8 +44,13 @@ const MemberListItem = ({ member, isCurrentUser }: MemberListItemProps) => {
         borderRadius: '8px',
         bgcolor: isCurrentUser ? `${tokens.primaryContainer}18` : 'transparent',
         borderLeft: isCurrentUser ? `3px solid ${tokens.primary}` : '3px solid transparent',
-        transition: 'background-color 150ms ease',
+        transition: 'background-color 150ms ease, transform 150ms ease',
+        cursor: isClickable ? 'pointer' : 'default',
+        userSelect: 'none',
+        outline: 'none',
         '&:hover': { bgcolor: `${tokens.primary}0D` },
+        '&:active': isClickable ? { transform: 'scale(0.99)' } : undefined,
+        '&:focus-visible': isClickable ? { boxShadow: `0 0 0 2px ${tokens.primary}66` } : undefined,
       }}
     >
       <Avatar

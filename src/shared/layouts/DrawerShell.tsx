@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import Box from '@mui/material/Box';
+import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
@@ -16,25 +17,51 @@ import Tooltip from '@mui/material/Tooltip';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import GroupIcon from '@mui/icons-material/Group';
 import HomeIcon from '@mui/icons-material/Home';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import Link from 'next/link';
 import { tokens } from '@lib/theme/theme';
 import { APPBAR_HEIGHT } from '@shared/components/organisms/DashboardNavbar';
-import { type ReactNode } from 'react';
+import { type ComponentType, type ReactNode } from 'react';
+import { type SvgIconProps } from '@mui/material/SvgIcon';
 
 const DRAWER_OPEN_WIDTH = 240;
 const DRAWER_CLOSED_WIDTH = 64;
 export const BOTTOM_NAV_HEIGHT = 64;
 
-const DRAWER_ITEMS = [
+type IconComponent = ComponentType<SvgIconProps>;
+type DrawerLeaf = { key: string; href: string; Icon: IconComponent };
+type DrawerItem = DrawerLeaf & { children?: ReadonlyArray<DrawerLeaf> };
+
+const DRAWER_ITEMS: ReadonlyArray<DrawerItem> = [
   { key: 'home', href: '/home', Icon: HomeIcon },
-  { key: 'predictions', href: '/predictions', Icon: SportsSoccerIcon },
-  { key: 'matches', href: '/matches', Icon: CalendarMonthIcon },
+  {
+    key: 'matches',
+    href: '/matches',
+    Icon: CalendarMonthIcon,
+    children: [
+      { key: 'matchesList', href: '/matches', Icon: CalendarMonthIcon },
+      { key: 'predictions', href: '/predictions', Icon: SportsSoccerIcon },
+      { key: 'loadResults', href: '/matches/load-results', Icon: UploadFileIcon },
+    ],
+  },
   { key: 'tournaments', href: '/tournaments', Icon: EmojiEventsIcon },
   { key: 'groups', href: '/groups', Icon: GroupIcon },
-] as const;
+];
+
+const matchesPath = (href: string, pathname: string) =>
+  pathname === href || pathname.startsWith(`${href}/`);
+
+const activeChildKey = (item: DrawerItem, pathname: string): string | null => {
+  if (!item.children) return null;
+  const matching = item.children.filter((c) => matchesPath(c.href, pathname));
+  if (matching.length === 0) return null;
+  return matching.reduce((a, b) => (b.href.length > a.href.length ? b : a)).key;
+};
 
 const DrawerShell = ({ children }: { children: ReactNode }) => {
   const [open, setOpen] = useState(true);
@@ -42,6 +69,17 @@ const DrawerShell = ({ children }: { children: ReactNode }) => {
   const t = useTranslations('nav');
 
   const drawerWidth = open ? DRAWER_OPEN_WIDTH : DRAWER_CLOSED_WIDTH;
+
+  const initialExpanded = DRAWER_ITEMS.filter(
+    (item) => item.children && activeChildKey(item, pathname),
+  ).map((item) => item.key);
+  const [expandedKeys, setExpandedKeys] = useState<string[]>(initialExpanded);
+
+  const toggleExpanded = (key: string) => {
+    setExpandedKeys((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
+    );
+  };
 
   return (
     <>
@@ -75,67 +113,145 @@ const DrawerShell = ({ children }: { children: ReactNode }) => {
         }}
       >
         <List sx={{ px: 1, pt: 1.5, pb: 1 }}>
-          {DRAWER_ITEMS.map(({ key, href, Icon }) => {
-            const active = pathname.startsWith(href);
+          {DRAWER_ITEMS.map((item) => {
+            const { key, href, Icon, children: subItems } = item;
+            const hasChildren = !!subItems && subItems.length > 0;
+            const childKey = activeChildKey(item, pathname);
+            const active = hasChildren ? !!childKey : matchesPath(href, pathname);
+            const expanded = expandedKeys.includes(key);
+
+            const showChildren = hasChildren && open && expanded;
+
             return (
-              <ListItem key={key} disablePadding sx={{ mb: 0.5 }}>
-                <Tooltip
-                  title={t(key)}
-                  placement="right"
-                  arrow
-                  disableHoverListener={open}
-                  disableFocusListener={open}
-                  disableTouchListener={open}
-                >
-                  <ListItemButton
-                    component={Link}
-                    href={href}
-                    sx={{
-                      borderRadius: '0 8px 8px 0',
-                      minHeight: 44,
-                      px: 1.5,
-                      justifyContent: open ? 'flex-start' : 'center',
-                      opacity: active ? 1 : 0.6,
-                      borderLeft: `3px solid ${active ? tokens.primaryContainer : 'transparent'}`,
-                      background: active
-                        ? `linear-gradient(to right, ${tokens.primaryContainer}26, transparent)`
-                        : 'transparent',
-                      transition: 'opacity 150ms ease, background 150ms ease',
-                      '&:hover': {
-                        opacity: 1,
-                        background: active
-                          ? `linear-gradient(to right, ${tokens.primaryContainer}33, transparent)`
-                          : tokens.surfaceContainerHigh,
-                      },
-                    }}
+              <Box key={key}>
+                <ListItem disablePadding sx={{ mb: 0.5 }}>
+                  <Tooltip
+                    title={t(key)}
+                    placement="right"
+                    arrow
+                    disableHoverListener={open}
+                    disableFocusListener={open}
+                    disableTouchListener={open}
                   >
-                    <ListItemIcon
-                      sx={{ minWidth: 0, mr: open ? 1.5 : 0, justifyContent: 'center' }}
+                    <ListItemButton
+                      {...(hasChildren && open
+                        ? { onClick: () => toggleExpanded(key) }
+                        : { component: Link, href })}
+                      sx={{
+                        borderRadius: '0 8px 8px 0',
+                        minHeight: 44,
+                        px: 1.5,
+                        justifyContent: open ? 'flex-start' : 'center',
+                        opacity: active ? 1 : 0.6,
+                        borderLeft: `3px solid ${active ? tokens.primaryContainer : 'transparent'}`,
+                        background: active
+                          ? `linear-gradient(to right, ${tokens.primaryContainer}26, transparent)`
+                          : 'transparent',
+                        transition: 'opacity 150ms ease, background 150ms ease',
+                        '&:hover': {
+                          opacity: 1,
+                          background: active
+                            ? `linear-gradient(to right, ${tokens.primaryContainer}33, transparent)`
+                            : tokens.surfaceContainerHigh,
+                        },
+                      }}
                     >
-                      <Icon
-                        sx={{
-                          color: active ? tokens.primary : tokens.onSurfaceVariant,
-                          fontSize: '1.25rem',
-                        }}
-                      />
-                    </ListItemIcon>
-                    {open && (
-                      <ListItemText
-                        primary={t(key)}
-                        slotProps={{
-                          primary: {
-                            sx: {
-                              fontSize: '0.875rem',
-                              fontWeight: active ? 700 : 500,
-                              color: active ? tokens.primary : tokens.onSurface,
+                      <ListItemIcon
+                        sx={{ minWidth: 0, mr: open ? 1.5 : 0, justifyContent: 'center' }}
+                      >
+                        <Icon
+                          sx={{
+                            color: active ? tokens.primary : tokens.onSurfaceVariant,
+                            fontSize: '1.25rem',
+                          }}
+                        />
+                      </ListItemIcon>
+                      {open && (
+                        <ListItemText
+                          primary={t(key)}
+                          slotProps={{
+                            primary: {
+                              sx: {
+                                fontSize: '0.875rem',
+                                fontWeight: active ? 700 : 500,
+                                color: active ? tokens.primary : tokens.onSurface,
+                              },
                             },
-                          },
-                        }}
-                      />
-                    )}
-                  </ListItemButton>
-                </Tooltip>
-              </ListItem>
+                          }}
+                        />
+                      )}
+                      {hasChildren &&
+                        open &&
+                        (expanded ? (
+                          <ExpandLessIcon
+                            sx={{ color: tokens.onSurfaceVariant, fontSize: '1.125rem' }}
+                          />
+                        ) : (
+                          <ExpandMoreIcon
+                            sx={{ color: tokens.onSurfaceVariant, fontSize: '1.125rem' }}
+                          />
+                        ))}
+                    </ListItemButton>
+                  </Tooltip>
+                </ListItem>
+
+                {hasChildren && (
+                  <Collapse in={showChildren} timeout="auto" unmountOnExit>
+                    <List disablePadding sx={{ mb: 0.5 }}>
+                      {subItems.map(({ key: childKeyName, href: childHref, Icon: ChildIcon }) => {
+                        const isChildActive = childKey === childKeyName;
+                        return (
+                          <ListItem key={childKeyName} disablePadding sx={{ mb: 0.25 }}>
+                            <ListItemButton
+                              component={Link}
+                              href={childHref}
+                              sx={{
+                                borderRadius: '0 8px 8px 0',
+                                minHeight: 36,
+                                pl: 4.5,
+                                pr: 1.5,
+                                opacity: isChildActive ? 1 : 0.6,
+                                borderLeft: `3px solid ${isChildActive ? tokens.primaryContainer : 'transparent'}`,
+                                background: isChildActive
+                                  ? `linear-gradient(to right, ${tokens.primaryContainer}1A, transparent)`
+                                  : 'transparent',
+                                transition: 'opacity 150ms ease, background 150ms ease',
+                                '&:hover': {
+                                  opacity: 1,
+                                  background: isChildActive
+                                    ? `linear-gradient(to right, ${tokens.primaryContainer}26, transparent)`
+                                    : tokens.surfaceContainerHigh,
+                                },
+                              }}
+                            >
+                              <ListItemIcon sx={{ minWidth: 0, mr: 1.5 }}>
+                                <ChildIcon
+                                  sx={{
+                                    color: isChildActive ? tokens.primary : tokens.onSurfaceVariant,
+                                    fontSize: '1.125rem',
+                                  }}
+                                />
+                              </ListItemIcon>
+                              <ListItemText
+                                primary={t(childKeyName)}
+                                slotProps={{
+                                  primary: {
+                                    sx: {
+                                      fontSize: '0.8125rem',
+                                      fontWeight: isChildActive ? 700 : 500,
+                                      color: isChildActive ? tokens.primary : tokens.onSurface,
+                                    },
+                                  },
+                                }}
+                              />
+                            </ListItemButton>
+                          </ListItem>
+                        );
+                      })}
+                    </List>
+                  </Collapse>
+                )}
+              </Box>
             );
           })}
         </List>

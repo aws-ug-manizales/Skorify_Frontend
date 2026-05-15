@@ -1,25 +1,28 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CloseIcon from '@mui/icons-material/Close';
+import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { useTranslations } from 'next-intl';
 import { tokens } from '@lib/theme/theme';
 import AppButton from '@shared/components/atoms/AppButton';
+import AppCard from '@shared/components/molecules/AppCard';
 import { useAuthStore } from '@features/auth/store/useAuthStore';
 import { useGroupDetail } from '../../hooks/useGroupDetail';
 import { useLeaveGroup } from '../../hooks/useLeaveGroup';
 import GroupDetailSkeleton from './GroupDetailSkeleton';
 import GroupHeader from './GroupHeader';
-import MatchPredictionList from './MatchPredictionList';
 import MemberList from './MemberList';
 import ShareGroupDialog from './ShareGroupDialog';
 import StandingsTable from './StandingsTable';
+import TopPodium from '../molecules/TopPodium';
 
 const MOCK_CURRENT_USER_ID = 'mock-admin-id';
 
@@ -52,6 +55,21 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
 
   const currentUserId = session?.user.id ?? MOCK_CURRENT_USER_ID;
   const isAdmin = data?.group.adminId === currentUserId;
+
+  // TODO: replace with `previousStandings` field returned by the backend after
+  // a match is scored. Mock for now: swap top-3 positions so the podium boots
+  // in "before" state and animates into the current order on mount.
+  const mockedPreviousStandings = useMemo(() => {
+    if (!data) return undefined;
+    const [first, second, third] = data.standings;
+    if (!first || !second || !third) return undefined;
+    return [
+      { ...third, points: first.points + 4 },
+      { ...first, points: second.points - 2 },
+      { ...second, points: third.points - 1 },
+      ...data.standings.slice(3),
+    ];
+  }, [data]);
 
   const adminCount = data?.members.filter((m) => m.isAdmin).length ?? 0;
   const memberCount = data?.members.length ?? 0;
@@ -112,20 +130,71 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
             display: 'grid',
             gridTemplateColumns: { xs: '1fr', md: '1fr 320px' },
             gap: 3,
-            alignItems: 'start',
+            alignItems: 'stretch',
           }}
         >
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <TopPodium
+              standings={data.standings}
+              previousStandings={mockedPreviousStandings}
+              currentUserId={currentUserId}
+              pointsLabel={t('pointsLabel')}
+            />
             <StandingsTable
               standings={data.standings}
+              previousStandings={mockedPreviousStandings}
               currentUserId={currentUserId}
               onRefresh={refetch}
               isRefreshing={isLoading}
             />
-            <MatchPredictionList matches={data.pendingMatches} />
           </Box>
 
-          <MemberList members={data.members} currentUserId={currentUserId} />
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <MemberList members={data.members} currentUserId={currentUserId} />
+            <AppCard variant="interactive" href="/predictions">
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 2,
+                  p: { xs: 2, md: 2.5 },
+                }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 48,
+                    height: 48,
+                    borderRadius: '50%',
+                    bgcolor: `${tokens.primary}1A`,
+                    flexShrink: 0,
+                  }}
+                >
+                  <SportsSoccerIcon sx={{ color: tokens.primary, fontSize: 24 }} />
+                </Box>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography
+                    sx={{
+                      color: tokens.onSurface,
+                      fontWeight: 800,
+                      fontSize: { xs: '0.9375rem', md: '1rem' },
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.04em',
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {t('predictionsCardTitle')}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: tokens.onSurfaceVariant, mt: 0.5 }}>
+                    {t('predictionsCardSubtitle')}
+                  </Typography>
+                </Box>
+                <ChevronRightIcon sx={{ color: tokens.onSurfaceVariant, fontSize: 24 }} />
+              </Box>
+            </AppCard>
+          </Box>
         </Box>
       </Box>
 

@@ -1,5 +1,6 @@
 export { default as UsersAdmin } from './components/organisms/UsersAdmin';
 export { default as UserTable } from './components/organisms/UserTable';
+export { default as UserPublicProfile } from './components/organisms/UserPublicProfile';
 export type { User, UserStatus } from './types/user';
 
 export { useCreateUser } from './hooks/useCreateUser';

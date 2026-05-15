@@ -216,14 +216,6 @@ const CreateGroupForm = () => {
         loading={isLoading}
         fullWidth
         endIcon={<ArrowForwardIcon />}
-        sx={{
-          borderRadius: '999px',
-          py: 1.75,
-          fontSize: '0.875rem',
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-          fontWeight: 800,
-        }}
       >
         {t('createButton')}
       </AppButton>

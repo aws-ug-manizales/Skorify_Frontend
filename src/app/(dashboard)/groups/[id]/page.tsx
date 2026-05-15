@@ -4,6 +4,8 @@ interface GroupDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
+export const generateStaticParams = () => [{ id: '_' }];
+
 const GroupDetailPage = async ({ params }: GroupDetailPageProps) => {
   const { id } = await params;
   return <GroupDetail groupId={id} />;

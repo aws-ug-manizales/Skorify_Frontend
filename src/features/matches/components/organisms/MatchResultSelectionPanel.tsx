@@ -6,11 +6,14 @@ import { useLocale, useTranslations } from 'next-intl';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Drawer from '@mui/material/Drawer';
-import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { type FormFieldOption } from '@shared/components/atoms/FormField';
+import AppButton from '@shared/components/atoms/AppButton';
 import AppCard from '@shared/components/molecules/AppCard';
+import PageHeader from '@shared/components/molecules/PageHeader';
+import { APPBAR_HEIGHT } from '@shared/components/organisms/DashboardNavbar';
 import { tokens } from '@lib/theme/theme';
 import MatchAutocompleteField, {
   type MatchAutocompleteOption,
@@ -224,25 +227,11 @@ const MatchResultSelectionPanel = () => {
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1100, mx: 'auto' }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography
-          sx={{
-            fontSize: { xs: '1.75rem', md: '2.5rem' },
-            fontWeight: 900,
-            fontStyle: 'italic',
-            letterSpacing: '-0.04em',
-            color: tokens.onSurface,
-            textTransform: 'uppercase',
-            lineHeight: 1,
-            mb: 1,
-          }}
-        >
-          {t('title')}
-        </Typography>
-        <Typography sx={{ fontSize: '0.875rem', color: tokens.onSurfaceVariant, maxWidth: 620 }}>
-          {t('subtitle')}
-        </Typography>
-      </Box>
+      <PageHeader
+        title={t('title')}
+        subtitle={t('subtitle')}
+        icon={<UploadFileIcon sx={{ color: tokens.primary, fontSize: '1rem' }} />}
+      />
 
       <AppCard variant="default" sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 3 }}>
         <MatchAutocompleteField<MatchResultFormValues>
@@ -273,21 +262,7 @@ const MatchResultSelectionPanel = () => {
 
         {selectedMatch && isAdmin && (
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
-            <Button
-              variant="contained"
-              onClick={() => setIsDrawerOpen(true)}
-              sx={{
-                bgcolor: tokens.primary,
-                color: tokens.onPrimary,
-                '&:hover': { bgcolor: tokens.primaryContainer, color: tokens.onPrimaryContainer },
-                fontWeight: 600,
-                textTransform: 'none',
-                px: 3,
-                borderRadius: 2,
-              }}
-            >
-              {t('modifyButton')}
-            </Button>
+            <AppButton onClick={() => setIsDrawerOpen(true)}>{t('modifyButton')}</AppButton>
           </Box>
         )}
 
@@ -295,69 +270,106 @@ const MatchResultSelectionPanel = () => {
           anchor="right"
           open={isDrawerOpen}
           onClose={() => setIsDrawerOpen(false)}
-          PaperProps={{
-            sx: {
-              width: { xs: '100%', sm: 400 },
-              p: { xs: 3, md: 4 },
-              bgcolor: tokens.surface,
+          slotProps={{
+            paper: {
+              sx: {
+                width: { xs: '100vw', sm: 520 },
+                marginTop: `${APPBAR_HEIGHT}px`,
+                height: `calc(100% - ${APPBAR_HEIGHT}px)`,
+                bgcolor: tokens.background,
+                backgroundImage: 'none',
+                borderLeft: `1px solid ${tokens.outlineVariant}26`,
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+              },
             },
           }}
         >
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              px: 2,
+              py: 0.5,
+              flexShrink: 0,
+            }}
+          >
             <IconButton
               onClick={() => setIsDrawerOpen(false)}
-              sx={{ color: tokens.onSurfaceVariant }}
+              size="small"
+              sx={{
+                color: tokens.onSurface,
+                bgcolor: tokens.surfaceContainerHigh,
+                border: `1px solid ${tokens.outlineVariant}33`,
+                borderRadius: '8px',
+                '&:hover': {
+                  bgcolor: tokens.surfaceContainerHighest,
+                  borderColor: `${tokens.outlineVariant}66`,
+                },
+              }}
             >
-              <CloseIcon />
+              <CloseIcon sx={{ fontSize: '1rem' }} />
             </IconButton>
           </Box>
 
-          <MatchResultEditor
-            control={control}
-            labels={{
-              title: t('editor.title'),
-              description: t('editor.description'),
-              homeGoals: t('editor.homeGoalsLabel'),
-              awayGoals: t('editor.awayGoalsLabel'),
-              status: t('editor.statusLabel'),
-              statusHelper: t('editor.statusHelper'),
-              save: t('editor.saveButton'),
-              fallbackHome: t('fallbackHome'),
-              fallbackAway: t('fallbackAway'),
+          <Box
+            sx={{
+              flex: 1,
+              overflowY: 'auto',
+              px: { xs: 3, md: 4 },
+              py: 2,
+              '&::-webkit-scrollbar': { display: 'none' },
+              scrollbarWidth: 'none',
             }}
-            validation={{
-              homeGoals: {
-                required: t('validation.homeGoalsRequired'),
-                validate: validateNonNegativeInteger,
-              },
-              awayGoals: {
-                required: t('validation.awayGoalsRequired'),
-                validate: validateNonNegativeInteger,
-              },
-              status: {
-                required: t('validation.statusRequired'),
-              },
-            }}
-            statusOptions={statusOptions}
-            disabled={isResultEditorDisabled}
-            saveDisabled={isSaveDisabled}
-            homeTeamName={homeTeamName}
-            awayTeamName={awayTeamName}
-            onSubmit={onSubmit}
-          />
-
-          {activeFeedback?.kind === 'error' ? (
-            <Typography
-              sx={{
-                fontSize: '0.8125rem',
-                fontWeight: 600,
-                color: tokens.error,
-                mt: 2,
+          >
+            <MatchResultEditor
+              control={control}
+              labels={{
+                title: t('editor.title'),
+                description: t('editor.description'),
+                homeGoals: t('editor.homeGoalsLabel'),
+                awayGoals: t('editor.awayGoalsLabel'),
+                status: t('editor.statusLabel'),
+                statusHelper: t('editor.statusHelper'),
+                save: t('editor.saveButton'),
+                fallbackHome: t('fallbackHome'),
+                fallbackAway: t('fallbackAway'),
               }}
-            >
-              {activeFeedback.message}
-            </Typography>
-          ) : null}
+              validation={{
+                homeGoals: {
+                  required: t('validation.homeGoalsRequired'),
+                  validate: validateNonNegativeInteger,
+                },
+                awayGoals: {
+                  required: t('validation.awayGoalsRequired'),
+                  validate: validateNonNegativeInteger,
+                },
+                status: {
+                  required: t('validation.statusRequired'),
+                },
+              }}
+              statusOptions={statusOptions}
+              disabled={isResultEditorDisabled}
+              saveDisabled={isSaveDisabled}
+              homeTeamName={homeTeamName}
+              awayTeamName={awayTeamName}
+              onSubmit={onSubmit}
+            />
+
+            {activeFeedback?.kind === 'error' ? (
+              <Typography
+                sx={{
+                  fontSize: '0.8125rem',
+                  fontWeight: 600,
+                  color: tokens.error,
+                  mt: 2,
+                }}
+              >
+                {activeFeedback.message}
+              </Typography>
+            ) : null}
+          </Box>
         </Drawer>
 
         {activeFeedback?.kind === 'success' ? (

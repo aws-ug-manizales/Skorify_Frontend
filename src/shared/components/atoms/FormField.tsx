@@ -20,20 +20,20 @@ export type FormFieldOption = {
   value: string | number;
 };
 
-type FormFieldProps<T extends FieldValues> = Omit<
+type FormFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> = Omit<
   TextFieldProps,
   'name' | 'error' | 'helperText'
 > & {
-  name: Path<T>;
+  name: N;
   control: Control<T>;
-  rules?: RegisterOptions<T, Path<T>>;
+  rules?: RegisterOptions<T, N>;
   helperText?: string;
   options?: FormFieldOption[];
   showPasswordToggleAriaLabel?: string;
   hidePasswordToggleAriaLabel?: string;
 };
 
-const FormField = <T extends FieldValues>({
+const FormField = <T extends FieldValues, N extends Path<T> = Path<T>>({
   name,
   control,
   rules,
@@ -45,7 +45,7 @@ const FormField = <T extends FieldValues>({
   showPasswordToggleAriaLabel = 'Show password',
   hidePasswordToggleAriaLabel = 'Hide password',
   ...textFieldProps
-}: FormFieldProps<T>) => {
+}: FormFieldProps<T, N>) => {
   const isPassword = type === 'password';
   const [revealed, setRevealed] = useState(false);
   const resolvedType = isPassword && revealed ? 'text' : type;

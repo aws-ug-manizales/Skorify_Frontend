@@ -73,8 +73,19 @@ const MatchesToolbar = ({
       }}
     />
 
-    <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
-      <FormControl size="small" sx={{ minWidth: { xs: 'unset', md: 220 } }}>
+    <Box
+      sx={{
+        display: 'flex',
+        gap: 1.5,
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        width: { xs: '100%', md: 'auto' },
+      }}
+    >
+      <FormControl
+        size="small"
+        sx={{ flex: { xs: 1, md: 'initial' }, minWidth: { xs: 140, md: 220 } }}
+      >
         <InputLabel id="matches-month-label">{monthLabel}</InputLabel>
         <Select
           labelId="matches-month-label"

@@ -12,6 +12,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 import { tokens } from '@lib/theme/theme';
 import MemberListItem from '../molecules/MemberListItem';
+import MemberDetailDialog from './MemberDetailDialog';
 import type { GroupMember } from '../../types';
 
 const MOBILE_PREVIEW_COUNT = 4;
@@ -26,6 +27,7 @@ const MemberList = ({ members, currentUserId }: MemberListProps) => {
   const t = useTranslations('groups');
   const [expanded, setExpanded] = useState(false);
   const [page, setPage] = useState(1);
+  const [selectedMember, setSelectedMember] = useState<GroupMember | null>(null);
   const isDesktop = useMediaQuery('(min-width:900px)');
 
   const sortedMembers = [...members].sort((a, b) => {
@@ -96,9 +98,17 @@ const MemberList = ({ members, currentUserId }: MemberListProps) => {
             key={member.id}
             member={member}
             isCurrentUser={member.id === currentUserId}
+            onClick={setSelectedMember}
           />
         ))}
       </Box>
+
+      <MemberDetailDialog
+        open={selectedMember !== null}
+        member={selectedMember}
+        isCurrentUser={selectedMember?.id === currentUserId}
+        onClose={() => setSelectedMember(null)}
+      />
 
       {!isDesktop && hasMore && (
         <Box

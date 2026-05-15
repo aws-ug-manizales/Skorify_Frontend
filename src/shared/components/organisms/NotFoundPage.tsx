@@ -9,6 +9,68 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import AppButton from '@shared/components/atoms/AppButton';
 import { tokens } from '@lib/theme/theme';
 
+const PHI = 1.618033988749;
+
+const EMBERS = Array.from({ length: 40 }, (_, i) => {
+  const r1 = (i * PHI) % 1;
+  const r2 = (i * PHI * PHI) % 1;
+  const r3 = (i * PHI * PHI * PHI) % 1;
+  return {
+    left: r1 * 100,
+    size: r2 * 4 + 1.5,
+    duration: r3 * 3 + 5,
+    delay: ((r1 + r2) * 6) % 6,
+    drift: (r3 - 0.5) * 60,
+  };
+});
+
+const Embers = () => (
+  <Box
+    aria-hidden
+    sx={{
+      position: 'absolute',
+      inset: 0,
+      pointerEvents: 'none',
+      overflow: 'hidden',
+      zIndex: 1,
+      '@keyframes floatEmber': {
+        '0%': {
+          transform: 'translate3d(0, 0, 0) scale(1)',
+          opacity: 0,
+        },
+        '10%': { opacity: 1 },
+        '90%': { opacity: 0.6 },
+        '100%': {
+          transform: 'translate3d(var(--ember-drift, 0), -100vh, 0) scale(0.4)',
+          opacity: 0,
+        },
+      },
+      '@media (prefers-reduced-motion: reduce)': {
+        display: 'none',
+      },
+    }}
+  >
+    {EMBERS.map((e, i) => (
+      <Box
+        key={i}
+        sx={{
+          position: 'absolute',
+          left: `${e.left}%`,
+          bottom: -20,
+          width: e.size,
+          height: e.size,
+          borderRadius: '50%',
+          bgcolor: tokens.secondary,
+          filter: 'blur(0.5px)',
+          boxShadow: `0 0 ${e.size * 4}px ${tokens.secondary}, 0 0 ${e.size * 8}px ${tokens.secondaryContainer}66`,
+          animation: `floatEmber ${e.duration}s linear ${e.delay}s infinite`,
+          ['--ember-drift' as string]: `${e.drift}px`,
+        }}
+      />
+    ))}
+  </Box>
+);
+
 const NotFoundPage = () => {
   const t = useTranslations('notFound');
 
@@ -91,6 +153,8 @@ const NotFoundPage = () => {
           pointerEvents: 'none',
         }}
       />
+
+      <Embers />
 
       <Box
         sx={{

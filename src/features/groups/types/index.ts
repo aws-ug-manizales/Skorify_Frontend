@@ -59,6 +59,12 @@ export interface PendingMatch {
 export interface GroupDetailData {
   group: Group;
   standings: StandingRow[];
+  /**
+   * Snapshot of the standings before the latest score update. Used by the podium
+   * to animate rank changes. Optional — when absent or equal to `standings`, no
+   * animation runs.
+   */
+  previousStandings?: StandingRow[];
   pendingMatches: PendingMatch[];
   members: GroupMember[];
 }

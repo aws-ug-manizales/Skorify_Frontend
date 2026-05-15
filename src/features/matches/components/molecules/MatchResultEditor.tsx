@@ -1,14 +1,54 @@
 'use client';
 
+import type { KeyboardEvent } from 'react';
 import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import FormField from '@shared/components/atoms/FormField';
 import AppButton from '@shared/components/atoms/AppButton';
 import { tokens } from '@lib/theme/theme';
-import type {
-  MatchResultFormValues,
-  MatchResultEditorProps,
-} from '../../models/matchResultForm.model';
+import type { MatchResultEditorProps } from '../../models/matchResultForm.model';
+
+const FIELD_SX = {
+  width: 64,
+  '& .MuiOutlinedInput-root': { height: 44 },
+  '& .MuiOutlinedInput-input': {
+    textAlign: 'center',
+    fontWeight: 800,
+    fontSize: '1.1rem',
+    padding: '8px 4px',
+    MozAppearance: 'textfield',
+  },
+  '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
+    WebkitAppearance: 'none',
+    margin: 0,
+  },
+} as const;
+
+const BLOCKED_KEYS = new Set(['-', '+', 'e', 'E', '.', ',']);
+
+const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+  if (BLOCKED_KEYS.has(event.key)) event.preventDefault();
+};
+
+const numericSlotProps = {
+  htmlInput: {
+    min: 0,
+    max: 99,
+    step: 1,
+    inputMode: 'numeric' as const,
+    onKeyDown: handleKeyDown,
+  },
+  formHelperText: { sx: { display: 'none' } },
+};
+
+const teamLabelSx = {
+  fontWeight: 700,
+  color: tokens.onSurface,
+  fontSize: { xs: '0.75rem', md: '0.9rem' },
+  lineHeight: 1.2,
+  wordBreak: 'break-word' as const,
+};
 
 const MatchResultEditor = ({
   control,
@@ -38,123 +78,77 @@ const MatchResultEditor = ({
         {labels.description}
       </Typography>
 
-      <Box
+      <Stack
         component="form"
         id="match-result-form"
+        spacing={3}
         onSubmit={(event) => {
           event.preventDefault();
           onSubmit();
         }}
       >
-        {/* Marcador Visual */}
         <Box
           sx={{
-            display: 'flex',
+            display: 'grid',
+            gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)',
             alignItems: 'center',
-            justifyContent: 'center',
-            mb: 4,
-            bgcolor: tokens.surfaceVariant,
-            p: 3,
-            borderRadius: 3,
+            gap: 2,
+            py: 1.5,
           }}
         >
-          <Box sx={{ flex: 1, textAlign: 'center' }}>
-            <Typography
-              variant="subtitle2"
-              sx={{
-                mb: 1.5,
-                fontWeight: 700,
-                color: tokens.onSurfaceVariant,
-                textTransform: 'uppercase',
-                fontSize: '0.75rem',
-                letterSpacing: '0.05em',
-              }}
-            >
-              {homeTeamName || labels.fallbackHome || labels.homeGoals}
-            </Typography>
-            <FormField<MatchResultFormValues>
-              name="homeGoals"
-              control={control}
-              label=""
-              type="number"
-              rules={validation.homeGoals}
-              disabled={disabled}
-              fullWidth
-              inputProps={{
-                min: 0,
-                inputMode: 'numeric',
-                style: {
-                  textAlign: 'center',
-                  fontSize: '1.5rem',
-                  fontWeight: 800,
-                  padding: '12px 14px',
-                },
-              }}
-            />
-          </Box>
-
-          <Typography
-            sx={{
-              mx: 2,
-              fontWeight: 900,
-              color: tokens.onSurfaceVariant,
-              fontSize: '1.25rem',
-              mt: 3,
-            }}
-          >
-            VS
+          <Typography sx={{ ...teamLabelSx, textAlign: 'right' }} title={homeTeamName}>
+            {homeTeamName || labels.fallbackHome || labels.homeGoals}
           </Typography>
 
-          <Box sx={{ flex: 1, textAlign: 'center' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <FormField
+              name="homeGoals"
+              control={control}
+              rules={validation.homeGoals}
+              type="number"
+              size="small"
+              disabled={disabled}
+              sx={FIELD_SX}
+              slotProps={numericSlotProps}
+            />
             <Typography
-              variant="subtitle2"
               sx={{
-                mb: 1.5,
-                fontWeight: 700,
                 color: tokens.onSurfaceVariant,
-                textTransform: 'uppercase',
-                fontSize: '0.75rem',
-                letterSpacing: '0.05em',
+                fontWeight: 800,
+                fontSize: '1.1rem',
+                mx: 0.25,
               }}
             >
-              {awayTeamName || labels.fallbackAway || labels.awayGoals}
+              –
             </Typography>
-            <FormField<MatchResultFormValues>
+            <FormField
               name="awayGoals"
               control={control}
-              label=""
-              type="number"
               rules={validation.awayGoals}
+              type="number"
+              size="small"
               disabled={disabled}
-              fullWidth
-              inputProps={{
-                min: 0,
-                inputMode: 'numeric',
-                style: {
-                  textAlign: 'center',
-                  fontSize: '1.5rem',
-                  fontWeight: 800,
-                  padding: '12px 14px',
-                },
-              }}
+              sx={FIELD_SX}
+              slotProps={numericSlotProps}
             />
           </Box>
+
+          <Typography sx={{ ...teamLabelSx, textAlign: 'left' }} title={awayTeamName}>
+            {awayTeamName || labels.fallbackAway || labels.awayGoals}
+          </Typography>
         </Box>
 
-        {/* Estado del Partido */}
-        <Box sx={{ mb: 4 }}>
-          <FormField<MatchResultFormValues>
-            name="status"
-            control={control}
-            label={labels.status}
-            rules={validation.status}
-            disabled={disabled}
-            options={statusOptions}
-            helperText={labels.statusHelper}
-            fullWidth
-          />
-        </Box>
-      </Box>
+        <FormField
+          name="status"
+          control={control}
+          label={labels.status}
+          rules={validation.status}
+          disabled={disabled}
+          options={statusOptions}
+          helperText={labels.statusHelper}
+          fullWidth
+        />
+      </Stack>
     </Box>
 
     <Box sx={{ mt: 'auto', pt: 3 }}>
@@ -163,7 +157,6 @@ const MatchResultEditor = ({
         form="match-result-form"
         disabled={disabled || saveDisabled}
         fullWidth
-        sx={{ py: 1.5, fontSize: '1rem' }}
       >
         {labels.save}
       </AppButton>

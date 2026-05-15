@@ -28,9 +28,41 @@
     "home": "Home",
     "predictions": "Predictions",
     "matches": "Matches",
+    "matchesList": "Matches",
+    "loadResults": "Load results",
     "tournaments": "Tournaments",
     "groups": "Groups",
     "profile": "Profile"
+  },
+  "profile": {
+    "title": "Your profile",
+    "subtitle": "Your Skorify journey",
+    "totalPointsLabel": "Total points",
+    "editProfile": "Edit profile",
+    "editPersonalData": "Edit personal data",
+    "fullNameLabel": "Full name",
+    "handleLabel": "Handle",
+    "emailLabel": "Email",
+    "saveChanges": "Save changes",
+    "stats": {
+      "title": "Stats",
+      "exact": "Exact",
+      "partial": "Partial",
+      "accuracy": "Accuracy",
+      "total": "Predictions"
+    },
+    "participation": "Participation",
+    "streakTitle": "Unstoppable!",
+    "streakSubtitle": "{count} predictions in a row",
+    "groups": {
+      "title": "My groups",
+      "rank": "Rank #{rank}",
+      "members": "{count, plural, one {# member} other {# members}}",
+      "emptyTitle": "You're not in any group yet",
+      "emptySubtitle": "Create one and start competing with your friends.",
+      "emptyCta": "Create my first group",
+      "viewAll": "View all"
+    }
   },
   "auth": {
     "title": "Access Skorify",
@@ -239,6 +271,16 @@
     "title": "Groups",
     "subtitle": "Compete with your friends",
     "create": "Create group",
+    "joinGroup": "Join group",
+    "cancel": "Cancel",
+    "listSubtitle": "{count, plural, one {# active group} other {# active groups}}",
+    "memberCount": "{count, plural, one {# member} other {# members}}",
+    "rankLabel": "Rank",
+    "pointsLabel": "pts",
+    "viewGroup": "View group",
+    "pageEmptyTitle": "You don't have any groups yet",
+    "pageEmptySubtitle": "Create a new group or join one with an invite code.",
+    "pageEmptyCta": "Create my first group",
     "join": {
       "title": "Join Skorify",
       "subtitle": "Enter the invitation code shared with you",
@@ -276,19 +318,15 @@
     "linkCopied": "Link copied!",
     "shareWhatsApp": "Share via WhatsApp",
     "standingsTitle": "Standings",
-    "matchesTitle": "Upcoming Matches",
+    "predictionsCardTitle": "Upcoming matches",
+    "predictionsCardSubtitle": "Make your predictions and earn points",
+    "predictionsCardCta": "Go to predictions",
     "membersTitle": "Members",
     "shareButton": "Share",
     "shareTitle": "Share group",
-    "predictButton": "Predict",
-    "editPredictionButton": "Edit prediction",
     "adminBadge": "Admin",
     "youBadge": "You",
-    "noMatchesTitle": "All caught up",
-    "noMatchesSubtitle": "No matches pending prediction right now.",
     "inviteLinkButton": "Copy invite link",
-    "pendingMatchesSingular": "match pending",
-    "pendingMatchesPlural": "matches pending",
     "notFound": "Group not found",
     "loadError": "Could not load the group",
     "showMore": "Show {count} more",
@@ -335,7 +373,32 @@
     "leaveError": "Could not leave the group. Please try again.",
     "leaveSuccess": "You have successfully left the group.",
     "leaveSuccessNewAdmin": "You have left the group. A new admin has been assigned.",
-    "dissolveSuccess": "The group has been dissolved."
+    "dissolveSuccess": "The group has been dissolved.",
+    "groupTagLabel": "Private League",
+    "memberDetail": {
+      "roleAdmin": "Admin",
+      "roleMember": "Member",
+      "roleLabel": "Role",
+      "rankLabel": "Rank",
+      "pointsLabel": "Points",
+      "youBadge": "You",
+      "viewProfile": "View profile"
+    }
+  },
+  "userProfile": {
+    "backToGroups": "Back to groups",
+    "publicProfileLabel": "Public profile",
+    "memberSince": "Member since {date}",
+    "totalPoints": "Points",
+    "accuracy": "Accuracy",
+    "predictionsMade": "Predictions",
+    "streak": "Streak",
+    "sharedGroupsTitle": "Shared groups",
+    "sharedGroupsEmpty": "No groups in common yet.",
+    "rankInGroup": "Rank #{rank}",
+    "recentPredictionsTitle": "Recent predictions",
+    "hit": "+{points} pts",
+    "miss": "0 pts"
   },
   "dashboard": {
     "title": "Control Panel",
@@ -372,7 +435,110 @@
       "tournamentsDesc": "Active competitions"
     }
   },
+  "userDashboard": {
+    "eyebrow": "Your playing field",
+    "greeting": "Hi, {name}",
+    "streakText": "Your current streak is <highlight>{count} hits</highlight>. There are matches waiting for your predictions.",
+    "defaultUser": "predictor",
+    "createGroup": "Create group",
+    "joinGroup": "Join a group",
+    "myGroupsTitle": "My groups",
+    "myGroupsEmpty": "You haven't joined any group yet. Create one or join with a code.",
+    "groupRank": "Rank #{rank} · {members} members",
+    "seeAll": "See all",
+    "rankingTitle": "Global ranking",
+    "pointsShort": "pts",
+    "youLabel": "You",
+    "upcomingMatches": "Upcoming matches",
+    "liveBadge": "LIVE",
+    "viewAllMatches": "View all",
+    "pointsSummaryTitle": "Points summary",
+    "totalPoints": "Total points",
+    "weekLabel": "Week",
+    "accuracyLabel": "Accuracy",
+    "recentPredictionsTitle": "Recent predictions",
+    "predictionPointsPlus": "+{points} pts",
+    "predictionPointsZero": "0 pts",
+    "friendActivityTitle": "Friend activity",
+    "activity": {
+      "friend1Name": "Juan P.",
+      "friend1Text": "passed your record in \"Liga Colombiana 2026\".",
+      "friend1Time": "5 min ago",
+      "friend2Name": "Maria Dev",
+      "friend2Text": "predicted 2-0 for the home team.",
+      "friend2Time": "22 min ago",
+      "friend3Name": "Carlos R.",
+      "friend3Text": "joined your group \"Champions Elite\".",
+      "friend3Time": "1 h ago"
+    }
+  },
   "home": {
+    "stats": {
+      "title": "The community that lives every match",
+      "predictions": "predictions made",
+      "groups": "active groups",
+      "users": "predictors competing",
+      "matches": "World Cup matches"
+    },
+    "features": {
+      "eyebrow": "Why Skorify",
+      "title": "Built for true fans",
+      "subtitle": "Everything you need to enjoy every match day with your friends.",
+      "predict": {
+        "title": "Predict every match",
+        "description": "Lock in the exact score before kick-off. Earn points for exact and partial hits."
+      },
+      "groups": {
+        "title": "Compete in groups",
+        "description": "Start your private league, invite your crew and see who reigns each round."
+      },
+      "ranking": {
+        "title": "Climb the ranking",
+        "description": "Live standings, streaks, stats and the coveted #1 spot."
+      }
+    },
+    "howItWorks": {
+      "eyebrow": "How it works",
+      "title": "You're in in three steps",
+      "step1": {
+        "title": "Create your account",
+        "description": "Sign up in seconds. No card, no commitment."
+      },
+      "step2": {
+        "title": "Join a group",
+        "description": "Use an invite code or create your own and rally your friends."
+      },
+      "step3": {
+        "title": "Predict and win",
+        "description": "Lock in each result, climb the ranks and celebrate every hit."
+      }
+    },
+    "finalCta": {
+      "eyebrow": "Ready to play",
+      "title": "The next kick-off is waiting",
+      "description": "Create your free account, join a group and start racking up points with every right call.",
+      "cta": "Create my account",
+      "secondaryCta": "I have an invite code",
+      "perks": {
+        "free": "100% free",
+        "noCard": "No credit card",
+        "instant": "Ready in 30 seconds"
+      },
+      "inviteModal": {
+        "title": "Join a group",
+        "description": "Enter the invite code you got. We'll take you to sign-up so you can join right after.",
+        "codeLabel": "Invite code",
+        "codePlaceholder": "e.g. FRIENDS24",
+        "continue": "Continue to sign-up",
+        "cancel": "Cancel"
+      }
+    },
+    "footer": {
+      "madeIn": "Made in Manizales",
+      "community": "Built by the AWS User Group Manizales community",
+      "socialTitle": "Follow us",
+      "rights": "© {year} Skorify · All rights reserved"
+    },
     "hero": {
       "eyebrow": "The ultimate predictions game",
       "title": "Predict. Compete. Win.",
