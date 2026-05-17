@@ -158,6 +158,23 @@
       "Done! Hopefully not a 0-0...",
       "Stored! Sure you don't want to tweak it?"
     ],
+    "scoreRulesTitle": "How scoring works",
+    "scoreRules": {
+      "winnerTitle": "Winner",
+      "winnerPoints": "+2 pts",
+      "winnerDescription": "Predict which team wins the match.",
+      "lopsidedTitle": "Big margin",
+      "lopsidedPoints": "+1 pt",
+      "lopsidedDescription": "You earn an extra point when the result shows a clear margin.",
+      "eachHitTitle": "Each hit",
+      "eachHitPoints": "+1 pt",
+      "eachHitDescription": "Every correct goal adds one point to your prediction.",
+      "reverseTitle": "Reversed score",
+      "reversePoints": "+1 pt",
+      "reverseDescription": "If you get the score in reverse, it still counts for a point.",
+      "streakTitle": "Streak bonus",
+      "streakDescription": "Each time you hit 3, 5, 7 or 10 consecutive scores, you earn +1 extra point and the streak resets."
+    },
     "unit": {
       "month": "mo",
       "day": "d",

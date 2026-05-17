@@ -5,7 +5,7 @@ import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { tokens } from '@lib/theme/theme';
-import MatchPredictionCard from '../organisms/MatchPredictionCard';
+import MatchPredictionCard from './MatchPredictionCard';
 import type { PredictionMatch } from '../../types/prediction';
 
 export interface MatchesPanelSavedPrediction {
@@ -18,11 +18,7 @@ interface MatchesPanelProps {
   title?: string;
   emptyMessage: string;
   savedPredictions: Record<string, MatchesPanelSavedPrediction>;
-  editResetKeys?: Record<string, number>;
-  onSave: (
-    matchId: string,
-    values: { homeGoals: number; awayGoals: number },
-  ) => Promise<boolean> | boolean;
+  onOpenPrediction: (match: PredictionMatch) => void;
   showHeader?: boolean;
 }
 
@@ -31,8 +27,7 @@ const MatchesPanel = ({
   title,
   emptyMessage,
   savedPredictions,
-  editResetKeys,
-  onSave,
+  onOpenPrediction,
   showHeader = true,
 }: MatchesPanelProps) => (
   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -93,8 +88,7 @@ const MatchesPanel = ({
               isSaved={!!saved}
               initialHomeGoals={saved?.homeGoals}
               initialAwayGoals={saved?.awayGoals}
-              editResetKey={editResetKeys?.[match.id]}
-              onSave={onSave}
+              onOpenPrediction={onOpenPrediction}
             />
           );
         })}

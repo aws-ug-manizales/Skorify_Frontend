@@ -19,7 +19,8 @@ import {
 import { MOCK_MATCHES } from '@features/matches/constants/matches.mock';
 import { getWorldCupWeekOptions2026 } from '@shared/components/organisms/MatchList/weekOptions';
 import PredictionsToolbar, { type PredictionsToolbarValues } from '../molecules/PredictionsToolbar';
-import MatchesPanel, { type MatchesPanelSavedPrediction } from '../molecules/MatchesPanel';
+import MatchesPanel, { type MatchesPanelSavedPrediction } from './MatchesPanel';
+import PredictionDrawer, { type PredictionDrawerMatch } from './PredictionDrawer';
 import { isMatchLocked } from '../../hooks/useMatchCountdown';
 import type { PredictionMatch } from '../../types/prediction';
 
@@ -63,7 +64,7 @@ const PredictionsView = () => {
   });
   const filterValues = useWatch({ control });
 
-  const [editResetKeys, setEditResetKeys] = useState<Record<string, number>>({});
+  const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
 
   const [savedPredictions, setSavedPredictions] = useState<
     Record<string, MatchesPanelSavedPrediction>
@@ -108,9 +109,13 @@ const PredictionsView = () => {
   }, [reset]);
 
   const handleSave = useCallback<
-    (matchId: string, values: { homeGoals: number; awayGoals: number }) => Promise<boolean>
+    (
+      matchId: string,
+      values: { homeGoals: number; awayGoals: number },
+      onSuccess?: () => void,
+    ) => Promise<boolean>
   >(
-    async (matchId, values) => {
+    async (matchId, values, onSuccess) => {
       const doSave = async () => {
         // TODO: replace with useMakePrediction once the backend wires up.
         await new Promise((resolve) => setTimeout(resolve, 800));
@@ -126,6 +131,7 @@ const PredictionsView = () => {
             horizontal: NotificationHorizontal.RIGHT,
           },
         });
+        onSuccess?.();
       };
 
       if (!(matchId in savedPredictions)) {
@@ -135,6 +141,7 @@ const PredictionsView = () => {
 
       const existing = savedPredictions[matchId];
       if (existing.homeGoals === values.homeGoals && existing.awayGoals === values.awayGoals) {
+        onSuccess?.();
         return true;
       }
 
@@ -147,13 +154,12 @@ const PredictionsView = () => {
           {
             labelKey: 'common.confirm',
             onClick: () => {
-              doSave();
+              void doSave();
             },
           },
           {
             labelKey: 'common.cancel',
             onClick: () => {
-              setEditResetKeys((prev) => ({ ...prev, [matchId]: (prev[matchId] ?? 0) + 1 }));
               notify({
                 type: NotificationType.TOAST,
                 messageKey: 'predictions.editCancelledToast',
@@ -169,8 +175,41 @@ const PredictionsView = () => {
       });
       return false;
     },
-    [savedPredictions, savedMessages, notify, setEditResetKeys],
+    [savedPredictions, savedMessages, notify],
   );
+
+  const selectedMatch = useMemo(() => {
+    if (!selectedMatchId) return null;
+    return matches.find((match) => match.id === selectedMatchId) ?? null;
+  }, [matches, selectedMatchId]);
+
+  const selectedDrawerMatch = useMemo<PredictionDrawerMatch | null>(() => {
+    if (!selectedMatch) return null;
+    return {
+      id: selectedMatch.id,
+      homeTeam: selectedMatch.homeTeam,
+      homeTeamFlag: selectedMatch.homeTeamFlag,
+      awayTeam: selectedMatch.awayTeam,
+      awayTeamFlag: selectedMatch.awayTeamFlag,
+      kickoffAt: selectedMatch.date,
+    };
+  }, [selectedMatch]);
+
+  const selectedDrawerScore = useMemo(() => {
+    if (!selectedMatchId) return undefined;
+    const saved = savedPredictions[selectedMatchId];
+    if (!saved) return undefined;
+    return { homeGoals: saved.homeGoals, awayGoals: saved.awayGoals };
+  }, [savedPredictions, selectedMatchId]);
+
+  const handleOpenPrediction = useCallback((match: PredictionMatch) => {
+    if (isMatchLocked(match.date)) return;
+    setSelectedMatchId(match.id);
+  }, []);
+
+  const handleCloseDrawer = useCallback(() => {
+    setSelectedMatchId(null);
+  }, []);
 
   const renderOpenPanel = (showHeader: boolean) => (
     <MatchesPanel
@@ -178,8 +217,7 @@ const PredictionsView = () => {
       title={t('openPanelTitle')}
       emptyMessage={t('noOpenMatches')}
       savedPredictions={savedPredictions}
-      editResetKeys={editResetKeys}
-      onSave={handleSave}
+      onOpenPrediction={handleOpenPrediction}
       showHeader={showHeader}
     />
   );
@@ -190,8 +228,7 @@ const PredictionsView = () => {
       title={t('closedPanelTitle')}
       emptyMessage={t('noClosedMatches')}
       savedPredictions={savedPredictions}
-      editResetKeys={editResetKeys}
-      onSave={handleSave}
+      onOpenPrediction={handleOpenPrediction}
       showHeader={showHeader}
     />
   );
@@ -244,6 +281,14 @@ const PredictionsView = () => {
         <Paper sx={PANEL_PAPER_SX}>{renderOpenPanel(true)}</Paper>
         <Paper sx={PANEL_PAPER_SX}>{renderClosedPanel(true)}</Paper>
       </Box>
+
+      <PredictionDrawer
+        open={!!selectedDrawerMatch}
+        match={selectedDrawerMatch}
+        initialScore={selectedDrawerScore}
+        onClose={handleCloseDrawer}
+        onSave={handleSave}
+      />
     </Box>
   );
 };
