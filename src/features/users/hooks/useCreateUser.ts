@@ -2,6 +2,8 @@
 
 import { useCallback, useState } from 'react';
 import { api } from '@lib/api';
+import { createForbiddenError } from '@features/auth/lib/adminAccess';
+import { useAuthSession } from '@features/auth/hooks/useAuthSession';
 import {
   skorifyEndpoints,
   type CreateUserPayload,
@@ -24,24 +26,33 @@ const initialState: UseCreateUserState = {
 
 export const useCreateUser = () => {
   const [state, setState] = useState<UseCreateUserState>(initialState);
+  const { hydrated, isAdmin } = useAuthSession();
 
-  const createUser = useCallback(async (payload: CreateUserPayload): Promise<UserDto | null> => {
-    setState({ isLoading: true, error: null, data: null });
+  const createUser = useCallback(
+    async (payload: CreateUserPayload): Promise<UserDto | null> => {
+      if (!hydrated || !isAdmin) {
+        setState({ isLoading: false, error: createForbiddenError(), data: null });
+        return null;
+      }
 
-    const result = await api.put<SkorifyEnvelope<UserDto>, CreateUserPayload>(
-      skorifyEndpoints.user.create,
-      payload,
-    );
+      setState({ isLoading: true, error: null, data: null });
 
-    if (result.success) {
-      const data = result.data.data;
-      setState({ isLoading: false, error: null, data });
-      return data;
-    }
+      const result = await api.put<SkorifyEnvelope<UserDto>, CreateUserPayload>(
+        skorifyEndpoints.user.create,
+        payload,
+      );
 
-    setState({ isLoading: false, error: result.error, data: null });
-    return null;
-  }, []);
+      if (result.success) {
+        const data = result.data.data;
+        setState({ isLoading: false, error: null, data });
+        return data;
+      }
+
+      setState({ isLoading: false, error: result.error, data: null });
+      return null;
+    },
+    [hydrated, isAdmin],
+  );
 
   const reset = useCallback(() => setState(initialState), []);
 

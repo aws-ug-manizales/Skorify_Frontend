@@ -2,6 +2,8 @@
 
 import { useCallback, useState } from 'react';
 import { api } from '@lib/api';
+import { createForbiddenError } from '@features/auth/lib/adminAccess';
+import { useAuthSession } from '@features/auth/hooks/useAuthSession';
 import {
   skorifyEndpoints,
   type GetUserByIdParams,
@@ -24,24 +26,33 @@ const initialState: UseGetUserByIdState = {
 
 export const useGetUserById = () => {
   const [state, setState] = useState<UseGetUserByIdState>(initialState);
+  const { hydrated, isAdmin } = useAuthSession();
 
-  const getUserById = useCallback(async (params: GetUserByIdParams): Promise<UserDto | null> => {
-    setState((prev) => ({ ...prev, isLoading: true, error: null }));
+  const getUserById = useCallback(
+    async (params: GetUserByIdParams): Promise<UserDto | null> => {
+      if (!hydrated || !isAdmin) {
+        setState({ isLoading: false, error: createForbiddenError(), data: null });
+        return null;
+      }
 
-    const result = await api.get<SkorifyEnvelope<UserDto>>(
-      skorifyEndpoints.user.getById,
-      params as unknown as Record<string, unknown>,
-    );
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-    if (result.success) {
-      const data = result.data.data;
-      setState({ isLoading: false, error: null, data });
-      return data;
-    }
+      const result = await api.get<SkorifyEnvelope<UserDto>>(
+        skorifyEndpoints.user.getById,
+        params as unknown as Record<string, unknown>,
+      );
 
-    setState({ isLoading: false, error: result.error, data: null });
-    return null;
-  }, []);
+      if (result.success) {
+        const data = result.data.data;
+        setState({ isLoading: false, error: null, data });
+        return data;
+      }
+
+      setState({ isLoading: false, error: result.error, data: null });
+      return null;
+    },
+    [hydrated, isAdmin],
+  );
 
   const reset = useCallback(() => setState(initialState), []);
 

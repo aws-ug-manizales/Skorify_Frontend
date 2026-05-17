@@ -1,13 +1,12 @@
 'use client';
 
 import { useAuthStore } from '../store/useAuthStore';
-import { mockAdminEmail } from '../data/mockUsers';
+import { isAdminSession } from '../lib/adminAccess';
 
 export const useAuthSession = () => {
   const session = useAuthStore((state) => state.session);
   const hydrated = useAuthStore((state) => state.hydrated);
-  const isAdmin =
-    session?.user.role === 'admin' || session?.user.email.trim().toLowerCase() === mockAdminEmail;
+  const isAdmin = isAdminSession(session);
 
   return {
     session,

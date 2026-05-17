@@ -21,7 +21,7 @@ const RequireAdmin = ({ children }: { children: React.ReactNode }) => {
     }
 
     if (!isAdmin) {
-      router.replace('/home');
+      router.replace('/403');
     }
   }, [hydrated, isAdmin, router, session]);
 
