@@ -15,6 +15,7 @@ import AppCard from '@shared/components/molecules/AppCard';
 import PageHeader from '@shared/components/molecules/PageHeader';
 import { APPBAR_HEIGHT } from '@shared/components/organisms/DashboardNavbar';
 import { tokens } from '@lib/theme/theme';
+import { useAuthSession } from '@features/auth/hooks/useAuthSession';
 import MatchAutocompleteField, {
   type MatchAutocompleteOption,
 } from '../atoms/MatchAutocompleteField';
@@ -32,7 +33,7 @@ const MatchResultSelectionPanel = () => {
   const { matches, teams, tournaments, updateMatchResult } = useMatchesStore();
   const [submitFeedback, setSubmitFeedback] = useState<SubmitFeedback | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const isAdmin = true; // TODO: Replace with real user role check
+  const { isAdmin } = useAuthSession();
 
   const {
     control,

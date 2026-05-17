@@ -30,6 +30,8 @@
     "matches": "Partidos",
     "matchesList": "Partidos",
     "loadResults": "Cargar resultados",
+    "admin": "Admin",
+    "users": "Usuarios",
     "tournaments": "Torneos",
     "groups": "Grupos",
     "profile": "Perfil"
