@@ -3,15 +3,13 @@
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { tokens } from '@lib/theme/theme';
+import CountryFlag from '@shared/components/atoms/CountryFlag';
 
 interface TeamLabelProps {
   name: string;
   flagUrl: string;
   align: 'home' | 'away';
 }
-
-const FLAG_WIDTH = 36;
-const FLAG_HEIGHT = 24; // 3:2 ratio — preserves real flag proportions
 
 const TeamLabel = ({ name, flagUrl, align }: TeamLabelProps) => {
   const isHome = align === 'home';
@@ -46,23 +44,7 @@ const TeamLabel = ({ name, flagUrl, align }: TeamLabelProps) => {
           {name}
         </Typography>
       )}
-      <Box
-        component="img"
-        src={flagUrl}
-        alt={name}
-        loading="lazy"
-        sx={{
-          width: FLAG_WIDTH,
-          height: FLAG_HEIGHT,
-          flexShrink: 0,
-          borderRadius: '4px',
-          objectFit: 'cover',
-          border: `1px solid ${tokens.outlineVariant}33`,
-          backgroundColor: tokens.surfaceContainerHigh,
-          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.25)',
-          display: 'block',
-        }}
-      />
+      <CountryFlag src={flagUrl} alt={name} size={24} />
       {!isHome && (
         <Typography
           variant="body2"

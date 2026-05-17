@@ -158,6 +158,23 @@
       "¡Hecho! Ojalá no sea un 0-0...",
       "¡Guardado! ¿Seguro que no quieres cambiarlo?"
     ],
+    "scoreRulesTitle": "Cómo se puntúa",
+    "scoreRules": {
+      "winnerTitle": "Ganador",
+      "winnerPoints": "+2 pts",
+      "winnerDescription": "Acertar qué equipo gana el partido.",
+      "lopsidedTitle": "Marcador abultado",
+      "lopsidedPoints": "+1 pt",
+      "lopsidedDescription": "Sumas un punto extra si el marcador supera los 4 goles.",
+      "eachHitTitle": "Cada acierto",
+      "eachHitPoints": "+1 pt",
+      "eachHitDescription": "Cada gol acertado agrega un punto a tu predicción.",
+      "reverseTitle": "Marcador invertido",
+      "reversePoints": "+1 pt",
+      "reverseDescription": "Si aciertas el marcador al revés, no todo esta perdido, puedes sumar un punto.",
+      "streakTitle": "Bono por racha",
+      "streakDescription": "Cada vez que aciertes 3, 5, 7 o 10 marcadores consecutivos, sumas +1 punto adicional y la racha vuelve a empezar."
+    },
     "unit": {
       "month": "mes",
       "day": "d",

@@ -19,13 +19,31 @@ interface ScoreEditorProps<T extends FieldValues> {
 
 const FIELD_SX = {
   width: 64,
-  '& .MuiOutlinedInput-root': { height: 44 },
+  '& .MuiOutlinedInput-root': {
+    height: 44,
+    backgroundColor: `${tokens.secondary}12`,
+    '& .MuiOutlinedInput-notchedOutline': {
+      borderColor: `${tokens.secondary}66`,
+    },
+    '&:hover .MuiOutlinedInput-notchedOutline': {
+      borderColor: `${tokens.secondary}CC`,
+    },
+    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+      borderColor: tokens.secondary,
+      boxShadow: `0 0 0 3px ${tokens.secondary}1F`,
+    },
+  },
   '& .MuiOutlinedInput-input': {
     textAlign: 'center',
     fontWeight: 800,
     fontSize: '1.1rem',
     padding: '8px 4px',
+    color: tokens.onSurface,
     MozAppearance: 'textfield',
+  },
+  '& .MuiInputBase-input::placeholder': {
+    color: tokens.onSurfaceVariant,
+    opacity: 1,
   },
   '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
     WebkitAppearance: 'none',
