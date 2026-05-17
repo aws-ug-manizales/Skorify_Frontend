@@ -24,13 +24,18 @@
     "playerAriaLabel": "Jugador pateando un balón hacia el arco",
     "goalAriaLabel": "Arco de fútbol"
   },
+  "admin": {
+    "title": "Panel de Administración",
+    "subtitle": "Gestiona usuarios, partidos, grupos y torneos",
+    "workingMessage": "En construcción: aquí los administradores podrán gestionar el contenido y la comunidad de Skorify."
+  },
   "nav": {
     "home": "Inicio",
     "predictions": "Predicciones",
     "matches": "Partidos",
     "matchesList": "Partidos",
     "loadResults": "Cargar resultados",
-    "admin": "Admin",
+    "admin": "Administrador",
     "users": "Usuarios",
     "tournaments": "Torneos",
     "groups": "Grupos",
@@ -571,6 +576,20 @@
     "code": "404",
     "title": "¡Fuera de Juego!",
     "description": "Parece que has salido de los límites del campo. Esta página no está disponible.",
+    "cta": "Volver al inicio"
+  },
+  "unauthorized": {
+    "branding": "SKORIFY",
+    "code": "401",
+    "title": "No Autorizado",
+    "description": "No tienes permisos para acceder a esta página.",
+    "cta": "Volver al inicio"
+  },
+  "forbidden": {
+    "branding": "SKORIFY",
+    "code": "403",
+    "title": "Prohibido",
+    "description": "No tienes autorización para ver esta página.",
     "cta": "Volver al inicio"
   },
   "users": {

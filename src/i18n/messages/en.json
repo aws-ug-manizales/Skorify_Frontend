@@ -573,6 +573,20 @@
     "description": "Looks like you've gone out of bounds. This page is not available.",
     "cta": "Back to home"
   },
+  "unauthorized": {
+    "branding": "SKORIFY",
+    "code": "401",
+    "title": "Unauthorized",
+    "description": "You need to log in to access this page.",
+    "cta": "Go to login"
+  },
+  "forbidden": {
+    "branding": "SKORIFY",
+    "code": "403",
+    "title": "Forbidden",
+    "description": "You are not authorized to view this page.",
+    "cta": "Back to home"
+  },
   "users": {
     "title": "Users",
     "subtitle": "Participant management",
