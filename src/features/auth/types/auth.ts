@@ -1,4 +1,5 @@
 export type AuthProvider = 'email' | 'google';
+export type AuthRole = 'user' | 'admin';
 
 export interface AuthUser {
   id: string;
@@ -6,6 +7,7 @@ export interface AuthUser {
   displayName: string;
   provider: AuthProvider;
   emailVerified: boolean;
+  role?: AuthRole;
 }
 
 export interface AuthSession {

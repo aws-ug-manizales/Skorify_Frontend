@@ -1,10 +1,22 @@
 'use client';
 
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 import { DashboardHome, UserDashboardHome } from '@features/dashboard';
+import { useAuthSession } from '@features/auth';
 
-// TODO: Replace with real user role check from session/profile.
-const IS_ADMIN = false;
+const DashboardHomePage = () => {
+  const { hydrated, isAdmin } = useAuthSession();
 
-const DashboardHomePage = () => (IS_ADMIN ? <DashboardHome /> : <UserDashboardHome />);
+  if (!hydrated) {
+    return (
+      <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  return isAdmin ? <DashboardHome /> : <UserDashboardHome />;
+};
 
 export default DashboardHomePage;

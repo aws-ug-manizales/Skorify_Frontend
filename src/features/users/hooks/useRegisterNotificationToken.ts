@@ -2,6 +2,8 @@
 
 import { useCallback, useState } from 'react';
 import { api } from '@lib/api';
+import { createForbiddenError } from '@features/auth/lib/adminAccess';
+import { useAuthSession } from '@features/auth/hooks/useAuthSession';
 import {
   skorifyEndpoints,
   type RegisterNotificationTokenPayload,
@@ -24,9 +26,15 @@ const initialState: UseRegisterNotificationTokenState = {
 
 export const useRegisterNotificationToken = () => {
   const [state, setState] = useState<UseRegisterNotificationTokenState>(initialState);
+  const { hydrated, isAdmin } = useAuthSession();
 
   const registerNotificationToken = useCallback(
     async (payload: RegisterNotificationTokenPayload): Promise<UserDto | null> => {
+      if (!hydrated || !isAdmin) {
+        setState({ isLoading: false, error: createForbiddenError(), data: null });
+        return null;
+      }
+
       setState({ isLoading: true, error: null, data: null });
 
       const result = await api.put<SkorifyEnvelope<UserDto>, RegisterNotificationTokenPayload>(
@@ -43,7 +51,7 @@ export const useRegisterNotificationToken = () => {
       setState({ isLoading: false, error: result.error, data: null });
       return null;
     },
-    [],
+    [hydrated, isAdmin],
   );
 
   const reset = useCallback(() => setState(initialState), []);
