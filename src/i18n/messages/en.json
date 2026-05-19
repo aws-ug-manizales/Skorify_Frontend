@@ -30,11 +30,32 @@
     "matches": "Matches",
     "matchesList": "Matches",
     "loadResults": "Load results",
+    "results": "Results",
     "admin": "Admin",
     "users": "Users",
     "tournaments": "Tournaments",
     "groups": "Groups",
     "profile": "Profile"
+  },
+  "results": {
+    "title": "Results",
+    "subtitle": "History of finished matches and predictions",
+    "loading": "Loading results...",
+    "noMatches": "No finished matches found.",
+    "exact": "Exact Match",
+    "partial": "Partial Match",
+    "wrong": "Incorrect",
+    "noPrediction": "No prediction",
+    "earnedPoints": "Earned points: {points}",
+    "exactHit": "Exact match (+2 pts)",
+    "partialHit": "Partial match (+1 pt)",
+    "noPoints": "No points (0 pts)",
+    "pointsSummaryTitle": "Points breakdown",
+    "modifierExact": "Exact match",
+    "modifierPartial": "Partial match",
+    "modifierWrong": "No match",
+    "modifierGoalDiff": "Goal difference",
+    "modifierGoalCount": "Goals scored"
   },
   "profile": {
     "title": "Your profile",
@@ -264,6 +285,7 @@
       "fallbackAway": "Away"
     }
   },
+
   "tournaments": {
     "title": "Tournaments",
     "active": "Active",
@@ -340,6 +362,9 @@
     "predictionsCardTitle": "Upcoming matches",
     "predictionsCardSubtitle": "Make your predictions and earn points",
     "predictionsCardCta": "Go to predictions",
+    "finishedMatchesTitle": "Results",
+    "finishedMatchesSubtitle": "See finished matches",
+    "backToGroup": "Back to group",
     "membersTitle": "Members",
     "shareButton": "Share",
     "shareTitle": "Share group",

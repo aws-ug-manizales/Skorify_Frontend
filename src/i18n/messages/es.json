@@ -35,11 +35,32 @@
     "matches": "Partidos",
     "matchesList": "Partidos",
     "loadResults": "Cargar resultados",
+    "results": "Resultados",
     "admin": "Administrador",
     "users": "Usuarios",
     "tournaments": "Torneos",
     "groups": "Grupos",
     "profile": "Perfil"
+  },
+  "results": {
+    "title": "Resultados",
+    "subtitle": "Historial de partidos finalizados y predicciones",
+    "loading": "Cargando resultados...",
+    "noMatches": "No se encontraron partidos finalizados.",
+    "exact": "Acierto exacto",
+    "partial": "Acierto parcial",
+    "wrong": "Incorrecto",
+    "noPrediction": "Sin predicción",
+    "earnedPoints": "Puntos ganados: {points}",
+    "exactHit": "Acierto exacto (+2 pts)",
+    "partialHit": "Acierto parcial (+1 pt)",
+    "noPoints": "Sin puntos (0 pts)",
+    "pointsSummaryTitle": "Detalle de puntos",
+    "modifierExact": "Acierto exacto",
+    "modifierPartial": "Acierto parcial",
+    "modifierWrong": "Sin coincidencia",
+    "modifierGoalDiff": "Diferencia de goles",
+    "modifierGoalCount": "Goles anotados"
   },
   "profile": {
     "title": "Tu perfil",
@@ -269,6 +290,7 @@
       "fallbackAway": "Visitante"
     }
   },
+
   "tournaments": {
     "title": "Torneos",
     "active": "Activos",
@@ -345,6 +367,9 @@
     "predictionsCardTitle": "Próximos partidos",
     "predictionsCardSubtitle": "Haz tus predicciones y suma puntos",
     "predictionsCardCta": "Ir a predicciones",
+    "finishedMatchesTitle": "Resultados",
+    "finishedMatchesSubtitle": "Ver partidos finalizados",
+    "backToGroup": "Volver al grupo",
     "membersTitle": "Miembros",
     "shareButton": "Compartir",
     "shareTitle": "Compartir grupo",

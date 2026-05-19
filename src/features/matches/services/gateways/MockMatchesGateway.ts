@@ -1,10 +1,36 @@
 import type { Match } from '../../types';
 import type { ListMatchesParams, MatchesGateway, PaginatedResult } from '../MatchesGateway';
 import { MOCK_MATCHES } from '../../data/mockMatches';
+import { useAuthStore } from '@features/auth/store/useAuthStore';
+
+const USER_PREDICTIONS: Record<
+  string,
+  Record<string, { home: number; away: number } | undefined>
+> = {
+  'admin-user': {
+    'm-fin-03': { home: 0, away: 0 },
+    'm-fin-02': { home: 2, away: 1 },
+    'm-fin-01': { home: 1, away: 2 },
+  },
+  'mock-user-1': {
+    'm-fin-03': { home: 0, away: 1 },
+    'm-fin-02': undefined,
+    'm-fin-01': { home: 0, away: 3 },
+  },
+  'mock-user-2': {
+    'm-fin-03': { home: 1, away: 3 },
+    'm-fin-02': { home: 2, away: 2 },
+    'm-fin-01': { home: 0, away: 0 },
+  },
+  'mock-user-3': {
+    'm-fin-03': { home: 2, away: 0 },
+    'm-fin-02': { home: 1, away: 1 },
+    'm-fin-01': { home: 3, away: 1 },
+  },
+};
 
 const applyMockFilters = (matches: Match[], params?: ListMatchesParams) => {
   if (!params) return matches;
-  // En el mock por ahora sólo filtramos por rango de fecha si viene.
   const fromMs = params.from ? new Date(params.from).getTime() : undefined;
   const toMs = params.to ? new Date(params.to).getTime() : undefined;
   const q = params.team?.trim().toLowerCase();
@@ -25,7 +51,21 @@ const applyMockFilters = (matches: Match[], params?: ListMatchesParams) => {
 
 export class MockMatchesGateway implements MatchesGateway {
   async listMatches(params?: ListMatchesParams): Promise<PaginatedResult<Match>> {
-    const filtered = applyMockFilters(MOCK_MATCHES, params);
+    // Obtener usuario actual del Zustand store
+    const userId = useAuthStore.getState().session?.user.id;
+
+    // Mapear partidos dinámicamente según las predicciones del usuario actual
+    const mappedMatches = MOCK_MATCHES.map((match) => {
+      if (userId && USER_PREDICTIONS[userId] && match.id in USER_PREDICTIONS[userId]) {
+        return {
+          ...match,
+          prediction: USER_PREDICTIONS[userId][match.id],
+        };
+      }
+      return match;
+    });
+
+    const filtered = applyMockFilters(mappedMatches, params);
 
     const pageSize = Math.max(1, params?.pageSize ?? 10);
     const page = Math.max(1, params?.page ?? 1);

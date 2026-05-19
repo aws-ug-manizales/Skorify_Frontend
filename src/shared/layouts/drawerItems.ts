@@ -4,6 +4,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import GroupIcon from '@mui/icons-material/Group';
 import HomeIcon from '@mui/icons-material/Home';
+import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
@@ -23,6 +24,7 @@ const baseItems: ReadonlyArray<DrawerItem> = [
     children: [
       { key: 'matchesList', href: '/matches', Icon: CalendarMonthIcon },
       { key: 'predictions', href: '/predictions', Icon: SportsSoccerIcon },
+      { key: 'results', href: '/results', Icon: LeaderboardIcon },
     ],
   },
   { key: 'tournaments', href: '/tournaments', Icon: EmojiEventsIcon },

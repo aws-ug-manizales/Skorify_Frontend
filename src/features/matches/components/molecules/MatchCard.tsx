@@ -11,6 +11,13 @@ import TeamBlock from '../atoms/TeamBlock';
 import ScoreOrVs from '../atoms/ScoreOrVs';
 import MatchStatusChip from '../atoms/MatchStatusChip';
 import AppButton from '@shared/components/atoms/AppButton';
+import { useTranslations } from 'next-intl';
+import {
+  evaluatePrediction,
+  getPredictionResultColor,
+  getPredictionResultIcon,
+  calculatePredictionPoints,
+} from '../../utils/predictionEvaluator';
 
 const STATUS_META: Record<MatchStatus, { color: string; Icon: typeof AccessTimeIcon }> = {
   upcoming: { color: tokens.tertiary, Icon: AccessTimeIcon },
@@ -45,6 +52,7 @@ const MatchCard = ({
   onAddPrediction,
   onEditPrediction,
 }: Props) => {
+  const tResults = useTranslations('results');
   const meta = STATUS_META[match.status];
   const StatusIcon = meta.Icon;
   const showScore = match.status === 'live' || match.status === 'finished';
@@ -127,7 +135,147 @@ const MatchCard = ({
           justifyContent: 'space-between',
         }}
       >
-        {hasPrediction ? (
+        {match.status === 'finished' ? (
+          (() => {
+            const predictionResult = match.score
+              ? evaluatePrediction(match.score, match.prediction)
+              : 'no-prediction';
+            const resultColor = getPredictionResultColor(predictionResult);
+            const resultIcon = getPredictionResultIcon(predictionResult);
+            const resultLabel = (() => {
+              switch (predictionResult) {
+                case 'exact':
+                  return tResults('exact') || 'Acierto exacto';
+                case 'partial':
+                  return tResults('partial') || 'Acierto parcial';
+                case 'wrong':
+                  return tResults('wrong') || 'Incorrecto';
+                case 'no-prediction':
+                default:
+                  return tResults('noPrediction') || 'Sin predicción';
+              }
+            })();
+
+            const totalPoints =
+              match.score && match.prediction
+                ? calculatePredictionPoints(match.score, match.prediction).totalPoints
+                : 0;
+
+            return (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: 1.25,
+                }}
+              >
+                {/* 1. Badge de Predicción: [TU PREDICCIÓN 0 - 0] */}
+                {match.prediction ? (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      bgcolor: `${tokens.primary}0F`,
+                      border: `1px solid ${tokens.primary}33`,
+                      borderRadius: '6px',
+                      px: 1.5,
+                      py: 0.75,
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        fontSize: '0.6875rem',
+                        fontWeight: 800,
+                        letterSpacing: '0.08em',
+                        textTransform: 'uppercase',
+                        color: tokens.primary,
+                      }}
+                    >
+                      Tu predicción
+                    </Typography>
+                    <Typography
+                      sx={{
+                        color: tokens.onSurface,
+                        fontWeight: 900,
+                        fontSize: '0.875rem',
+                        ml: 0.5,
+                      }}
+                    >
+                      {match.prediction.home} - {match.prediction.away}
+                    </Typography>
+                  </Box>
+                ) : null}
+
+                {/* 2. Badge de Resultado: [X INCORRECTO] */}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.75,
+                    bgcolor: `${resultColor}12`,
+                    color: resultColor,
+                    border: `1px solid ${resultColor}40`,
+                    borderRadius: '6px',
+                    px: 1.5,
+                    py: 0.75,
+                    fontSize: '0.6875rem',
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                  }}
+                >
+                  <span>{resultIcon}</span>
+                  {resultLabel}
+                </Box>
+
+                {/* 3. Badge de Puntaje Ganado: [+2 PTS] */}
+                {match.prediction ? (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 0.75,
+                      bgcolor: `${totalPoints > 0 ? tokens.primary : tokens.onSurfaceVariant}12`,
+                      border: `1px solid ${totalPoints > 0 ? tokens.primary : tokens.onSurfaceVariant}33`,
+                      borderRadius: '6px',
+                      px: 1.5,
+                      py: 0.75,
+                      fontSize: '0.6875rem',
+                      fontWeight: 800,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.08em',
+                      color: totalPoints > 0 ? tokens.primary : tokens.onSurfaceVariant,
+                    }}
+                  >
+                    {totalPoints > 0 ? `+${totalPoints}` : '0'} {totalPoints === 1 ? 'pt' : 'pts'}
+                  </Box>
+                ) : (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 0.75,
+                      bgcolor: `${tokens.onSurfaceVariant}12`,
+                      border: `1px solid ${tokens.onSurfaceVariant}33`,
+                      borderRadius: '6px',
+                      px: 1.5,
+                      py: 0.75,
+                      fontSize: '0.6875rem',
+                      fontWeight: 800,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.08em',
+                      color: tokens.onSurfaceVariant,
+                    }}
+                  >
+                    0 pts
+                  </Box>
+                )}
+              </Box>
+            );
+          })()
+        ) : hasPrediction ? (
           <Box
             sx={{
               display: 'flex',
@@ -168,13 +316,15 @@ const MatchCard = ({
             justifyContent: { xs: 'stretch', sm: 'flex-end' },
           }}
         >
-          <AppButton
-            variant="primary"
-            onClick={() => (hasPrediction ? onEditPrediction?.(match) : onAddPrediction?.(match))}
-            sx={{ flex: { xs: 1, sm: 'unset' } }}
-          >
-            {hasPrediction ? editPredictionLabel : addPredictionLabel}
-          </AppButton>
+          {match.status === 'upcoming' && (
+            <AppButton
+              variant="primary"
+              onClick={() => (hasPrediction ? onEditPrediction?.(match) : onAddPrediction?.(match))}
+              sx={{ flex: { xs: 1, sm: 'unset' } }}
+            >
+              {hasPrediction ? editPredictionLabel : addPredictionLabel}
+            </AppButton>
+          )}
         </Box>
       </Box>
     </Box>
