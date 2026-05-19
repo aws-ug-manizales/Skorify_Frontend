@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Match } from '../types';
 import type { MatchesFilterKey } from '../components/molecules/MatchesFilters';
 import { matchesService } from '../services/matchesService';
+import { useAuthStore } from '@features/auth/store/useAuthStore';
 import {
   statusFromFilter,
   worldCupWeekToFromToIso,
@@ -23,9 +24,12 @@ type UseMatchesListState = {
   total: number;
 };
 
-export const useMatchesList = (initialPageSize = 10): UseMatchesListState => {
+export const useMatchesList = (
+  initialPageSize = 10,
+  initialFilter: MatchesFilterKey = 'filterAll',
+): UseMatchesListState => {
   const [query, setQuery] = useState<MatchesQuery>({
-    statusFilter: 'filterAll',
+    statusFilter: initialFilter,
     team: '',
     week: '',
     page: 1,
@@ -35,6 +39,8 @@ export const useMatchesList = (initialPageSize = 10): UseMatchesListState => {
   const [items, setItems] = useState<Match[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+
+  const userId = useAuthStore((s) => s.session?.user.id);
 
   const params = useMemo(() => {
     const status = statusFromFilter(query.statusFilter);
@@ -67,7 +73,7 @@ export const useMatchesList = (initialPageSize = 10): UseMatchesListState => {
     return () => {
       mounted = false;
     };
-  }, [params]);
+  }, [params, userId]);
 
   const setStatusFilter = (filter: MatchesFilterKey) =>
     setQuery((q) => ({ ...q, statusFilter: filter, page: 1 }));
@@ -78,7 +84,7 @@ export const useMatchesList = (initialPageSize = 10): UseMatchesListState => {
     setQuery((q) => ({ ...q, pageSize: Math.max(1, pageSize), page: 1 }));
 
   const resetFilters = () =>
-    setQuery((q) => ({ ...q, statusFilter: 'filterAll', team: '', week: '', page: 1 }));
+    setQuery((q) => ({ ...q, statusFilter: initialFilter, team: '', week: '', page: 1 }));
 
   return {
     query,

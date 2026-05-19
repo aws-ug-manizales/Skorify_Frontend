@@ -10,7 +10,9 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CloseIcon from '@mui/icons-material/Close';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import { useTranslations } from 'next-intl';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
+import { useTranslations, useLocale } from 'next-intl';
 import { tokens } from '@lib/theme/theme';
 import AppButton from '@shared/components/atoms/AppButton';
 import AppCard from '@shared/components/molecules/AppCard';
@@ -23,8 +25,27 @@ import MemberList from './MemberList';
 import ShareGroupDialog from './ShareGroupDialog';
 import StandingsTable from './StandingsTable';
 import TopPodium from '../molecules/TopPodium';
+import { useMatchesList } from '@features/matches/hooks/useMatchesList';
+import FinishedMatchCard from '@features/matches/components/molecules/FinishedMatchCard';
+import { formatKickoff } from '@features/matches/utils/formatKickoff';
 
 const MOCK_CURRENT_USER_ID = 'mock-admin-id';
+
+const getTournamentLabel = (key: string, t: (key: string) => string) => {
+  try {
+    return t(key);
+  } catch {
+    return key;
+  }
+};
+
+const getStageLabel = (key: string, t: (key: string) => string) => {
+  try {
+    return t(key);
+  } catch {
+    return key;
+  }
+};
 
 interface GroupDetailProps {
   groupId: string;
@@ -33,8 +54,23 @@ interface GroupDetailProps {
 const GroupDetail = ({ groupId }: GroupDetailProps) => {
   const t = useTranslations('groups');
   const tCommon = useTranslations('common');
+  const m = useTranslations('matches');
+  const tResults = useTranslations('results');
+  const locale = useLocale();
+
+  const [activeTab, setActiveTab] = useState<'standings' | 'results'>('standings');
+
   const { data, isLoading, error, refetch } = useGroupDetail(groupId);
   const session = useAuthStore((s) => s.session);
+
+  const { items: matchItems, loading: loadingResults } = useMatchesList(20, 'filterFinished');
+
+  const finishedMatches = useMemo(() => {
+    return [...matchItems]
+      .filter((match) => match.status === 'finished')
+      .sort((a, b) => new Date(b.kickoffAt).getTime() - new Date(a.kickoffAt).getTime());
+  }, [matchItems]);
+
   const [shareOpen, setShareOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -134,66 +170,138 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
           }}
         >
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <TopPodium
-              standings={data.standings}
-              previousStandings={mockedPreviousStandings}
-              currentUserId={currentUserId}
-              pointsLabel={t('pointsLabel')}
-            />
-            <StandingsTable
-              standings={data.standings}
-              previousStandings={mockedPreviousStandings}
-              currentUserId={currentUserId}
-              onRefresh={refetch}
-              isRefreshing={isLoading}
-            />
+            <Tabs
+              value={activeTab}
+              onChange={(_e, val) => setActiveTab(val)}
+              sx={{
+                borderBottom: `1px solid ${tokens.outlineVariant}26`,
+                '& .MuiTabs-indicator': {
+                  bgcolor: tokens.primary,
+                  height: 3,
+                  borderRadius: '3px 3px 0 0',
+                },
+                '& .MuiTab-root': {
+                  fontWeight: 800,
+                  fontSize: '0.875rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  color: tokens.onSurfaceVariant,
+                  minWidth: 120,
+                  pb: 1.5,
+                  '&.Mui-selected': {
+                    color: tokens.primary,
+                  },
+                },
+              }}
+            >
+              <Tab value="standings" label={t('standingsTitle') || 'Clasificación'} />
+              <Tab value="results" label={t('finishedMatchesTitle') || 'Resultados'} />
+            </Tabs>
+
+            {activeTab === 'standings' && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                <TopPodium
+                  standings={data.standings}
+                  previousStandings={mockedPreviousStandings}
+                  currentUserId={currentUserId}
+                  pointsLabel={t('pointsLabel')}
+                />
+                <StandingsTable
+                  standings={data.standings}
+                  previousStandings={mockedPreviousStandings}
+                  currentUserId={currentUserId}
+                  onRefresh={refetch}
+                  isRefreshing={isLoading}
+                />
+              </Box>
+            )}
+
+            {activeTab === 'results' && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                {loadingResults ? (
+                  <Box sx={{ p: 4, textAlign: 'center' }}>
+                    <Typography variant="body1" sx={{ color: tokens.onSurfaceVariant }}>
+                      {tResults('loading', { defaultValue: 'Cargando resultados...' })}
+                    </Typography>
+                  </Box>
+                ) : finishedMatches.length === 0 ? (
+                  <Box sx={{ p: 4, textAlign: 'center' }}>
+                    <Typography variant="body1" sx={{ color: tokens.onSurfaceVariant }}>
+                      {tResults('noMatches', { defaultValue: 'Aún no hay partidos finalizados.' })}
+                    </Typography>
+                  </Box>
+                ) : (
+                  <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: '1fr' }}>
+                    {finishedMatches.map((match) => (
+                      <FinishedMatchCard
+                        key={match.id}
+                        match={match}
+                        tournamentLabel={getTournamentLabel(match.tournamentKey, m)}
+                        stageLabel={getStageLabel(match.stageKey, m)}
+                        kickoffLabel={formatKickoff(match.kickoffAt, locale)}
+                        vsLabel={m('vs')}
+                        predictionLabel={m('predictionLabel', { defaultValue: 'Tu predicción' })}
+                        exactLabel={tResults('exact', { defaultValue: 'Acierto exacto' })}
+                        partialLabel={tResults('partial', { defaultValue: 'Acierto parcial' })}
+                        wrongLabel={tResults('wrong', { defaultValue: 'Incorrecto' })}
+                        noPredictionLabel={tResults('noPrediction', {
+                          defaultValue: 'Sin predicción',
+                        })}
+                      />
+                    ))}
+                  </Box>
+                )}
+              </Box>
+            )}
           </Box>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             <MemberList members={data.members} currentUserId={currentUserId} />
-            <AppCard variant="interactive" href="/predictions">
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 2,
-                  p: { xs: 2, md: 2.5 },
-                }}
-              >
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <AppCard variant="interactive" href="/predictions">
                 <Box
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    width: 48,
-                    height: 48,
-                    borderRadius: '50%',
-                    bgcolor: `${tokens.primary}1A`,
-                    flexShrink: 0,
+                    gap: 2,
+                    p: { xs: 2, md: 2.5 },
                   }}
                 >
-                  <SportsSoccerIcon sx={{ color: tokens.primary, fontSize: 24 }} />
-                </Box>
-                <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography
+                  <Box
                     sx={{
-                      color: tokens.onSurface,
-                      fontWeight: 800,
-                      fontSize: { xs: '0.9375rem', md: '1rem' },
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.04em',
-                      lineHeight: 1.2,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: 48,
+                      height: 48,
+                      borderRadius: '50%',
+                      bgcolor: `${tokens.primary}1A`,
+                      flexShrink: 0,
                     }}
                   >
-                    {t('predictionsCardTitle')}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: tokens.onSurfaceVariant, mt: 0.5 }}>
-                    {t('predictionsCardSubtitle')}
-                  </Typography>
+                    <SportsSoccerIcon sx={{ color: tokens.primary, fontSize: 24 }} />
+                  </Box>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography
+                      sx={{
+                        color: tokens.onSurface,
+                        fontWeight: 800,
+                        fontSize: { xs: '0.9375rem', md: '1rem' },
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em',
+                        lineHeight: 1.2,
+                      }}
+                    >
+                      {t('predictionsCardTitle')}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: tokens.onSurfaceVariant, mt: 0.5 }}>
+                      {t('predictionsCardSubtitle')}
+                    </Typography>
+                  </Box>
+                  <ChevronRightIcon sx={{ color: tokens.onSurfaceVariant, fontSize: 24 }} />
                 </Box>
-                <ChevronRightIcon sx={{ color: tokens.onSurfaceVariant, fontSize: 24 }} />
-              </Box>
-            </AppCard>
+              </AppCard>
+            </Box>
           </Box>
         </Box>
       </Box>

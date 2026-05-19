@@ -21,6 +21,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import HomeIcon from '@mui/icons-material/Home';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
+import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import { type SvgIconProps } from '@mui/material/SvgIcon';
 import Link from 'next/link';
 import { tokens } from '@lib/theme/theme';
@@ -39,6 +40,7 @@ const BOTTOM_NAV_ITEMS: ReadonlyArray<BottomNavItem> = [
     children: [
       { key: 'matchesList', href: '/matches', Icon: CalendarMonthIcon },
       { key: 'predictions', href: '/predictions', Icon: SportsSoccerIcon },
+      { key: 'results', href: '/results', Icon: LeaderboardIcon },
       { key: 'loadResults', href: '/matches/load-results', Icon: UploadFileIcon },
     ],
   },

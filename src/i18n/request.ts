@@ -7,5 +7,12 @@ export default getRequestConfig(async () => {
   return {
     locale,
     messages: (await import(`./messages/${locale}.json`)).default,
+    onError(_error) {
+      // Suppress full-screen error overlays for missing translations
+    },
+    getMessageFallback({ namespace: _namespace, key }) {
+      // Gracefully fall back to the last segment of the key
+      return key.split('.').pop() || key;
+    },
   };
 });
