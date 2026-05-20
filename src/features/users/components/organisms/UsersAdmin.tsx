@@ -12,8 +12,11 @@ import SearchIcon from '@mui/icons-material/Search';
 import PeopleIcon from '@mui/icons-material/People';
 import TableViewIcon from '@mui/icons-material/TableView';
 import GridViewIcon from '@mui/icons-material/GridView';
+import AddIcon from '@mui/icons-material/Add';
+import AppButton from '@shared/components/atoms/AppButton';
 import UserCard from '../molecules/UserCard';
 import UserTable from './UserTable';
+import CreateUserDrawer from './CreateUserDrawer';
 import { tokens } from '@lib/theme/theme';
 import type { User } from '@features/users/types/user';
 import { INITIAL_USERS } from '../../data/mockUsers';
@@ -30,6 +33,7 @@ const UsersAdmin = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterKey>('filterAll');
   const [viewMode, setViewMode] = useState<ViewMode>('table');
+  const [createDrawerOpen, setCreateDrawerOpen] = useState(false);
 
   const filteredUsers = useMemo(() => {
     let result = users;
@@ -103,21 +107,26 @@ const UsersAdmin = () => {
           </Box>
         </Box>
 
-        <Typography
-          sx={{
-            fontSize: '0.625rem',
-            color: tokens.success,
-            bgcolor: `${tokens.success}1A`,
-            px: 1.5,
-            py: 0.5,
-            borderRadius: '4px',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-          }}
-        >
-          {activeCount} {t('status.active').toLowerCase()}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Typography
+            sx={{
+              fontSize: '0.625rem',
+              color: tokens.success,
+              bgcolor: `${tokens.success}1A`,
+              px: 1.5,
+              py: 0.5,
+              borderRadius: '4px',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+            }}
+          >
+            {activeCount} {t('status.active').toLowerCase()}
+          </Typography>
+          <AppButton startIcon={<AddIcon />} onClick={() => setCreateDrawerOpen(true)}>
+            {t('create')}
+          </AppButton>
+        </Box>
       </Box>
 
       <Box
@@ -227,6 +236,8 @@ const UsersAdmin = () => {
           ))}
         </Grid>
       )}
+
+      <CreateUserDrawer open={createDrawerOpen} onClose={() => setCreateDrawerOpen(false)} />
     </Box>
   );
 };

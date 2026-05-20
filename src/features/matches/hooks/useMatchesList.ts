@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Match } from '../types';
 import type { MatchesFilterKey } from '../components/molecules/MatchesFilters';
 import { matchesService } from '../services/matchesService';
-import { useAuthStore } from '@features/auth/store/useAuthStore';
+import { useCurrentUserId } from '@features/auth/hooks/useCurrentUserId';
 import {
   statusFromFilter,
   worldCupWeekToFromToIso,
@@ -40,7 +40,7 @@ export const useMatchesList = (
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  const userId = useAuthStore((s) => s.session?.user.id);
+  const userId = useCurrentUserId();
 
   const params = useMemo(() => {
     const status = statusFromFilter(query.statusFilter);

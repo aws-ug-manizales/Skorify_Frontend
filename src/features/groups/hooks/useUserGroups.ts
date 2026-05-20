@@ -1,6 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { api } from '@lib/api';
+import {
+  skorifyEndpoints,
+  type SkorifyEnvelope,
+  type TournamentInstanceDto,
+  type UserEnrollmentDto,
+} from '@lib/api/skorify';
+import type { ApiError } from '@lib/api/types';
+import { useAuthSession } from '@features/auth/hooks/useAuthSession';
+import { useCurrentUserId } from '@features/auth/hooks/useCurrentUserId';
 
 export interface UserGroupSummary {
   id: string;
@@ -12,51 +22,80 @@ export interface UserGroupSummary {
   pendingPredictions?: number;
 }
 
-const MOCK_USER_GROUPS: UserGroupSummary[] = [
-  {
-    id: '1',
-    name: 'Liga Colombiana 2026',
-    description: 'El grupo de las apuestas del trabajo',
-    memberCount: 12,
-    rank: 3,
-    points: 2450,
-    pendingPredictions: 2,
-  },
-  {
-    id: '2',
-    name: 'Champions Elite',
-    description: 'Solo los mejores predictores',
-    memberCount: 8,
-    rank: 1,
-    points: 3120,
-    pendingPredictions: 0,
-  },
-  {
-    id: '3',
-    name: 'Mundial Familiar',
-    description: 'Apuestas con la familia',
-    memberCount: 24,
-    rank: 7,
-    points: 1840,
-    pendingPredictions: 5,
-  },
-];
+interface UseUserGroupsState {
+  groups: UserGroupSummary[];
+  isLoading: boolean;
+  error: ApiError | null;
+}
+
+const initialState: UseUserGroupsState = {
+  groups: [],
+  isLoading: false,
+  error: null,
+};
+
+const fetchInstance = async (
+  tournamentInstanceId: string,
+): Promise<TournamentInstanceDto | null> => {
+  const result = await api.get<SkorifyEnvelope<TournamentInstanceDto>>(
+    skorifyEndpoints.tournamentInstance.getById,
+    { tournamentInstanceId },
+  );
+  return result.success ? result.data.data : null;
+};
+
+const mapToSummary = (
+  enrollment: UserEnrollmentDto,
+  instance: TournamentInstanceDto | null,
+): UserGroupSummary => ({
+  id: enrollment.tournamentInstanceId,
+  name: instance?.name ?? enrollment.tournamentInstanceId,
+  memberCount: 0,
+  rank: enrollment.currentPosition,
+  points: enrollment.currentScore,
+});
 
 export const useUserGroups = () => {
-  const [groups, setGroups] = useState<UserGroupSummary[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { hydrated } = useAuthSession();
+  const userId = useCurrentUserId();
+  const [state, setState] = useState<UseUserGroupsState>(initialState);
 
-  useEffect(() => {
-    const isMock = process.env.NEXT_PUBLIC_MOCK_GROUPS === 'true';
-    const timer = setTimeout(
-      () => {
-        setGroups(MOCK_USER_GROUPS);
-        setIsLoading(false);
-      },
-      isMock ? 400 : 0,
+  const refresh = useCallback(async () => {
+    if (!userId) return;
+    await Promise.resolve();
+    setState((prev) => ({ ...prev, isLoading: true, error: null }));
+
+    const enrollmentsResult = await api.get<SkorifyEnvelope<UserEnrollmentDto[]>>(
+      skorifyEndpoints.userEnrollment.getByUserId,
+      { userId },
     );
-    return () => clearTimeout(timer);
-  }, []);
 
-  return { groups, isLoading };
+    if (!enrollmentsResult.success) {
+      setState({ groups: [], isLoading: false, error: enrollmentsResult.error });
+      return;
+    }
+
+    const enrollments = enrollmentsResult.data.data ?? [];
+    const instances = await Promise.all(
+      enrollments.map((enrollment) => fetchInstance(enrollment.tournamentInstanceId)),
+    );
+
+    const groups = enrollments.map((enrollment, index) =>
+      mapToSummary(enrollment, instances[index]),
+    );
+
+    setState({ groups, isLoading: false, error: null });
+  }, [userId]);
+
+  const didFetch = useRef(false);
+  useEffect(() => {
+    if (!hydrated || !userId || didFetch.current) return;
+    didFetch.current = true;
+    // setState inside refresh is deferred via `await Promise.resolve()`,
+    // and didFetch guards against cascading re-runs.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void refresh();
+  }, [hydrated, userId, refresh]);
+
+  return { ...state, refresh };
 };

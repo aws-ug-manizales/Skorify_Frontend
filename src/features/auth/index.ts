@@ -1,6 +1,7 @@
 export { useAuthStore } from './store/useAuthStore';
 export { useAuthSession } from './hooks/useAuthSession';
 export { useAuthGateway } from './hooks/useAuthGateway';
+export { useCurrentUserId, getCurrentUserId } from './hooks/useCurrentUserId';
 export { default as AuthGateway } from './components/organisms/AuthGateway';
 export { default as RequireAuth } from './components/organisms/RequireAuth';
 export { default as RequireAdmin } from './components/organisms/RequireAdmin';

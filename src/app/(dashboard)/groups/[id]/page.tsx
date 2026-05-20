@@ -1,14 +1,11 @@
-import GroupDetail from '@features/groups/components/organisms/GroupDetail';
+import GroupDetailRoute from './GroupDetailRoute';
 
-interface GroupDetailPageProps {
-  params: Promise<{ id: string }>;
-}
-
+// Build emits a placeholder static HTML so `output: 'export'` succeeds; the
+// real id is resolved on the client from the URL at runtime. The Amplify
+// rewrite `/groups/<*>` → `/groups/_/index.html` (200) is what makes the
+// runtime navigation actually reach this shell.
 export const generateStaticParams = () => [{ id: '_' }];
 
-const GroupDetailPage = async ({ params }: GroupDetailPageProps) => {
-  const { id } = await params;
-  return <GroupDetail groupId={id} />;
-};
+const GroupDetailPage = () => <GroupDetailRoute />;
 
 export default GroupDetailPage;

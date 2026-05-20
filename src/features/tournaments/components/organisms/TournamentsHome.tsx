@@ -1,79 +1,102 @@
 'use client';
 
-import { useState } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useEffect, useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
+import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
+import AddIcon from '@mui/icons-material/Add';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import GroupIcon from '@mui/icons-material/Group';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import AppButton from '@shared/components/atoms/AppButton';
-import { tokens } from '@lib/theme/theme';
+import { tokens, avatarPalette } from '@lib/theme/theme';
+import useSnackbar from '@shared/hooks/useSnackbar';
+import { useAuthSession } from '@features/auth/hooks/useAuthSession';
+import type { TournamentDto } from '@lib/api/skorify';
+import useFilterTournaments from '../../hooks/useFilterTournaments';
+import CreateTournamentDrawer from './CreateTournamentDrawer';
+import TournamentDetailDialog from './TournamentDetailDialog';
 
 type FilterKey = 'filterAll' | 'filterActive' | 'filterUpcoming' | 'filterFinished';
+type TournamentStatus = 'active' | 'upcoming' | 'finished';
 
 const FILTERS: FilterKey[] = ['filterAll', 'filterActive', 'filterUpcoming', 'filterFinished'];
 
-const TOURNAMENTS = [
-  {
-    key: 'champions',
-    nameKey: 'championsName',
-    status: 'active' as const,
-    participants: 1284,
-    daysLeft: 12,
-    prizeKey: 'free',
-    color: tokens.primary,
-  },
-  {
-    key: 'laliga',
-    nameKey: 'laligaName',
-    status: 'active' as const,
-    participants: 893,
-    daysLeft: 5,
-    prizeKey: 'free',
-    color: tokens.tertiary,
-  },
-  {
-    key: 'worldcup',
-    nameKey: 'worldcupName',
-    status: 'upcoming' as const,
-    participants: 342,
-    daysLeft: 47,
-    prizeKey: 'free',
-    color: tokens.success,
-  },
-  {
-    key: 'premier',
-    nameKey: 'premierName',
-    status: 'finished' as const,
-    participants: 2107,
-    daysLeft: 0,
-    prizeKey: 'free',
-    color: tokens.onSurfaceVariant,
-  },
-] as const;
-
-const STATUS_COLORS: Record<string, string> = {
+const STATUS_COLORS: Record<TournamentStatus, string> = {
   active: tokens.success,
   upcoming: tokens.tertiary,
   finished: tokens.onSurfaceVariant,
 };
 
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+const colorForId = (id: string) => {
+  let hash = 0;
+  for (let i = 0; i < id.length; i += 1) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+  return avatarPalette[hash % avatarPalette.length];
+};
+
+const deriveStatus = (start: Date, end: Date, now: Date): TournamentStatus => {
+  if (now < start) return 'upcoming';
+  if (now > end) return 'finished';
+  return 'active';
+};
+
+const daysBetween = (from: Date, to: Date) =>
+  Math.max(0, Math.ceil((to.getTime() - from.getTime()) / MS_PER_DAY));
+
+interface DerivedTournament {
+  id: string;
+  name: string;
+  status: TournamentStatus;
+  daysLeft: number;
+  color: string;
+}
+
+const deriveTournament = (dto: TournamentDto, now: Date): DerivedTournament => {
+  const start = new Date(dto.startDate);
+  const end = new Date(dto.endDate);
+  const status = deriveStatus(start, end, now);
+  const daysLeft = status === 'upcoming' ? daysBetween(now, start) : daysBetween(now, end);
+  return {
+    id: dto.id,
+    name: dto.name,
+    status,
+    daysLeft,
+    color: colorForId(dto.id),
+  };
+};
+
 const TournamentsHome = () => {
   const t = useTranslations('tournaments');
-  const locale = useLocale();
-  const [activeFilter, setActiveFilter] = useState<FilterKey>('filterAll');
+  const { isAdmin } = useAuthSession();
+  const snackbar = useSnackbar();
+  const { data, isLoading, error, filterTournaments } = useFilterTournaments();
 
-  const filtered = TOURNAMENTS.filter((tournament) => {
+  const [activeFilter, setActiveFilter] = useState<FilterKey>('filterAll');
+  const [createOpen, setCreateOpen] = useState(false);
+  const [detailId, setDetailId] = useState<string | null>(null);
+
+  // Show one error toast per failed load (not on every re-render).
+  useEffect(() => {
+    if (error) snackbar.error(t('loadError'));
+  }, [error, snackbar, t]);
+
+  const now = useMemo(() => new Date(), []);
+  const derived = useMemo(() => data.map((dto) => deriveTournament(dto, now)), [data, now]);
+
+  const filtered = derived.filter((tournament) => {
     if (activeFilter === 'filterAll') return true;
     if (activeFilter === 'filterActive') return tournament.status === 'active';
     if (activeFilter === 'filterUpcoming') return tournament.status === 'upcoming';
     if (activeFilter === 'filterFinished') return tournament.status === 'finished';
     return true;
   });
+
+  const activeCount = derived.filter((item) => item.status === 'active').length;
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
@@ -113,37 +136,53 @@ const TournamentsHome = () => {
                 textTransform: 'uppercase',
               }}
             >
-              {TOURNAMENTS.filter((item) => item.status === 'active').length}{' '}
-              {t('active').toLowerCase()}
+              {activeCount} {t('active').toLowerCase()}
             </Typography>
           </Box>
         </Box>
 
-        <Box sx={{ display: 'flex', gap: 0.5 }}>
-          {FILTERS.map((f) => (
-            <IconButton
-              key={f}
-              onClick={() => setActiveFilter(f)}
-              size="small"
-              sx={{
-                fontSize: '0.625rem',
-                fontWeight: 700,
-                fontFamily: 'inherit',
-                borderRadius: '4px',
-                px: 1.5,
-                py: 0.5,
-                color: activeFilter === f ? tokens.primary : tokens.onSurfaceVariant,
-                bgcolor:
-                  activeFilter === f ? `${tokens.primaryContainer}26` : tokens.surfaceContainerHigh,
-              }}
-            >
-              {t(f)}
-            </IconButton>
-          ))}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', gap: 0.5 }}>
+            {FILTERS.map((f) => (
+              <IconButton
+                key={f}
+                onClick={() => setActiveFilter(f)}
+                size="small"
+                sx={{
+                  fontSize: '0.625rem',
+                  fontWeight: 700,
+                  fontFamily: 'inherit',
+                  borderRadius: '4px',
+                  px: 1.5,
+                  py: 0.5,
+                  color: activeFilter === f ? tokens.primary : tokens.onSurfaceVariant,
+                  bgcolor:
+                    activeFilter === f
+                      ? `${tokens.primaryContainer}26`
+                      : tokens.surfaceContainerHigh,
+                }}
+              >
+                {t(f)}
+              </IconButton>
+            ))}
+          </Box>
+          {isAdmin && (
+            <AppButton startIcon={<AddIcon />} onClick={() => setCreateOpen(true)}>
+              {t('create')}
+            </AppButton>
+          )}
         </Box>
       </Box>
 
-      {filtered.length === 0 ? (
+      {isLoading ? (
+        <Grid container spacing={3}>
+          {[0, 1, 2].map((i) => (
+            <Grid key={i} size={{ xs: 12, sm: 6, lg: 4 }}>
+              <Skeleton variant="rounded" height={196} />
+            </Grid>
+          ))}
+        </Grid>
+      ) : filtered.length === 0 ? (
         <Box
           sx={{
             display: 'flex',
@@ -161,8 +200,8 @@ const TournamentsHome = () => {
         </Box>
       ) : (
         <Grid container spacing={3}>
-          {filtered.map(({ key, nameKey, status, participants, daysLeft, color }) => (
-            <Grid key={key} size={{ xs: 12, sm: 6, lg: 4 }}>
+          {filtered.map(({ id, name, status, daysLeft, color }) => (
+            <Grid key={id} size={{ xs: 12, sm: 6, lg: 4 }}>
               <Box
                 sx={{
                   bgcolor: tokens.surfaceContainerLow,
@@ -222,40 +261,32 @@ const TournamentsHome = () => {
                 <Box>
                   <Typography
                     sx={{
-                      fontSize: '0.625rem',
-                      color: tokens.onSurfaceVariant,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.12em',
-                      fontWeight: 700,
+                      fontSize: '0.875rem',
+                      color: tokens.onSurface,
+                      letterSpacing: '0.04em',
+                      fontWeight: 800,
                       mb: 0.5,
                     }}
                   >
-                    {t(nameKey)}
+                    {name}
                   </Typography>
                 </Box>
 
-                <Box sx={{ display: 'flex', gap: 3 }}>
+                {status !== 'finished' && (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                    <GroupIcon sx={{ fontSize: '0.875rem', color: tokens.onSurfaceVariant }} />
+                    <CalendarMonthIcon
+                      sx={{ fontSize: '0.875rem', color: tokens.onSurfaceVariant }}
+                    />
                     <Typography sx={{ fontSize: '0.75rem', color: tokens.onSurfaceVariant }}>
-                      {participants.toLocaleString(locale)} {t('participants')}
+                      {status === 'active' ? t('endsIn') : t('startsIn')} {daysLeft}d
                     </Typography>
                   </Box>
-                  {status !== 'finished' && (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                      <CalendarMonthIcon
-                        sx={{ fontSize: '0.875rem', color: tokens.onSurfaceVariant }}
-                      />
-                      <Typography sx={{ fontSize: '0.75rem', color: tokens.onSurfaceVariant }}>
-                        {status === 'active' ? t('endsIn') : t('startsIn')} {daysLeft}d
-                      </Typography>
-                    </Box>
-                  )}
-                </Box>
+                )}
 
                 <AppButton
                   variant={status === 'active' ? 'primary' : 'secondary'}
                   fullWidth
+                  onClick={() => setDetailId(id)}
                   sx={{
                     fontSize: '0.6875rem',
                     letterSpacing: '0.1em',
@@ -270,6 +301,20 @@ const TournamentsHome = () => {
           ))}
         </Grid>
       )}
+
+      {isAdmin && (
+        <CreateTournamentDrawer
+          open={createOpen}
+          onClose={() => setCreateOpen(false)}
+          onCreated={() => void filterTournaments({})}
+        />
+      )}
+
+      <TournamentDetailDialog
+        open={detailId !== null}
+        onClose={() => setDetailId(null)}
+        tournamentId={detailId}
+      />
     </Box>
   );
 };

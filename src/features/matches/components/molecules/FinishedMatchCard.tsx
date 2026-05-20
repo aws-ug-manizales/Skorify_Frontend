@@ -3,7 +3,6 @@
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { useTranslations } from 'next-intl';
 import { tokens } from '@lib/theme/theme';
 import type { Match } from '../../types';
 import TeamBlock from '../atoms/TeamBlock';
@@ -20,13 +19,10 @@ type Props = {
   tournamentLabel: string;
   stageLabel: string;
   kickoffLabel: string;
-  vsLabel: string;
-  predictionLabel: string;
   exactLabel: string;
   partialLabel: string;
   wrongLabel: string;
   noPredictionLabel: string;
-  onViewDetails?: (match: Match) => void;
 };
 
 const FinishedMatchCard = ({
@@ -34,16 +30,11 @@ const FinishedMatchCard = ({
   tournamentLabel,
   stageLabel,
   kickoffLabel,
-  vsLabel,
-  predictionLabel,
   exactLabel,
   partialLabel,
   wrongLabel,
   noPredictionLabel,
-  onViewDetails,
 }: Props) => {
-  const t = useTranslations('results');
-
   const predictionResult: PredictionResult = match.score
     ? evaluatePrediction(match.score, match.prediction)
     : 'no-prediction';

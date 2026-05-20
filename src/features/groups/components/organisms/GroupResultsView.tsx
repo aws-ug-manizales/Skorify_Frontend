@@ -87,8 +87,6 @@ const GroupResultsView = ({ groupId }: GroupResultsViewProps) => {
               tournamentLabel={getTournamentLabel(match.tournamentKey, m)}
               stageLabel={getStageLabel(match.stageKey, m)}
               kickoffLabel={formatKickoff(match.kickoffAt, locale)}
-              vsLabel={m('vs')}
-              predictionLabel={m('predictionLabel', { defaultValue: 'Tu predicción' })}
               exactLabel={t('exact', { defaultValue: 'Acierto exacto' })}
               partialLabel={t('partial', { defaultValue: 'Acierto parcial' })}
               wrongLabel={t('wrong', { defaultValue: 'Incorrecto' })}

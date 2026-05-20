@@ -1,10 +1,7 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import {
-  SkorifyFrontendStack,
-  SkorifyFrontendEnvironment,
-} from '../lib/skorify-frontend-stack';
+import { SkorifyFrontendStack, SkorifyFrontendEnvironment } from '../lib/skorify-frontend-stack';
 
 // Mapa ambiente → cuenta AWS. Espejo de `SKORIFY_ACCOUNT_TO_ENV` en
 // Skorify_DevOps/lib/config/organizations-config.ts. Si esto se desincroniza,
@@ -69,11 +66,11 @@ new SkorifyFrontendStack(app, `SkorifyFrontend-${envName}`, {
   },
 });
 
-function isSkorifyEnv(value: string | undefined): value is SkorifyFrontendEnvironment {
+const isSkorifyEnv = (value: string | undefined): value is SkorifyFrontendEnvironment => {
   return value === 'dev' || value === 'stg' || value === 'prd';
-}
+};
 
-function parseList(value: string | undefined): string[] {
+const parseList = (value: string | undefined): string[] => {
   if (!value) {
     return [];
   }
@@ -81,4 +78,4 @@ function parseList(value: string | undefined): string[] {
     .split(',')
     .map((item) => item.trim())
     .filter((item) => item.length > 0);
-}
+};

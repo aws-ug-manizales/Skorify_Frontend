@@ -1,110 +1,100 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import type { GroupDetailData } from '../types';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { api } from '@lib/api';
+import {
+  skorifyEndpoints,
+  type RankingItemDto,
+  type SkorifyEnvelope,
+  type TournamentInstanceDto,
+} from '@lib/api/skorify';
+import type { Group, GroupDetailData, GroupMember, StandingRow } from '../types';
 
-const MOCK_DATA: GroupDetailData = {
-  group: {
-    id: '1',
-    name: 'Liga de Amigos',
-    description: 'El grupo de las apuestas del trabajo',
-    inviteCode: 'AMIGOS24',
-    adminId: 'mock-admin-id',
-    memberCount: 12,
-    createdAt: new Date().toISOString(),
-  },
-  standings: [
-    { rank: 1, userId: 'mock-admin-id', name: 'Narboleda', points: 45, predictedMatches: 12 },
-    { rank: 2, userId: 'user-2', name: 'Ana López', points: 38, predictedMatches: 10 },
-    { rank: 3, userId: 'user-3', name: 'Carlos R.', points: 30, predictedMatches: 10 },
-    { rank: 4, userId: 'user-4', name: 'María S.', points: 22, predictedMatches: 11 },
-    { rank: 5, userId: 'user-5', name: 'Jorge M.', points: 18, predictedMatches: 9 },
-    { rank: 6, userId: 'user-6', name: 'Laura P.', points: 15, predictedMatches: 8 },
-    { rank: 7, userId: 'user-7', name: 'Sebastián V.', points: 12, predictedMatches: 7 },
-    { rank: 8, userId: 'user-8', name: 'Camila T.', points: 10, predictedMatches: 6 },
-    { rank: 9, userId: 'user-9', name: 'Andrés F.', points: 8, predictedMatches: 5 },
-    { rank: 10, userId: 'user-10', name: 'Valentina G.', points: 6, predictedMatches: 4 },
-    { rank: 11, userId: 'user-11', name: 'Diego H.', points: 4, predictedMatches: 3 },
-    { rank: 12, userId: 'user-12', name: 'Isabella R.', points: 2, predictedMatches: 2 },
-  ],
-  pendingMatches: [
-    {
-      id: 'm1',
-      homeTeam: { name: 'Colombia' },
-      awayTeam: { name: 'Argentina' },
-      matchDate: new Date(Date.now() + 86400000).toISOString(),
-      tournament: 'Copa América',
-      hasPrediction: false,
-    },
-    {
-      id: 'm2',
-      homeTeam: { name: 'España' },
-      awayTeam: { name: 'Francia' },
-      matchDate: new Date(Date.now() + 2 * 86400000).toISOString(),
-      tournament: 'UEFA Nations League',
-      hasPrediction: true,
-    },
-    {
-      id: 'm3',
-      homeTeam: { name: 'Brasil' },
-      awayTeam: { name: 'Uruguay' },
-      matchDate: new Date(Date.now() + 3 * 86400000).toISOString(),
-      tournament: 'Eliminatorias',
-      hasPrediction: false,
-    },
-  ],
-  members: [
-    { id: 'mock-admin-id', name: 'Narboleda', isAdmin: true, points: 45, rank: 1 },
-    { id: 'user-2', name: 'Ana López', isAdmin: false, points: 38, rank: 2 },
-    { id: 'user-3', name: 'Carlos R.', isAdmin: false, points: 30, rank: 3 },
-    { id: 'user-4', name: 'María S.', isAdmin: false, points: 22, rank: 4 },
-    { id: 'user-5', name: 'Jorge M.', isAdmin: false, points: 18, rank: 5 },
-    { id: 'user-6', name: 'Laura P.', isAdmin: false, points: 15, rank: 6 },
-    { id: 'user-7', name: 'Sebastián V.', isAdmin: false, points: 12, rank: 7 },
-    { id: 'user-8', name: 'Camila T.', isAdmin: false, points: 10, rank: 8 },
-    { id: 'user-9', name: 'Andrés F.', isAdmin: false, points: 8, rank: 9 },
-    { id: 'user-10', name: 'Valentina G.', isAdmin: false, points: 6, rank: 10 },
-    { id: 'user-11', name: 'Diego H.', isAdmin: false, points: 4, rank: 11 },
-    { id: 'user-12', name: 'Isabella R.', isAdmin: false, points: 2, rank: 12 },
-  ],
-};
+const mapInstanceToGroup = (instance: TournamentInstanceDto, memberCount: number): Group => ({
+  id: instance.id,
+  name: instance.name,
+  inviteCode: instance.inviteCode,
+  adminId: instance.ownerId,
+  memberCount,
+  createdAt: instance.createdAt,
+});
+
+const mapRankingToStanding = (item: RankingItemDto, index: number): StandingRow => ({
+  rank: item.position ?? index + 1,
+  userId: item.userId,
+  name: item.userName,
+  points: item.points ?? 0,
+  predictedMatches: 0,
+});
+
+const mapRankingToMember = (item: RankingItemDto, index: number, adminId: string): GroupMember => ({
+  id: item.userId,
+  name: item.userName,
+  isAdmin: item.userId === adminId,
+  points: item.points ?? 0,
+  rank: item.position ?? index + 1,
+});
 
 export const useGroupDetail = (groupId: string) => {
   const [data, setData] = useState<GroupDetailData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [refreshKey, setRefreshKey] = useState(0);
+  const refreshKeyRef = useRef(0);
 
-  const refetch = () => {
+  const fetchData = useCallback(async () => {
+    await Promise.resolve();
     setIsLoading(true);
     setError(null);
-    setRefreshKey((k) => k + 1);
-  };
 
-  useEffect(() => {
-    const isMock = process.env.NEXT_PUBLIC_MOCK_GROUPS === 'true';
+    const [instanceResult, rankingResult] = await Promise.all([
+      api.get<SkorifyEnvelope<TournamentInstanceDto>>(skorifyEndpoints.tournamentInstance.getById, {
+        tournamentInstanceId: groupId,
+      }),
+      api.get<SkorifyEnvelope<RankingItemDto[]>>(
+        skorifyEndpoints.tournamentInstance.getCurrentRanking,
+        { tournamentInstanceId: groupId },
+      ),
+    ]);
 
-    if (isMock) {
-      const timer = setTimeout(() => {
-        setData({ ...MOCK_DATA, group: { ...MOCK_DATA.group, id: groupId } });
-        setIsLoading(false);
-      }, 600);
-      return () => clearTimeout(timer);
+    if (!instanceResult.success || !instanceResult.data.data) {
+      setData(null);
+      setError('notFound');
+      setIsLoading(false);
+      return;
     }
 
-    const fetchData = async () => {
-      try {
-        // TODO: replace with real API call: GET /groups/${groupId}
-        setData({ ...MOCK_DATA, group: { ...MOCK_DATA.group, id: groupId } });
-      } catch {
-        setError('loadError');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    if (!rankingResult.success) {
+      setData(null);
+      setError('loadError');
+      setIsLoading(false);
+      return;
+    }
 
-    fetchData();
-  }, [groupId, refreshKey]);
+    const instance = instanceResult.data.data;
+    const ranking = rankingResult.data.data ?? [];
+
+    const standings = ranking.map(mapRankingToStanding);
+    const members = ranking.map((item, index) => mapRankingToMember(item, index, instance.ownerId));
+
+    setData({
+      group: mapInstanceToGroup(instance, ranking.length),
+      standings,
+      pendingMatches: [],
+      members,
+    });
+    setIsLoading(false);
+  }, [groupId]);
+
+  const refetch = useCallback(() => {
+    refreshKeyRef.current += 1;
+    void fetchData();
+  }, [fetchData]);
+
+  useEffect(() => {
+    // setState inside fetchData is deferred via `await Promise.resolve()`.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchData();
+  }, [fetchData]);
 
   return { data, isLoading, error, refetch };
 };

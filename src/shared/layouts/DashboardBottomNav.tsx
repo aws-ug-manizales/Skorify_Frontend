@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import type { ComponentType } from 'react';
+import { useAuthSession } from '@features/auth/hooks/useAuthSession';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import Box from '@mui/material/Box';
@@ -31,18 +32,23 @@ type IconComponent = ComponentType<SvgIconProps>;
 type BottomNavLeaf = { key: string; href: string; Icon: IconComponent };
 type BottomNavItem = BottomNavLeaf & { children?: ReadonlyArray<BottomNavLeaf> };
 
-const BOTTOM_NAV_ITEMS: ReadonlyArray<BottomNavItem> = [
+const MATCHES_CHILDREN: ReadonlyArray<BottomNavLeaf> = [
+  { key: 'matchesList', href: '/matches', Icon: CalendarMonthIcon },
+  { key: 'predictions', href: '/predictions', Icon: SportsSoccerIcon },
+  { key: 'results', href: '/results', Icon: LeaderboardIcon },
+];
+
+const MATCHES_ADMIN_CHILDREN: ReadonlyArray<BottomNavLeaf> = [
+  { key: 'loadResults', href: '/matches/load-results', Icon: UploadFileIcon },
+];
+
+const buildBottomNavItems = (isAdmin: boolean): ReadonlyArray<BottomNavItem> => [
   { key: 'home', href: '/home', Icon: HomeIcon },
   {
     key: 'matches',
     href: '/matches',
     Icon: CalendarMonthIcon,
-    children: [
-      { key: 'matchesList', href: '/matches', Icon: CalendarMonthIcon },
-      { key: 'predictions', href: '/predictions', Icon: SportsSoccerIcon },
-      { key: 'results', href: '/results', Icon: LeaderboardIcon },
-      { key: 'loadResults', href: '/matches/load-results', Icon: UploadFileIcon },
-    ],
+    children: isAdmin ? [...MATCHES_CHILDREN, ...MATCHES_ADMIN_CHILDREN] : MATCHES_CHILDREN,
   },
   { key: 'tournaments', href: '/tournaments', Icon: EmojiEventsIcon },
   { key: 'groups', href: '/groups', Icon: GroupIcon },
@@ -66,10 +72,12 @@ const findActiveChildKey = (item: BottomNavItem, pathname: string): string | nul
 const DashboardBottomNav = () => {
   const pathname = usePathname();
   const t = useTranslations('nav');
+  const { isAdmin } = useAuthSession();
   const [openKey, setOpenKey] = useState<string | null>(null);
 
-  const activeIndex = BOTTOM_NAV_ITEMS.findIndex((item) => isItemActive(item, pathname));
-  const openItem = BOTTOM_NAV_ITEMS.find((item) => item.key === openKey) ?? null;
+  const bottomNavItems = useMemo(() => buildBottomNavItems(isAdmin), [isAdmin]);
+  const activeIndex = bottomNavItems.findIndex((item) => isItemActive(item, pathname));
+  const openItem = bottomNavItems.find((item) => item.key === openKey) ?? null;
   const activeChildKey = openItem ? findActiveChildKey(openItem, pathname) : null;
 
   const handleClose = () => setOpenKey(null);
@@ -109,7 +117,7 @@ const DashboardBottomNav = () => {
             },
           }}
         >
-          {BOTTOM_NAV_ITEMS.map((item) => {
+          {bottomNavItems.map((item) => {
             const { key, href, Icon, children: subItems } = item;
             const icon = <Icon sx={{ fontSize: '1.375rem' }} />;
             return subItems ? (

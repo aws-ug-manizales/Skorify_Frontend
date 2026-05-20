@@ -12,12 +12,11 @@ export type {
 
 export interface CreateGroupPayload {
   name: string;
-  description?: string;
 }
 
 export interface CreateGroupFormValues {
   name: string;
-  description: string;
+  tournamentId: string;
 }
 
 export interface Group {

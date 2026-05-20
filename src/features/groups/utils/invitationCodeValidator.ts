@@ -1,4 +1,4 @@
-import { INVITATION_CONFIG } from '../constants/invitation';
+const INVITE_CODE_REGEX = /^[A-Z0-9]{5,10}$/;
 
 export const normalizeInvitationCode = (code: string): string => {
   return code.trim().toUpperCase().replace(/\s+/g, '');
@@ -11,24 +11,10 @@ export const validateInvitationCode = (code: string): { valid: boolean; message?
 
   const normalized = normalizeInvitationCode(code);
 
-  if (normalized.length < INVITATION_CONFIG.CODE_MIN_LENGTH) {
+  if (!INVITE_CODE_REGEX.test(normalized)) {
     return {
       valid: false,
-      message: `El código debe tener al menos ${INVITATION_CONFIG.CODE_MIN_LENGTH} caracteres`,
-    };
-  }
-
-  if (normalized.length > INVITATION_CONFIG.CODE_MAX_LENGTH) {
-    return {
-      valid: false,
-      message: `El código no puede exceder ${INVITATION_CONFIG.CODE_MAX_LENGTH} caracteres`,
-    };
-  }
-
-  if (!/^[A-Z0-9-]+$/.test(normalized)) {
-    return {
-      valid: false,
-      message: 'Solo se permiten letras, números y guiones',
+      message: 'El código debe tener entre 5 y 10 caracteres alfanuméricos',
     };
   }
 

@@ -16,7 +16,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { tokens } from '@lib/theme/theme';
 import AppButton from '@shared/components/atoms/AppButton';
 import AppCard from '@shared/components/molecules/AppCard';
-import { useAuthStore } from '@features/auth/store/useAuthStore';
+import { useCurrentUserId } from '@features/auth/hooks/useCurrentUserId';
 import { useGroupDetail } from '../../hooks/useGroupDetail';
 import { useLeaveGroup } from '../../hooks/useLeaveGroup';
 import GroupDetailSkeleton from './GroupDetailSkeleton';
@@ -61,7 +61,7 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
   const [activeTab, setActiveTab] = useState<'standings' | 'results'>('standings');
 
   const { data, isLoading, error, refetch } = useGroupDetail(groupId);
-  const session = useAuthStore((s) => s.session);
+  const envUserId = useCurrentUserId();
 
   const { items: matchItems, loading: loadingResults } = useMatchesList(20, 'filterFinished');
 
@@ -89,7 +89,7 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
   } = useLeaveGroup();
   const [leaveOpen, setLeaveOpen] = useState(false);
 
-  const currentUserId = session?.user.id ?? MOCK_CURRENT_USER_ID;
+  const currentUserId = envUserId ?? MOCK_CURRENT_USER_ID;
   const isAdmin = data?.group.adminId === currentUserId;
 
   // TODO: replace with `previousStandings` field returned by the backend after
@@ -239,8 +239,6 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
                         tournamentLabel={getTournamentLabel(match.tournamentKey, m)}
                         stageLabel={getStageLabel(match.stageKey, m)}
                         kickoffLabel={formatKickoff(match.kickoffAt, locale)}
-                        vsLabel={m('vs')}
-                        predictionLabel={m('predictionLabel', { defaultValue: 'Tu predicción' })}
                         exactLabel={tResults('exact', { defaultValue: 'Acierto exacto' })}
                         partialLabel={tResults('partial', { defaultValue: 'Acierto parcial' })}
                         wrongLabel={tResults('wrong', { defaultValue: 'Incorrecto' })}

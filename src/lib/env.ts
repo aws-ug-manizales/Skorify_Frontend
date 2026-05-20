@@ -4,12 +4,14 @@ const envSchema = z.object({
   NEXT_PUBLIC_API_URL: z.url('NEXT_PUBLIC_API_URL debe ser una URL válida'),
   NEXT_PUBLIC_APP_URL: z.url('NEXT_PUBLIC_APP_URL debe ser una URL válida'),
   NEXT_PUBLIC_AUTH_MODE: z.enum(['mock', 'api']).default('mock'),
+  NEXT_PUBLIC_USER_ID: z.uuid('NEXT_PUBLIC_USER_ID debe ser un UUID válido').optional(),
 });
 
 const parsed = envSchema.safeParse({
   NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   NEXT_PUBLIC_AUTH_MODE: process.env.NEXT_PUBLIC_AUTH_MODE,
+  NEXT_PUBLIC_USER_ID: process.env.NEXT_PUBLIC_USER_ID,
 });
 
 if (!parsed.success) {

@@ -2,6 +2,7 @@ import type { Match } from '../../types';
 import type { ListMatchesParams, MatchesGateway, PaginatedResult } from '../MatchesGateway';
 import { MOCK_MATCHES } from '../../data/mockMatches';
 import { useAuthStore } from '@features/auth/store/useAuthStore';
+import { getCurrentUserId } from '@features/auth/hooks/useCurrentUserId';
 
 const USER_PREDICTIONS: Record<
   string,
@@ -51,8 +52,7 @@ const applyMockFilters = (matches: Match[], params?: ListMatchesParams) => {
 
 export class MockMatchesGateway implements MatchesGateway {
   async listMatches(params?: ListMatchesParams): Promise<PaginatedResult<Match>> {
-    // Obtener usuario actual del Zustand store
-    const userId = useAuthStore.getState().session?.user.id;
+    const userId = getCurrentUserId() ?? useAuthStore.getState().session?.user.id;
 
     // Mapear partidos dinámicamente según las predicciones del usuario actual
     const mappedMatches = MOCK_MATCHES.map((match) => {

@@ -1,9 +1,15 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import AddIcon from '@mui/icons-material/Add';
+import AppButton from '@shared/components/atoms/AppButton';
+import { useAuthSession } from '@features/auth/hooks/useAuthSession';
 import { formatKickoff } from '../../utils/formatKickoff';
+import CreateMatchDrawer from './CreateMatchDrawer';
 import MatchCard from '../molecules/MatchCard';
 import MatchesEmptyState from '../molecules/MatchesEmptyState';
 import MatchesHeader from '../molecules/MatchesHeader';
@@ -30,11 +36,28 @@ const toPredictionDrawerMatch = (match: Match): PredictionDrawerMatch => ({
 
 const MatchesHome = () => {
   const t = useTranslations('matches');
+  const tAdmin = useTranslations('matchesAdmin');
   const tCommon = useTranslations('common');
   const locale = useLocale();
+  const { isAdmin } = useAuthSession();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
   const { query, setStatusFilter, setTeam, setWeek, setPage, loading, items, total, resetFilters } =
     useMatchesList(10);
   const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
+  // Open the drawer on mount when arriving with `?create=1` (linked from the
+  // admin nav). Reads the param once via lazy init to avoid effect cascades.
+  const [createDrawerOpen, setCreateDrawerOpen] = useState(
+    () => searchParams.get('create') === '1',
+  );
+
+  useEffect(() => {
+    if (searchParams.get('create') !== '1') return;
+    // Consume the param so reloads/back-nav don't reopen the drawer.
+    router.replace(pathname, { scroll: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [predictionsById, setPredictionsById] = useState<Record<string, PredictionDrawerScore>>(
     () =>
       items.reduce<Record<string, PredictionDrawerScore>>((acc, match) => {
@@ -95,6 +118,14 @@ const MatchesHome = () => {
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
+      {isAdmin && (
+        <Stack direction="row" justifyContent="flex-end" sx={{ mb: 2 }}>
+          <AppButton startIcon={<AddIcon />} onClick={() => setCreateDrawerOpen(true)}>
+            {tAdmin('submit')}
+          </AppButton>
+        </Stack>
+      )}
+
       <MatchesHeader
         title={t('title')}
         subtitle={`${total} ${t('matchesCount')}`}
@@ -154,6 +185,10 @@ const MatchesHome = () => {
         onClose={handleCloseDrawer}
         onSave={handleSavePrediction}
       />
+
+      {isAdmin && (
+        <CreateMatchDrawer open={createDrawerOpen} onClose={() => setCreateDrawerOpen(false)} />
+      )}
     </Box>
   );
 };

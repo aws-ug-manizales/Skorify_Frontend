@@ -3,7 +3,15 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { api } from '@lib/api/instance';
+import { api } from '@lib/api';
+import {
+  skorifyEndpoints,
+  type CreateUserEnrollmentPayload,
+  type SkorifyEnvelope,
+  type TournamentInstanceDto,
+  type UserEnrollmentDto,
+} from '@lib/api/skorify';
+import { useCurrentUserId } from '@features/auth/hooks/useCurrentUserId';
 import { normalizeInvitationCode } from '../utils/invitationCodeValidator';
 import { INVITATION_CONFIG } from '../constants/invitation';
 import type {
@@ -12,10 +20,16 @@ import type {
   GroupInvitationError,
 } from '../types/invitation.types';
 
-type ApiErrorShape = { response?: { data?: { message?: string; code?: string } } };
+const ALREADY_MEMBER_CODE = 'UserIsInTournamentInstanceDomainEvent';
+const INSTANCE_NOT_FOUND_CODE = 'NotGottenTournamentInstanceDomainEvent';
+const USER_NOT_FOUND_CODE = 'NotGottenUserDomainEvent';
 
-const extractApiError = (err: unknown): { message?: string; code?: string } =>
-  (err as ApiErrorShape)?.response?.data ?? {};
+const mapBackendErrorToCode = (code?: string | number): GroupInvitationError['code'] => {
+  if (code === ALREADY_MEMBER_CODE) return 'ALREADY_MEMBER';
+  if (code === INSTANCE_NOT_FOUND_CODE) return 'GROUP_NOT_FOUND';
+  if (code === USER_NOT_FOUND_CODE) return 'UNAUTHORIZED';
+  return 'INVALID_CODE';
+};
 
 export interface UseJoinGroupReturn {
   loading: boolean;
@@ -28,6 +42,7 @@ export interface UseJoinGroupReturn {
 export const useJoinGroup = (): UseJoinGroupReturn => {
   const router = useRouter();
   const t = useTranslations('groups');
+  const userId = useCurrentUserId();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<GroupInvitationError | null>(null);
 
@@ -35,106 +50,88 @@ export const useJoinGroup = (): UseJoinGroupReturn => {
     setLoading(true);
     setError(null);
 
-    try {
-      const normalizedCode = normalizeInvitationCode(code);
+    const normalizedCode = normalizeInvitationCode(code);
 
-      const response = await api.post<ValidateCodeResponse>('/groups/validate-code', {
-        code: normalizedCode,
-      });
+    const response = await api.get<SkorifyEnvelope<TournamentInstanceDto>>(
+      skorifyEndpoints.tournamentInstance.getByInviteCode,
+      { inviteCode: normalizedCode },
+    );
 
-      if (!response.success) {
-        const errorMsg = response.error?.message || t('errors.validationFailed');
-        setError({
-          code: 'INVALID_CODE',
-          message: errorMsg,
-        });
-        return null;
-      }
+    setLoading(false);
 
-      if (!response.data?.isValid) {
-        const errorType = response.data?.error?.includes('ALREADY_MEMBER')
-          ? 'ALREADY_MEMBER'
-          : response.data?.error?.includes('EXPIRED')
-            ? 'CODE_EXPIRED'
-            : 'INVALID_CODE';
-
-        setError({
-          code: errorType as GroupInvitationError['code'],
-          message: response.data?.error || t('errors.invalidCode'),
-        });
-
-        return null;
-      }
-
-      return response.data;
-    } catch (err: unknown) {
-      const apiError = extractApiError(err);
-      const errorMessage = apiError.message || t('errors.validationFailed');
-      const errorCode = apiError.code || 'INVALID_CODE';
-
+    if (!response.success) {
       setError({
-        code: errorCode as GroupInvitationError['code'],
-        message: errorMessage,
+        code: mapBackendErrorToCode(response.error.code),
+        message: t('errors.invalidCode'),
       });
-
       return null;
-    } finally {
-      setLoading(false);
     }
+
+    const instance = response.data.data;
+    return {
+      isValid: true,
+      groupId: instance.id,
+      groupName: instance.name,
+    };
   };
 
   const joinGroup = async (code: string): Promise<JoinGroupResponse | null> => {
     setLoading(true);
     setError(null);
 
-    try {
-      const normalizedCode = normalizeInvitationCode(code);
-
-      const response = await api.post<JoinGroupResponse>('/groups/join', {
-        invitationCode: normalizedCode,
-      });
-
-      if (!response.success) {
-        const errorMsg = response.error?.message || t('errors.joinFailed');
-        setError({
-          code: 'UNAUTHORIZED',
-          message: errorMsg,
-        });
-        return null;
-      }
-
-      if (!response.data?.success) {
-        setError({
-          code: response.data?.error?.code || 'UNAUTHORIZED',
-          message: response.data?.error?.message || t('errors.joinFailed'),
-        });
-
-        return null;
-      }
-
-      if (response.data) {
-        setTimeout(() => {
-          router.push(`/groups/${response.data.groupId}`);
-        }, INVITATION_CONFIG.REDIRECT_DELAY_MS);
-
-        return response.data;
-      }
-
-      return null;
-    } catch (err: unknown) {
-      const apiError = extractApiError(err);
-      const errorMessage = apiError.message || t('errors.joinFailed');
-      const errorCode = apiError.code || 'UNAUTHORIZED';
-
-      setError({
-        code: errorCode as GroupInvitationError['code'],
-        message: errorMessage,
-      });
-
-      return null;
-    } finally {
+    if (!userId) {
       setLoading(false);
+      setError({ code: 'UNAUTHORIZED', message: t('errors.joinFailed') });
+      return null;
     }
+
+    const normalizedCode = normalizeInvitationCode(code);
+
+    const validation = await api.get<SkorifyEnvelope<TournamentInstanceDto>>(
+      skorifyEndpoints.tournamentInstance.getByInviteCode,
+      { inviteCode: normalizedCode },
+    );
+
+    if (!validation.success) {
+      setLoading(false);
+      setError({
+        code: mapBackendErrorToCode(validation.error.code),
+        message: t('errors.invalidCode'),
+      });
+      return null;
+    }
+
+    const instance = validation.data.data;
+
+    const enrollment = await api.put<
+      SkorifyEnvelope<UserEnrollmentDto>,
+      CreateUserEnrollmentPayload
+    >(skorifyEndpoints.userEnrollment.create, {
+      userId,
+      tournamentInstanceId: instance.id,
+    });
+
+    setLoading(false);
+
+    if (!enrollment.success) {
+      const mapped = mapBackendErrorToCode(enrollment.error.code);
+      setError({
+        code: mapped,
+        message: mapped === 'ALREADY_MEMBER' ? t('errors.alreadyMember') : t('errors.joinFailed'),
+      });
+      return null;
+    }
+
+    setTimeout(() => {
+      router.push(`/groups/${instance.id}`);
+    }, INVITATION_CONFIG.REDIRECT_DELAY_MS);
+
+    return {
+      success: true,
+      groupId: instance.id,
+      groupName: instance.name,
+      message: t('errors.joinFailed'),
+    };
   };
 
   const resetError = () => setError(null);

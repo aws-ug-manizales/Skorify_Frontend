@@ -1,14 +1,11 @@
 import * as cdk from 'aws-cdk-lib';
 import { Template, Match } from 'aws-cdk-lib/assertions';
-import {
-  SkorifyFrontendStack,
-  SkorifyFrontendEnvironment,
-} from '../lib/skorify-frontend-stack';
+import { SkorifyFrontendStack, SkorifyFrontendEnvironment } from '../lib/skorify-frontend-stack';
 
-function synth(
+const synth = (
   env: SkorifyFrontendEnvironment,
   overrides: Partial<{ domainAliases: string[]; acmCertificateArn: string }> = {},
-): Template {
+): Template => {
   const app = new cdk.App();
   const stack = new SkorifyFrontendStack(app, `SkorifyFrontend-${env}`, {
     stackName: `skorify-frontend-${env}`,
@@ -18,7 +15,7 @@ function synth(
     acmCertificateArn: overrides.acmCertificateArn,
   });
   return Template.fromStack(stack);
-}
+};
 
 describe('SkorifyFrontendStack: bucket S3', () => {
   test('crea un bucket privado con BlockPublicAccess y encryption S3-managed', () => {
@@ -187,8 +184,9 @@ describe('SkorifyFrontendStack: Response Headers Policy', () => {
   test('CSP base trae frame-ancestors none y permite styles inline (MUI)', () => {
     const t = synth('dev');
     const headers = t.findResources('AWS::CloudFront::ResponseHeadersPolicy');
-    const csp = Object.values(headers)[0].Properties.ResponseHeadersPolicyConfig
-      .SecurityHeadersConfig.ContentSecurityPolicy.ContentSecurityPolicy;
+    const csp =
+      Object.values(headers)[0].Properties.ResponseHeadersPolicyConfig.SecurityHeadersConfig
+        .ContentSecurityPolicy.ContentSecurityPolicy;
     expect(csp).toContain(`frame-ancestors 'none'`);
     expect(csp).toContain(`style-src 'self' 'unsafe-inline'`);
     expect(csp).toContain(`default-src 'self'`);
@@ -206,8 +204,7 @@ describe('SkorifyFrontendStack: aliases y certificado', () => {
   test('con aliases + cert: agrega domainNames, referencia el cert ACM y fuerza TLS 1.2 (2021)', () => {
     const t = synth('prd', {
       domainAliases: ['skorify.example.com'],
-      acmCertificateArn:
-        'arn:aws:acm:us-east-1:111122223333:certificate/abcdef-1234-5678-9012-abc',
+      acmCertificateArn: 'arn:aws:acm:us-east-1:111122223333:certificate/abcdef-1234-5678-9012-abc',
     });
     t.hasResourceProperties('AWS::CloudFront::Distribution', {
       DistributionConfig: Match.objectLike({
@@ -223,9 +220,9 @@ describe('SkorifyFrontendStack: aliases y certificado', () => {
   });
 
   test('aliases sin cert: el stack falla rápido', () => {
-    expect(() =>
-      synth('dev', { domainAliases: ['dev-skorify.example.com'] }),
-    ).toThrow(/acmCertificateArn/);
+    expect(() => synth('dev', { domainAliases: ['dev-skorify.example.com'] })).toThrow(
+      /acmCertificateArn/,
+    );
   });
 });
 
