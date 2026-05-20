@@ -7,10 +7,6 @@ frontend:
     build:
       commands:
         - yarn build
-        # Amplify detecta este proyecto como Next.js SSR aunque sea export estático
-        # (output: 'export') y exige required-server-files.json en el deploy.
-        # Stub vacío para satisfacer el check sin activar SSR.
-        - echo '{"version":1,"config":{},"appDir":"","relativeAppDir":"","files":[],"ignore":[]}' > out/required-server-files.json
   artifacts:
     baseDirectory: out
     files:
