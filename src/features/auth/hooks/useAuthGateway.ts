@@ -9,7 +9,7 @@ import { loginSchema, registerFormSchema } from '../lib/schemas';
 import type { RegisterFormInput } from '../lib/schemas';
 import { useAuthStore } from '../store/useAuthStore';
 
-type Mode = 'login' | 'register';
+type Mode = 'login' | 'register' | 'confirm';
 type TransitionPhase = 'idle' | 'exiting' | 'entering';
 type AuthFormData = RegisterFormInput;
 type ErrorNode = Record<string, unknown>;
@@ -52,6 +52,11 @@ export const useAuthGateway = () => {
   const [phase, setPhase] = useState<TransitionPhase>('idle');
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [pendingEmail, setPendingEmail] = useState<string>('');
+  const [confirmationCode, setConfirmationCode] = useState<string>('');
+  const [codeError, setCodeError] = useState<string>('');
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [isResending, setIsResending] = useState(false);
 
   const isTransitioning = phase !== 'idle';
 
@@ -92,16 +97,26 @@ export const useAuthGateway = () => {
   const registerWithEmail = useAuthStore((state) => state.registerWithEmail);
   const loginWithEmail = useAuthStore((state) => state.loginWithEmail);
   const loginWithGoogle = useAuthStore((state) => state.loginWithGoogle);
+  const confirmSignUp = useAuthStore((state) => state.confirmSignUp);
+  const resendConfirmationCode = useAuthStore((state) => state.resendConfirmationCode);
 
   useEffect(() => {
     clearErrors();
   }, [mode, clearErrors]);
 
+  const transitionTo = useCallback(
+    (next: Mode, dir: 'forward' | 'backward') => {
+      if (next === mode || isTransitioning) return;
+      setDirection(dir);
+      setPendingMode(next);
+      setPhase('exiting');
+    },
+    [mode, isTransitioning],
+  );
+
   const handleModeChange = (_: React.SyntheticEvent, value: Mode) => {
-    if (value === mode || isTransitioning) return;
-    setDirection(value === 'register' ? 'forward' : 'backward');
-    setPendingMode(value);
-    setPhase('exiting');
+    if (value !== 'login' && value !== 'register') return;
+    transitionTo(value, value === 'register' ? 'forward' : 'backward');
   };
 
   const handlePanelAnimationEnd = (event: React.AnimationEvent<HTMLDivElement>) => {
@@ -117,19 +132,28 @@ export const useAuthGateway = () => {
   };
 
   const submit = useCallback(
-    (values: AuthFormData) => {
+    async (values: AuthFormData) => {
       setNotice(null);
 
       const result =
         mode === 'register'
-          ? registerWithEmail({
+          ? await registerWithEmail({
               email: values.email,
               password: values.password,
               nickname: values.nickname,
             })
-          : loginWithEmail({ email: values.email, password: values.password });
+          : await loginWithEmail({ email: values.email, password: values.password });
 
       if (!result.ok) {
+        if (result.needsConfirmation && result.pendingEmail) {
+          setPendingEmail(result.pendingEmail);
+          setNotice({
+            type: 'error',
+            text: translateKey(result.messageKey, t('genericError')),
+          });
+          transitionTo('confirm', 'forward');
+          return;
+        }
         if (result.fieldErrors?.email) {
           setError('email', { message: translateKey(result.fieldErrors.email) });
         }
@@ -145,30 +169,86 @@ export const useAuthGateway = () => {
         return;
       }
 
-      setNotice({
-        type: 'success',
-        text: translateKey(result.messageKey, t('sessionCreated')),
-      });
-      reset();
-      router.replace('/home');
+      if (result.needsConfirmation && result.pendingEmail) {
+        setPendingEmail(result.pendingEmail);
+        setNotice({
+          type: 'success',
+          text: translateKey(result.messageKey, t('sessionCreated')),
+        });
+        transitionTo('confirm', 'forward');
+        return;
+      }
+
+      if (result.session) {
+        setNotice({
+          type: 'success',
+          text: translateKey(result.messageKey, t('sessionCreated')),
+        });
+        reset();
+        router.replace('/home');
+      }
     },
-    [loginWithEmail, mode, registerWithEmail, reset, router, setError, t, translateKey],
+    [
+      loginWithEmail,
+      mode,
+      registerWithEmail,
+      reset,
+      router,
+      setError,
+      t,
+      translateKey,
+      transitionTo,
+    ],
   );
 
-  const handleGoogleSubmit = useCallback(() => {
-    const result = loginWithGoogle();
+  const handleGoogleSubmit = useCallback(async () => {
+    setNotice(null);
+    const result = await loginWithGoogle();
 
     if (!result.ok) {
+      setNotice({ type: 'error', text: translateKey(result.messageKey, t('genericError')) });
+    }
+  }, [loginWithGoogle, t, translateKey]);
+
+  const handleConfirmSubmit = useCallback(async () => {
+    setCodeError('');
+    setNotice(null);
+
+    if (!/^\d{4,8}$/.test(confirmationCode.trim())) {
+      setCodeError(t('errors.codeFormat'));
+      return;
+    }
+
+    setIsConfirming(true);
+    const result = await confirmSignUp({
+      email: pendingEmail,
+      code: confirmationCode.trim(),
+    });
+    setIsConfirming(false);
+
+    if (!result.ok) {
+      if (result.fieldErrors?.code) {
+        setCodeError(translateKey(result.fieldErrors.code));
+      }
       setNotice({ type: 'error', text: translateKey(result.messageKey, t('genericError')) });
       return;
     }
 
+    setNotice({ type: 'success', text: translateKey(result.messageKey, t('success.confirmed')) });
+    setConfirmationCode('');
+    transitionTo('login', 'backward');
+  }, [confirmSignUp, confirmationCode, pendingEmail, t, translateKey, transitionTo]);
+
+  const handleResendCode = useCallback(async () => {
+    if (!pendingEmail) return;
+    setIsResending(true);
+    const result = await resendConfirmationCode(pendingEmail);
+    setIsResending(false);
     setNotice({
-      type: 'success',
-      text: translateKey(result.messageKey, t('sessionCreated')),
+      type: result.ok ? 'success' : 'error',
+      text: translateKey(result.messageKey, t('genericError')),
     });
-    router.replace('/home');
-  }, [loginWithGoogle, router, t, translateKey]);
+  }, [pendingEmail, resendConfirmationCode, t, translateKey]);
 
   const submitLabel = useMemo(
     () => (mode === 'login' ? t('loginCta') : t('registerCta')),
@@ -190,5 +270,13 @@ export const useAuthGateway = () => {
     submit,
     t,
     phase,
+    pendingEmail,
+    confirmationCode,
+    setConfirmationCode,
+    codeError,
+    isConfirming,
+    isResending,
+    handleConfirmSubmit,
+    handleResendCode,
   };
 };

@@ -38,7 +38,6 @@ import { tokens } from '@lib/theme/theme';
 const HomeHero = () => (
   <Box component="main" sx={{ position: 'relative', overflow: 'hidden' }}>
     <Hero />
-    <StatsBand />
     <Features />
     <HowItWorks />
     <FinalCta />
@@ -340,67 +339,6 @@ const FloatingCard = ({
     </Stack>
   </Box>
 );
-
-const StatsBand = () => {
-  const t = useTranslations('home.stats');
-
-  const items = [
-    { value: '120K+', label: t('predictions') },
-    { value: '3.5K+', label: t('groups') },
-    { value: '18K+', label: t('users') },
-    { value: '104', label: t('matches') },
-  ];
-
-  return (
-    <Box
-      component="section"
-      sx={{
-        borderTop: `1px solid ${tokens.outlineVariant}26`,
-        borderBottom: `1px solid ${tokens.outlineVariant}26`,
-        bgcolor: tokens.surfaceContainerLowest,
-      }}
-    >
-      <SectionContainer sx={{ py: { xs: 6, md: 8 } }}>
-        <Grid container spacing={{ xs: 4, md: 2 }}>
-          {items.map(({ value, label }, idx) => (
-            <Grid key={label} size={{ xs: 6, md: 3 }}>
-              <Reveal delay={idx * 100} distance={20}>
-                <Stack alignItems="center" spacing={0.75} sx={{ textAlign: 'center' }}>
-                  <Typography
-                    sx={{
-                      fontSize: { xs: '2rem', md: '2.75rem' },
-                      fontWeight: 900,
-                      lineHeight: 1,
-                      color: tokens.onSurface,
-                      fontVariantNumeric: 'tabular-nums',
-                      background: tokens.ctaGradient,
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                    }}
-                  >
-                    {value}
-                  </Typography>
-                  <Typography
-                    variant="overline"
-                    sx={{
-                      color: tokens.onSurfaceVariant,
-                      fontWeight: 700,
-                      letterSpacing: '0.08em',
-                      lineHeight: 1.2,
-                      fontSize: '0.6875rem',
-                    }}
-                  >
-                    {label}
-                  </Typography>
-                </Stack>
-              </Reveal>
-            </Grid>
-          ))}
-        </Grid>
-      </SectionContainer>
-    </Box>
-  );
-};
 
 interface FeatureItem {
   key: string;

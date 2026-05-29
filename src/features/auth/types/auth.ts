@@ -12,14 +12,19 @@ export interface AuthUser {
 
 export interface AuthSession {
   token: string;
+  idToken?: string;
+  accessToken?: string;
+  refreshToken?: string;
   user: AuthUser;
   createdAt: string;
+  expiresAt?: string;
 }
 
 export interface AuthFieldErrors {
   email?: string;
   password?: string;
   nickname?: string;
+  code?: string;
 }
 
 export interface AuthActionResult {
@@ -37,6 +42,7 @@ export interface RegisterPayload extends CredentialsPayload {
   nickname: string;
 }
 
-export interface StoredUser extends AuthUser {
-  password?: string;
+export interface ConfirmSignUpPayload {
+  email: string;
+  code: string;
 }

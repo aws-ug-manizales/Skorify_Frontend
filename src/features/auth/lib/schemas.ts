@@ -25,6 +25,14 @@ export const registerFormSchema = registerSchema
     message: 'auth.passwordMismatch',
   });
 
+export const confirmSignUpSchema = z.object({
+  code: z
+    .string()
+    .trim()
+    .regex(/^\d{4,8}$/, 'auth.errors.codeFormat'),
+});
+
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type RegisterFormInput = z.infer<typeof registerFormSchema>;
+export type ConfirmSignUpInput = z.infer<typeof confirmSignUpSchema>;

@@ -16,7 +16,7 @@ import { tokens, avatarPalette } from '@lib/theme/theme';
 import useSnackbar from '@shared/hooks/useSnackbar';
 import { useAuthSession } from '@features/auth/hooks/useAuthSession';
 import type { TournamentDto } from '@lib/api/skorify';
-import useFilterTournaments from '../../hooks/useFilterTournaments';
+import useGetAvailableTournaments from '../../hooks/useGetAvailableTournaments';
 import CreateTournamentDrawer from './CreateTournamentDrawer';
 import TournamentDetailDialog from './TournamentDetailDialog';
 
@@ -74,7 +74,7 @@ const TournamentsHome = () => {
   const t = useTranslations('tournaments');
   const { isAdmin } = useAuthSession();
   const snackbar = useSnackbar();
-  const { data, isLoading, error, filterTournaments } = useFilterTournaments();
+  const { data, isLoading, error, getAvailableTournaments } = useGetAvailableTournaments();
 
   const [activeFilter, setActiveFilter] = useState<FilterKey>('filterAll');
   const [createOpen, setCreateOpen] = useState(false);
@@ -306,7 +306,7 @@ const TournamentsHome = () => {
         <CreateTournamentDrawer
           open={createOpen}
           onClose={() => setCreateOpen(false)}
-          onCreated={() => void filterTournaments({})}
+          onCreated={() => void getAvailableTournaments()}
         />
       )}
 

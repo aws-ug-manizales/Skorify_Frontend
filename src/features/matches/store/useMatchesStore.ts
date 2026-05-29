@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { MOCK_MATCHES, MOCK_TEAMS, MOCK_TOURNAMENTS } from './mockData';
 import {
   type MatchRecord,
   type MatchTeam,
@@ -11,13 +10,19 @@ interface MatchesState {
   teams: MatchTeam[];
   tournaments: MatchTournament[];
   matches: MatchRecord[];
+  setTeams: (teams: MatchTeam[]) => void;
+  setTournaments: (tournaments: MatchTournament[]) => void;
+  setMatches: (matches: MatchRecord[]) => void;
   updateMatchResult: (input: UpdateMatchResultInput) => MatchRecord | null;
 }
 
 export const useMatchesStore = create<MatchesState>((set) => ({
-  teams: MOCK_TEAMS,
-  tournaments: MOCK_TOURNAMENTS,
-  matches: MOCK_MATCHES,
+  teams: [],
+  tournaments: [],
+  matches: [],
+  setTeams: (teams) => set({ teams }),
+  setTournaments: (tournaments) => set({ tournaments }),
+  setMatches: (matches) => set({ matches }),
   updateMatchResult: ({ matchId, homeGoals, awayGoals, status }) => {
     let updatedMatch: MatchRecord | null = null;
 

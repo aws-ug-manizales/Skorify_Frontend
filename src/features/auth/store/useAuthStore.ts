@@ -2,32 +2,31 @@
 
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { mockUsers } from '../data/mockUsers';
 import { authService } from '../services/authService';
+import type { AuthGatewayResult } from '../services/AuthGatewayPort';
 import type {
-  AuthActionResult,
   AuthSession,
+  ConfirmSignUpPayload,
   CredentialsPayload,
   RegisterPayload,
-  StoredUser,
 } from '../types/auth';
 
 type AuthState = {
   hydrated: boolean;
   session: AuthSession | null;
-  users: StoredUser[];
   setHydrated: (value: boolean) => void;
-  registerWithEmail: (payload: RegisterPayload) => AuthActionResult;
-  loginWithEmail: (payload: CredentialsPayload) => AuthActionResult;
-  loginWithGoogle: () => AuthActionResult;
-  logout: () => void;
+  setSession: (session: AuthSession | null) => void;
+  registerWithEmail: (payload: RegisterPayload) => Promise<AuthGatewayResult>;
+  loginWithEmail: (payload: CredentialsPayload) => Promise<AuthGatewayResult>;
+  confirmSignUp: (payload: ConfirmSignUpPayload) => Promise<AuthGatewayResult>;
+  resendConfirmationCode: (email: string) => Promise<AuthGatewayResult>;
+  loginWithGoogle: () => Promise<AuthGatewayResult>;
+  restoreSession: () => Promise<void>;
+  logout: () => Promise<void>;
 };
 
 const persistToken = (token: string | null) => {
-  if (typeof window === 'undefined') {
-    return;
-  }
-
+  if (typeof window === 'undefined') return;
   if (token) {
     localStorage.setItem('token', token);
   } else {
@@ -37,49 +36,58 @@ const persistToken = (token: string | null) => {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       hydrated: false,
       session: null,
-      users: mockUsers,
       setHydrated: (value) => set({ hydrated: value }),
 
-      registerWithEmail: (payload) => {
-        const result = authService.registerWithEmail(payload, { users: get().users });
+      setSession: (session) => {
+        set({ session });
+        persistToken(session?.token ?? null);
+      },
+
+      registerWithEmail: async (payload) => {
+        const result = await authService.registerWithEmail(payload);
         if (result.ok && result.session) {
-          set((state) => ({
-            users: result.users ?? state.users,
-            session: result.session,
-          }));
+          set({ session: result.session });
           persistToken(result.session.token);
         }
         return result;
       },
 
-      loginWithEmail: (payload) => {
-        const result = authService.loginWithEmail(payload, { users: get().users });
+      loginWithEmail: async (payload) => {
+        const result = await authService.loginWithEmail(payload);
         if (result.ok && result.session) {
-          set((state) => ({
-            users: result.users ?? state.users,
-            session: result.session,
-          }));
+          set({ session: result.session });
           persistToken(result.session.token);
         }
         return result;
       },
 
-      loginWithGoogle: () => {
-        const result = authService.loginWithGoogle({ users: get().users });
-        if (result.ok && result.session) {
-          set((state) => ({
-            users: result.users ?? state.users,
-            session: result.session,
-          }));
-          persistToken(result.session.token);
-        }
-        return result;
+      confirmSignUp: async (payload) => {
+        return authService.confirmSignUp(payload);
       },
 
-      logout: () => {
+      resendConfirmationCode: async (email) => {
+        return authService.resendConfirmationCode(email);
+      },
+
+      loginWithGoogle: async () => {
+        return authService.loginWithGoogle();
+      },
+
+      restoreSession: async () => {
+        const session = await authService.restoreSession();
+        if (session) {
+          set({ session });
+          persistToken(session.token);
+        } else {
+          persistToken(null);
+        }
+      },
+
+      logout: async () => {
+        await authService.logout();
         set({ session: null });
         persistToken(null);
       },
@@ -89,10 +97,15 @@ export const useAuthStore = create<AuthState>()(
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         session: state.session,
-        users: state.users,
       }),
       onRehydrateStorage: () => (state) => {
-        state?.setHydrated(true);
+        if (!state) return;
+        state.setHydrated(true);
+        if (state.session?.token) {
+          persistToken(state.session.token);
+        } else {
+          void state.restoreSession();
+        }
       },
     },
   ),

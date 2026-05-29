@@ -16,6 +16,7 @@
     "@mui/icons-material": "^7.3.9",
     "@mui/material": "^7.3.9",
     "@mui/x-date-pickers": "^9.0.2",
+    "amazon-cognito-identity-js": "^6.3.16",
     "animejs": "^4.3.6",
     "axios": "^1.14.0",
     "date-fns": "^4.1.0",

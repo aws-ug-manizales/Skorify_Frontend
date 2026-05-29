@@ -18,7 +18,7 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import FormField, { type FormFieldOption } from '@shared/components/atoms/FormField';
 import AppButton from '@shared/components/atoms/AppButton';
 import { tokens } from '@lib/theme/theme';
-import { useFilterTournaments } from '@features/tournaments/hooks/useFilterTournaments';
+import { useGetAvailableTournaments } from '@features/tournaments/hooks/useGetAvailableTournaments';
 import useCreateGroup from '../../hooks/useCreateGroup';
 import type { CreateGroupFormValues } from '../../types';
 import { getInitials } from '@shared/utils/string';
@@ -27,7 +27,7 @@ const CreateGroupForm = () => {
   const t = useTranslations('groups');
   const router = useRouter();
   const { createGroup, isLoading, error } = useCreateGroup();
-  const { data: tournaments, isLoading: tournamentsLoading } = useFilterTournaments();
+  const { data: tournaments, isLoading: tournamentsLoading } = useGetAvailableTournaments();
 
   const { control, handleSubmit } = useForm<CreateGroupFormValues>({
     defaultValues: { name: '', tournamentId: '' },

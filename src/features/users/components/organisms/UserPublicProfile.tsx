@@ -18,15 +18,51 @@ import { tokens } from '@lib/theme/theme';
 import AppButton from '@shared/components/atoms/AppButton';
 import AppCard from '@shared/components/molecules/AppCard';
 import { getAvatarColor, getInitials } from '@shared/utils/string';
-import { getPublicProfile } from '../../data/publicProfiles';
-
 interface UserPublicProfileProps {
   userId: string;
 }
 
+interface PublicProfileGroup {
+  id: string;
+  name: string;
+  rank: number;
+}
+
+interface PublicProfilePrediction {
+  id: string;
+  match: string;
+  tournament: string;
+  hit: boolean;
+  points: number;
+}
+
+interface PublicProfile {
+  id: string;
+  name: string;
+  memberSince: string;
+  totalPoints: number;
+  accuracy: number;
+  predictions: number;
+  streak: number;
+  sharedGroups: PublicProfileGroup[];
+  recentPredictions: PublicProfilePrediction[];
+}
+
+const buildEmptyProfile = (userId: string): PublicProfile => ({
+  id: userId,
+  name: `Player ${userId.slice(0, 6)}`,
+  memberSince: '',
+  totalPoints: 0,
+  accuracy: 0,
+  predictions: 0,
+  streak: 0,
+  sharedGroups: [],
+  recentPredictions: [],
+});
+
 const UserPublicProfile = ({ userId }: UserPublicProfileProps) => {
   const t = useTranslations('userProfile');
-  const profile = getPublicProfile(userId);
+  const profile = buildEmptyProfile(userId);
 
   return (
     <Box sx={{ p: { xs: 2.5, md: 4 }, maxWidth: 1100, mx: 'auto' }}>

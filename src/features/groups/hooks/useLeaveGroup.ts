@@ -34,23 +34,6 @@ export const useLeaveGroup = (): UseLeaveGroupReturn => {
     setError(null);
 
     try {
-      const isMock = process.env.NEXT_PUBLIC_MOCK_GROUPS === 'true';
-
-      if (isMock) {
-        await new Promise((resolve) => setTimeout(resolve, 600));
-        snackbar.success(
-          t(
-            dissolve
-              ? 'dissolveSuccess'
-              : assigningNewAdmin
-                ? 'leaveSuccessNewAdmin'
-                : 'leaveSuccess',
-          ),
-        );
-        router.push('/home');
-        return { success: true, dissolved: dissolve ?? false };
-      }
-
       const url = dissolve
         ? `/groups/${groupId}/members/me?dissolve=true`
         : `/groups/${groupId}/members/me`;

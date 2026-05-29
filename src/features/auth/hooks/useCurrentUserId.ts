@@ -1,13 +1,13 @@
 'use client';
 
-import { env } from '@lib/env';
+import { useAuthStore } from '../store/useAuthStore';
 import { useAuthSession } from './useAuthSession';
 
 export const useCurrentUserId = (): string | undefined => {
   const { session } = useAuthSession();
-  return env.NEXT_PUBLIC_USER_ID ?? session?.user.id;
+  return session?.user.id;
 };
 
 export const getCurrentUserId = (): string | undefined => {
-  return env.NEXT_PUBLIC_USER_ID;
+  return useAuthStore.getState().session?.user.id;
 };

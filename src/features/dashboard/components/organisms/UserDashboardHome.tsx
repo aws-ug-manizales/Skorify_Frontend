@@ -31,28 +31,24 @@ import { formatKickoff } from '@features/matches/utils/formatKickoff';
 
 const numberFormatter = new Intl.NumberFormat('es-CO');
 
-const MOCK_RANKING = [
-  { id: 'r1', name: 'MarcG10', points: 4820 },
-  { id: 'r2', name: 'Elena_FUT', points: 4795 },
-  { id: 'r3', name: 'Juan_P', points: 4610 },
-] as const;
+type RankingRow = { id: string; name: string; points: number };
+type RecentPrediction = {
+  id: string;
+  match: string;
+  tournament: string;
+  points: number;
+  hit: boolean;
+};
+type FriendActivity = { id: string; userKey: string; textKey: string; timeKey: string };
 
-const MOCK_RECENT_PREDICTIONS = [
-  { id: 'p1', match: 'Bayern 3 - 0 Lazio', tournament: 'Champions League', points: 100, hit: true },
-  { id: 'p2', match: 'PSG 1 - 1 Nice', tournament: 'Ligue 1', points: 0, hit: false },
-  { id: 'p3', match: 'Inter 1 - 0 Genoa', tournament: 'Serie A', points: 50, hit: true },
-] as const;
+const RANKING: RankingRow[] = [];
+const RECENT_PREDICTIONS: RecentPrediction[] = [];
+const FRIEND_ACTIVITY: FriendActivity[] = [];
 
-const MOCK_FRIEND_ACTIVITY = [
-  { id: 'a1', userKey: 'friend1Name', textKey: 'friend1Text', timeKey: 'friend1Time' },
-  { id: 'a2', userKey: 'friend2Name', textKey: 'friend2Text', timeKey: 'friend2Time' },
-  { id: 'a3', userKey: 'friend3Name', textKey: 'friend3Text', timeKey: 'friend3Time' },
-] as const;
-
-const MOCK_CURRENT_USER_RANK = { rank: 42, points: 3210 } as const;
-const MOCK_USER_STREAK = 5;
-const MOCK_WEEK_POINTS = 450;
-const MOCK_ACCURACY = 68;
+const CURRENT_USER_RANK = { rank: 0, points: 0 };
+const USER_STREAK = 0;
+const WEEK_POINTS = 0;
+const ACCURACY = 0;
 
 const colorForId = (id: string) => {
   let hash = 0;
@@ -76,7 +72,7 @@ const UserDashboardHome = () => {
     <Box sx={{ p: { xs: 2.5, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
       <WelcomeBanner
         displayName={displayName}
-        streak={MOCK_USER_STREAK}
+        streak={USER_STREAK}
         t={t}
         onJoinGroup={() => setJoinDialogOpen(true)}
       />
@@ -461,7 +457,7 @@ interface CardWithTProps {
 const RankingCard = ({ t }: CardWithTProps) => (
   <SectionCard title={t('rankingTitle')}>
     <Stack spacing={1.5}>
-      {MOCK_RANKING.map((row, idx) => {
+      {RANKING.map((row, idx) => {
         const accent = colorForId(row.id);
         return (
           <Stack
@@ -553,7 +549,7 @@ const RankingCard = ({ t }: CardWithTProps) => (
               fontVariantNumeric: 'tabular-nums',
             }}
           >
-            {MOCK_CURRENT_USER_RANK.rank}
+            {CURRENT_USER_RANK.rank}
           </Typography>
           <Box
             sx={{
@@ -585,7 +581,7 @@ const RankingCard = ({ t }: CardWithTProps) => (
             flexShrink: 0,
           }}
         >
-          {numberFormatter.format(MOCK_CURRENT_USER_RANK.points)} {t('pointsShort')}
+          {numberFormatter.format(CURRENT_USER_RANK.points)} {t('pointsShort')}
         </Typography>
       </Stack>
     </Stack>
@@ -633,7 +629,7 @@ const PointsSummaryCard = ({ t }: CardWithTProps) => (
               fontVariantNumeric: 'tabular-nums',
             }}
           >
-            {numberFormatter.format(MOCK_CURRENT_USER_RANK.points)}
+            {numberFormatter.format(CURRENT_USER_RANK.points)}
           </Typography>
           <Typography
             variant="overline"
@@ -652,7 +648,7 @@ const PointsSummaryCard = ({ t }: CardWithTProps) => (
           <Grid size={6}>
             <StatTile
               label={t('weekLabel')}
-              value={`+${MOCK_WEEK_POINTS}`}
+              value={`+${WEEK_POINTS}`}
               color={tokens.primary}
               Icon={WhatshotIcon}
             />
@@ -660,7 +656,7 @@ const PointsSummaryCard = ({ t }: CardWithTProps) => (
           <Grid size={6}>
             <StatTile
               label={t('accuracyLabel')}
-              value={`${MOCK_ACCURACY}%`}
+              value={`${ACCURACY}%`}
               color={tokens.secondary}
               Icon={EmojiEventsIcon}
             />
@@ -730,7 +726,7 @@ const RecentPredictionsCard = ({ t }: CardWithTProps) => (
     }
   >
     <Stack spacing={2}>
-      {MOCK_RECENT_PREDICTIONS.map((p) => {
+      {RECENT_PREDICTIONS.map((p) => {
         const HitIcon = p.hit ? CheckCircleOutlineIcon : CancelOutlinedIcon;
         const hitColor = p.hit ? tokens.success : tokens.error;
         return (
@@ -798,7 +794,7 @@ const RecentPredictionsCard = ({ t }: CardWithTProps) => (
 const FriendActivityCard = ({ t }: CardWithTProps) => (
   <SectionCard title={t('friendActivityTitle')}>
     <Stack spacing={1.75}>
-      {MOCK_FRIEND_ACTIVITY.map((item) => {
+      {FRIEND_ACTIVITY.map((item) => {
         const userName = t(`activity.${item.userKey}`);
         const accent = colorForId(item.id);
         return (

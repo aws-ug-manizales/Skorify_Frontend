@@ -122,10 +122,20 @@
       "invalidEmail": "Correo electrónico inválido",
       "passwordMin": "La contraseña debe tener al menos 8 caracteres",
       "passwordMax": "La contraseña es demasiado larga",
+      "passwordPolicy": "La contraseña no cumple con los requisitos de seguridad",
+      "passwordResetRequired": "Debes restablecer tu contraseña antes de continuar",
       "formInvalid": "Corrige los errores del formulario",
       "emailTaken": "Este correo ya está registrado",
       "emailMustBeUnique": "El correo debe ser único",
       "invalidCredentials": "Correo o contraseña incorrectos",
+      "userNotConfirmed": "Confirma tu cuenta para poder iniciar sesión",
+      "codeFormat": "El código debe tener entre 4 y 8 dígitos",
+      "codeMismatch": "El código ingresado no es válido",
+      "codeExpired": "El código expiró. Solicita uno nuevo.",
+      "limitExceeded": "Has alcanzado el límite de intentos. Intenta más tarde.",
+      "tooManyRequests": "Demasiadas solicitudes. Espera un momento e intenta de nuevo.",
+      "genericError": "No se pudo completar la operación. Intenta nuevamente.",
+      "oauthExchangeFailed": "No se pudo completar el inicio de sesión con Google",
       "nicknameMin": "Mínimo 3 caracteres",
       "nicknameMax": "Máximo 24 caracteres",
       "nicknameFormat": "Solo letras, números, guion y punto",
@@ -134,9 +144,28 @@
     },
     "success": {
       "registered": "Cuenta creada con éxito",
-      "checkEmail": "Cuenta creada. Revisa tu correo para confirmar el registro.",
+      "checkEmail": "Te enviamos un código a tu correo. Ingrésalo para confirmar tu cuenta.",
+      "confirmed": "Cuenta confirmada. Ahora puedes iniciar sesión.",
+      "codeResent": "Te reenviamos el código a tu correo.",
       "loggedIn": "Inicio de sesión exitoso",
       "googleLoggedIn": "Sesión iniciada con Google"
+    },
+    "confirm": {
+      "title": "Confirma tu cuenta",
+      "description": "Te enviamos un código a {email}. Ingrésalo para activar tu cuenta.",
+      "codeLabel": "Código de confirmación",
+      "codePlaceholder": "123456",
+      "submitCta": "Confirmar",
+      "resendCta": "Reenviar código"
+    },
+    "callback": {
+      "loading": "Completando inicio de sesión...",
+      "backToLogin": "Volver al inicio de sesión"
+    }
+  },
+  "cognito": {
+    "errors": {
+      "missingDomain": "Falta configurar NEXT_PUBLIC_COGNITO_DOMAIN para iniciar sesión con Google"
     }
   },
   "predictions": {
@@ -191,20 +220,19 @@
     ],
     "scoreRulesTitle": "Cómo se puntúa",
     "scoreRules": {
+      "pointsFormat": "+{score, plural, one {1 pt} other {# pts}}",
       "winnerTitle": "Ganador",
-      "winnerPoints": "+2 pts",
       "winnerDescription": "Acertar qué equipo gana el partido.",
       "lopsidedTitle": "Marcador abultado",
-      "lopsidedPoints": "+1 pt",
-      "lopsidedDescription": "Sumas un punto extra si el marcador supera los 4 goles.",
-      "eachHitTitle": "Cada acierto",
-      "eachHitPoints": "+1 pt",
-      "eachHitDescription": "Cada gol acertado agrega un punto a tu predicción.",
+      "lopsidedDescription": "Sumas un punto extra si aciertas el marcador exacto en partidos de 4 goles o más.",
+      "eachHitTitle": "Goles por equipo",
+      "eachHitDescription": "Acertar los goles del local o del visitante suma un punto.",
+      "exactTitle": "Marcador exacto",
+      "exactDescription": "Acertar el marcador final exacto del partido.",
       "reverseTitle": "Marcador invertido",
-      "reversePoints": "+1 pt",
-      "reverseDescription": "Si aciertas el marcador al revés, no todo esta perdido, puedes sumar un punto.",
+      "reverseDescription": "Si aciertas el marcador al revés, no todo está perdido, puedes sumar un punto.",
       "streakTitle": "Bono por racha",
-      "streakDescription": "Cada vez que aciertes 3, 5, 7 o 10 marcadores consecutivos, sumas +1 punto adicional y la racha vuelve a empezar."
+      "streakDescription": "Aciertos exactos consecutivos te dan un bono extra: {thresholds}. La racha se reinicia al fallar."
     },
     "unit": {
       "month": "mes",

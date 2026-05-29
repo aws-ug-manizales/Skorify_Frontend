@@ -4,6 +4,7 @@ export { useGetPredictionsByMatch } from './hooks/useGetPredictionsByMatch';
 export { useGetPredictionByUserAndMatch } from './hooks/useGetPredictionByUserAndMatch';
 export { useEditPrediction } from './hooks/useEditPrediction';
 export { useCheckMatchCanBet } from './hooks/useCheckMatchCanBet';
+export { useGetPredictionRules } from './hooks/useGetPredictionRules';
 export { useMatchCountdown } from './hooks/useMatchCountdown';
 
 export { default as PredictionsView } from './components/organisms/PredictionsView';

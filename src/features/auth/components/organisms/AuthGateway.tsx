@@ -12,6 +12,7 @@ import FloatingParticles from '@shared/components/organisms/FloatingParticles';
 import AuthGatewayHeader from '../molecules/AuthGatewayHeader';
 import AuthGatewayModeTabs from '../molecules/AuthGatewayModeTabs';
 import AuthGatewayForm from './AuthGatewayForm';
+import AuthConfirmSignUpForm from './AuthConfirmSignUpForm';
 import { useAuthGateway } from '../../hooks/useAuthGateway';
 
 const AuthGateway = () => {
@@ -30,7 +31,17 @@ const AuthGateway = () => {
     handleGoogleSubmit,
     submit,
     t,
+    pendingEmail,
+    confirmationCode,
+    setConfirmationCode,
+    codeError,
+    isConfirming,
+    isResending,
+    handleConfirmSubmit,
+    handleResendCode,
   } = useAuthGateway();
+
+  const isConfirmMode = mode === 'confirm';
 
   return (
     <Box
@@ -93,44 +104,67 @@ const AuthGateway = () => {
         >
           <AuthGatewayHeader title={t('title')} subtitle={t('subtitle')} />
 
-          <AuthGatewayModeTabs
-            mode={mode}
-            loginLabel={t('loginTab')}
-            registerLabel={t('registerTab')}
-            onChange={handleModeChange}
-          />
+          {!isConfirmMode && (
+            <AuthGatewayModeTabs
+              mode={mode}
+              loginLabel={t('loginTab')}
+              registerLabel={t('registerTab')}
+              onChange={handleModeChange}
+            />
+          )}
 
-          <AuthGatewayForm
-            mode={mode}
-            phase={phase}
-            control={control}
-            handleSubmit={handleSubmit}
-            onSubmit={submit}
-            submitLabel={submitLabel}
-            isSubmitting={isSubmitting}
-            isTransitioning={isTransitioning}
-            direction={direction}
-            onAnimationEnd={handlePanelAnimationEnd}
-            emailLabel={t('emailLabel')}
-            emailPlaceholder={t('emailPlaceholder')}
-            passwordLabel={t('passwordLabel')}
-            passwordPlaceholder={t('passwordPlaceholder')}
-            nicknameLabel={t('nicknameLabel')}
-            nicknamePlaceholder={t('nicknamePlaceholder')}
-            confirmPasswordLabel={t('confirmPasswordLabel')}
-            confirmPasswordPlaceholder={t('confirmPasswordPlaceholder')}
-          />
+          {isConfirmMode ? (
+            <AuthConfirmSignUpForm
+              email={pendingEmail}
+              code={confirmationCode}
+              onCodeChange={setConfirmationCode}
+              onSubmit={handleConfirmSubmit}
+              onResend={handleResendCode}
+              isSubmitting={isConfirming}
+              isResending={isResending}
+              codeError={codeError}
+              title={t('confirm.title')}
+              description={t('confirm.description')}
+              codeLabel={t('confirm.codeLabel')}
+              codePlaceholder={t('confirm.codePlaceholder')}
+              submitLabel={t('confirm.submitCta')}
+              resendLabel={t('confirm.resendCta')}
+            />
+          ) : (
+            <>
+              <AuthGatewayForm
+                mode={mode}
+                phase={phase}
+                control={control}
+                handleSubmit={handleSubmit}
+                onSubmit={submit}
+                submitLabel={submitLabel}
+                isSubmitting={isSubmitting}
+                isTransitioning={isTransitioning}
+                direction={direction}
+                onAnimationEnd={handlePanelAnimationEnd}
+                emailLabel={t('emailLabel')}
+                emailPlaceholder={t('emailPlaceholder')}
+                passwordLabel={t('passwordLabel')}
+                passwordPlaceholder={t('passwordPlaceholder')}
+                nicknameLabel={t('nicknameLabel')}
+                nicknamePlaceholder={t('nicknamePlaceholder')}
+                confirmPasswordLabel={t('confirmPasswordLabel')}
+                confirmPasswordPlaceholder={t('confirmPasswordPlaceholder')}
+              />
 
-          <Divider>{t('or')}</Divider>
+              <Divider>{t('or')}</Divider>
 
-          <AppButton
-            variant="secondary"
-            onClick={handleGoogleSubmit}
-            startIcon={<GoogleIcon />}
-            fullWidth
-          >
-            {t('googleCta')}
-          </AppButton>
+              <AppButton
+                variant="secondary"
+                onClick={handleGoogleSubmit}
+                startIcon={<GoogleIcon />}
+                fullWidth
+              >
+                {t('googleCta')}
+              </AppButton>
+            </>
+          )}
 
           {notice && <Alert severity={notice.type}>{notice.text}</Alert>}
         </Stack>

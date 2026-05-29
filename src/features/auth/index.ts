@@ -9,12 +9,9 @@ export { default as RequireGuest } from './components/organisms/RequireGuest';
 export { default as AuthGatewayHeader } from './components/molecules/AuthGatewayHeader';
 export { default as AuthGatewayModeTabs } from './components/molecules/AuthGatewayModeTabs';
 export { default as AuthGatewayForm } from './components/organisms/AuthGatewayForm';
+export { default as AuthConfirmSignUpForm } from './components/organisms/AuthConfirmSignUpForm';
 export { authService } from './services/authService';
-export type {
-  AuthGatewayPort,
-  AuthGatewayResult,
-  AuthGatewayState,
-} from './services/AuthGatewayPort';
+export type { AuthGatewayPort, AuthGatewayResult } from './services/AuthGatewayPort';
 export type {
   AuthActionResult,
   AuthFieldErrors,
@@ -22,7 +19,7 @@ export type {
   AuthRole,
   AuthSession,
   AuthUser,
+  ConfirmSignUpPayload,
   CredentialsPayload,
   RegisterPayload,
-  StoredUser,
 } from './types/auth';

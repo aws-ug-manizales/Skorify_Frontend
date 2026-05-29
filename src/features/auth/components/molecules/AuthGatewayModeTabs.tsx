@@ -7,7 +7,7 @@ import Tabs from '@mui/material/Tabs';
 type Mode = 'login' | 'register';
 
 interface AuthGatewayModeTabsProps {
-  mode: Mode;
+  mode: Mode | 'confirm';
   loginLabel: string;
   registerLabel: string;
   onChange: (_: SyntheticEvent, value: Mode) => void;
@@ -19,7 +19,7 @@ const AuthGatewayModeTabs = ({
   registerLabel,
   onChange,
 }: AuthGatewayModeTabsProps) => (
-  <Tabs centered value={mode} onChange={onChange}>
+  <Tabs centered value={mode === 'confirm' ? 'login' : mode} onChange={onChange}>
     <Tab label={loginLabel} value="login" />
     <Tab label={registerLabel} value="register" />
   </Tabs>

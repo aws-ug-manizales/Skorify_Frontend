@@ -19,7 +19,6 @@ import UserTable from './UserTable';
 import CreateUserDrawer from './CreateUserDrawer';
 import { tokens } from '@lib/theme/theme';
 import type { User } from '@features/users/types/user';
-import { INITIAL_USERS } from '../../data/mockUsers';
 
 type FilterKey = 'filterAll' | 'filterActive' | 'filterSuspended';
 type ViewMode = 'table' | 'cards';
@@ -29,7 +28,7 @@ const FILTERS: FilterKey[] = ['filterAll', 'filterActive', 'filterSuspended'];
 const UsersAdmin = () => {
   const t = useTranslations('users');
   const locale = useLocale();
-  const [users, setUsers] = useState<User[]>(INITIAL_USERS);
+  const [users, setUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterKey>('filterAll');
   const [viewMode, setViewMode] = useState<ViewMode>('table');

@@ -29,8 +29,6 @@ import { useMatchesList } from '@features/matches/hooks/useMatchesList';
 import FinishedMatchCard from '@features/matches/components/molecules/FinishedMatchCard';
 import { formatKickoff } from '@features/matches/utils/formatKickoff';
 
-const MOCK_CURRENT_USER_ID = 'mock-admin-id';
-
 const getTournamentLabel = (key: string, t: (key: string) => string) => {
   try {
     return t(key);
@@ -61,7 +59,7 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
   const [activeTab, setActiveTab] = useState<'standings' | 'results'>('standings');
 
   const { data, isLoading, error, refetch } = useGroupDetail(groupId);
-  const envUserId = useCurrentUserId();
+  const currentUserId = useCurrentUserId() ?? '';
 
   const { items: matchItems, loading: loadingResults } = useMatchesList(20, 'filterFinished');
 
@@ -89,23 +87,7 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
   } = useLeaveGroup();
   const [leaveOpen, setLeaveOpen] = useState(false);
 
-  const currentUserId = envUserId ?? MOCK_CURRENT_USER_ID;
-  const isAdmin = data?.group.adminId === currentUserId;
-
-  // TODO: replace with `previousStandings` field returned by the backend after
-  // a match is scored. Mock for now: swap top-3 positions so the podium boots
-  // in "before" state and animates into the current order on mount.
-  const mockedPreviousStandings = useMemo(() => {
-    if (!data) return undefined;
-    const [first, second, third] = data.standings;
-    if (!first || !second || !third) return undefined;
-    return [
-      { ...third, points: first.points + 4 },
-      { ...first, points: second.points - 2 },
-      { ...second, points: third.points - 1 },
-      ...data.standings.slice(3),
-    ];
-  }, [data]);
+  const isAdmin = currentUserId !== '' && data?.group.adminId === currentUserId;
 
   const adminCount = data?.members.filter((m) => m.isAdmin).length ?? 0;
   const memberCount = data?.members.length ?? 0;
@@ -202,13 +184,13 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                 <TopPodium
                   standings={data.standings}
-                  previousStandings={mockedPreviousStandings}
+                  previousStandings={undefined}
                   currentUserId={currentUserId}
                   pointsLabel={t('pointsLabel')}
                 />
                 <StandingsTable
                   standings={data.standings}
-                  previousStandings={mockedPreviousStandings}
+                  previousStandings={undefined}
                   currentUserId={currentUserId}
                   onRefresh={refetch}
                   isRefreshing={isLoading}

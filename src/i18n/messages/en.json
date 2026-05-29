@@ -117,10 +117,20 @@
       "invalidEmail": "Invalid email address",
       "passwordMin": "Password must be at least 8 characters",
       "passwordMax": "Password is too long",
+      "passwordPolicy": "Password does not meet the security requirements",
+      "passwordResetRequired": "You must reset your password before continuing",
       "formInvalid": "Fix the form errors",
       "emailTaken": "This email is already registered",
       "emailMustBeUnique": "Email must be unique",
       "invalidCredentials": "Incorrect email or password",
+      "userNotConfirmed": "Confirm your account to sign in",
+      "codeFormat": "Code must be between 4 and 8 digits",
+      "codeMismatch": "Invalid confirmation code",
+      "codeExpired": "Code expired. Request a new one.",
+      "limitExceeded": "Too many attempts. Try again later.",
+      "tooManyRequests": "Too many requests. Wait a moment and try again.",
+      "genericError": "The operation could not be completed. Please try again.",
+      "oauthExchangeFailed": "Could not complete Google sign-in",
       "nicknameMin": "At least 3 characters",
       "nicknameMax": "At most 24 characters",
       "nicknameFormat": "Only letters, numbers, dot, dash and underscore",
@@ -129,9 +139,28 @@
     },
     "success": {
       "registered": "Account created successfully",
-      "checkEmail": "Account created. Check your inbox to confirm.",
+      "checkEmail": "We sent a code to your email. Enter it to confirm your account.",
+      "confirmed": "Account confirmed. You can now sign in.",
+      "codeResent": "We resent the code to your email.",
       "loggedIn": "Signed in successfully",
       "googleLoggedIn": "Signed in with Google"
+    },
+    "confirm": {
+      "title": "Confirm your account",
+      "description": "We sent a code to {email}. Enter it to activate your account.",
+      "codeLabel": "Confirmation code",
+      "codePlaceholder": "123456",
+      "submitCta": "Confirm",
+      "resendCta": "Resend code"
+    },
+    "callback": {
+      "loading": "Completing sign-in...",
+      "backToLogin": "Back to sign in"
+    }
+  },
+  "cognito": {
+    "errors": {
+      "missingDomain": "Set NEXT_PUBLIC_COGNITO_DOMAIN to sign in with Google"
     }
   },
   "predictions": {
@@ -186,20 +215,19 @@
     ],
     "scoreRulesTitle": "How scoring works",
     "scoreRules": {
+      "pointsFormat": "+{score, plural, one {1 pt} other {# pts}}",
       "winnerTitle": "Winner",
-      "winnerPoints": "+2 pts",
       "winnerDescription": "Predict which team wins the match.",
       "lopsidedTitle": "Big margin",
-      "lopsidedPoints": "+1 pt",
-      "lopsidedDescription": "You earn an extra point when the result shows a clear margin.",
-      "eachHitTitle": "Each hit",
-      "eachHitPoints": "+1 pt",
-      "eachHitDescription": "Every correct goal adds one point to your prediction.",
+      "lopsidedDescription": "Earn an extra point if you nail the exact score in matches with 4+ goals.",
+      "eachHitTitle": "Goals per team",
+      "eachHitDescription": "Predict the goals for the home or away side to score a point.",
+      "exactTitle": "Exact score",
+      "exactDescription": "Nail the exact final score of the match.",
       "reverseTitle": "Reversed score",
-      "reversePoints": "+1 pt",
-      "reverseDescription": "If you get the score in reverse, it still counts for a point.",
+      "reverseDescription": "If you get the score in reverse, you still earn a point.",
       "streakTitle": "Streak bonus",
-      "streakDescription": "Each time you hit 3, 5, 7 or 10 consecutive scores, you earn +1 extra point and the streak resets."
+      "streakDescription": "Consecutive exact-score hits give you a bonus: {thresholds}. The streak resets on a miss."
     },
     "unit": {
       "month": "mo",

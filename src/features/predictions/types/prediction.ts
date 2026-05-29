@@ -1,6 +1,12 @@
-import type { Match } from '@features/matches/constants/matches.mock';
-
-export type PredictionMatch = Match;
+export interface PredictionMatch {
+  id: string;
+  homeTeam: string;
+  homeTeamFlag: string;
+  awayTeam: string;
+  awayTeamFlag: string;
+  date: string;
+  isUserPredicted: boolean;
+}
 
 export interface PredictionDraft {
   homeGoals: number | '';

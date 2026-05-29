@@ -1,22 +1,23 @@
 import type {
   AuthActionResult,
   AuthSession,
+  ConfirmSignUpPayload,
   CredentialsPayload,
   RegisterPayload,
-  StoredUser,
 } from '../types/auth';
 
 export type AuthGatewayResult = AuthActionResult & {
   session?: AuthSession;
-  users?: StoredUser[];
+  needsConfirmation?: boolean;
+  pendingEmail?: string;
 };
 
-export interface AuthGatewayState {
-  users: StoredUser[];
-}
-
 export interface AuthGatewayPort {
-  registerWithEmail(payload: RegisterPayload, state: AuthGatewayState): AuthGatewayResult;
-  loginWithEmail(payload: CredentialsPayload, state: AuthGatewayState): AuthGatewayResult;
-  loginWithGoogle(state: AuthGatewayState): AuthGatewayResult;
+  registerWithEmail(payload: RegisterPayload): Promise<AuthGatewayResult>;
+  loginWithEmail(payload: CredentialsPayload): Promise<AuthGatewayResult>;
+  confirmSignUp(payload: ConfirmSignUpPayload): Promise<AuthGatewayResult>;
+  resendConfirmationCode(email: string): Promise<AuthGatewayResult>;
+  loginWithGoogle(): Promise<AuthGatewayResult>;
+  logout(): Promise<void>;
+  restoreSession(): Promise<AuthSession | null>;
 }

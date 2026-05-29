@@ -47,7 +47,7 @@ const TournamentDetailDialog = ({ open, onClose, tournamentId }: TournamentDetai
 
   useEffect(() => {
     if (!open || !tournamentId) return;
-    void getTournamentById({ tournamentId });
+    void getTournamentById({ id: tournamentId });
   }, [getTournamentById, open, tournamentId]);
 
   useEffect(() => {

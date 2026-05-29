@@ -1,13 +1,21 @@
-import type { AuthGatewayPort, AuthGatewayResult, AuthGatewayState } from './AuthGatewayPort';
-import { MockAuthGateway } from './gateways/MockAuthGateway';
-import type { CredentialsPayload, RegisterPayload } from '../types/auth';
+import type { AuthGatewayPort } from './AuthGatewayPort';
+import { CognitoAuthGateway } from './gateways/CognitoAuthGateway';
 
-const gateway: AuthGatewayPort = new MockAuthGateway();
+let cachedGateway: AuthGatewayPort | null = null;
 
-export const authService = {
-  registerWithEmail: (payload: RegisterPayload, state: AuthGatewayState): AuthGatewayResult =>
-    gateway.registerWithEmail(payload, state),
-  loginWithEmail: (payload: CredentialsPayload, state: AuthGatewayState): AuthGatewayResult =>
-    gateway.loginWithEmail(payload, state),
-  loginWithGoogle: (state: AuthGatewayState): AuthGatewayResult => gateway.loginWithGoogle(state),
+const getGateway = (): AuthGatewayPort => {
+  if (!cachedGateway) {
+    cachedGateway = new CognitoAuthGateway();
+  }
+  return cachedGateway;
+};
+
+export const authService: AuthGatewayPort = {
+  registerWithEmail: (payload) => getGateway().registerWithEmail(payload),
+  loginWithEmail: (payload) => getGateway().loginWithEmail(payload),
+  confirmSignUp: (payload) => getGateway().confirmSignUp(payload),
+  resendConfirmationCode: (email) => getGateway().resendConfirmationCode(email),
+  loginWithGoogle: () => getGateway().loginWithGoogle(),
+  logout: () => getGateway().logout(),
+  restoreSession: () => getGateway().restoreSession(),
 };

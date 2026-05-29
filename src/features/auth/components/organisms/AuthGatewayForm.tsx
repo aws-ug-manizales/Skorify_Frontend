@@ -17,7 +17,7 @@ import type {
 type Mode = 'login' | 'register';
 
 interface AuthGatewayFormProps<T extends FieldValues> {
-  mode: Mode;
+  mode: Mode | 'confirm';
   phase: 'idle' | 'exiting' | 'entering';
   control: Control<T>;
   handleSubmit: UseFormHandleSubmit<T>;

@@ -45,6 +45,15 @@ export interface RegisterNotificationTokenPayload {
   token: string;
 }
 
+export interface DeleteUserPayload {
+  Id: Id;
+}
+
+export interface RegisterUserPayload {
+  name: string;
+  email: string;
+}
+
 // ──────────────────────────── Match ───────────────────────────
 
 export type MatchStatus = 'draft' | 'scheduled' | 'in_progress' | 'finished' | 'cancelled';
@@ -165,6 +174,52 @@ export interface CheckMatchCanBetResult {
   canBet: boolean;
 }
 
+export interface PredictionScoreRuleDto {
+  name: string;
+  score: number;
+}
+
+export interface StreakBonusRuleDto {
+  key: number;
+  value: number;
+}
+
+export interface PredictionScoringConfigDto {
+  rules: PredictionScoreRuleDto[];
+  streakBonusRules: StreakBonusRuleDto[];
+}
+
+export interface EditPredictionDirectlyPayload {
+  predictionId: Id;
+  homeScore: number;
+  awayScore: number;
+  earnedPoints: number;
+  hasExactResult: boolean;
+}
+
+export interface GetPredictionsByMatchAndTournamentInstanceParams {
+  matchId: Id;
+  tournamentInstanceId: Id;
+}
+
+export interface SimulatePredictionPayload {
+  predictionHomeScore: number;
+  predictionAwayScore: number;
+  matchHomeScore: number;
+  matchAwayScore: number;
+  streak: number;
+}
+
+export interface PredictionScoreBreakdownItem {
+  rule: string;
+  points: number;
+}
+
+export interface SimulatePredictionResult {
+  total: number;
+  breakdown: PredictionScoreBreakdownItem[];
+}
+
 // ──────────────────────────── Team ────────────────────────────
 
 export interface TeamDto {
@@ -185,6 +240,15 @@ export interface GetTeamByIdParams {
 
 export interface GetTeamByIdsParams {
   teamIds: Id[];
+}
+
+export interface EditTeamPayload {
+  teamId: Id;
+  name: string;
+}
+
+export interface GetTeamsByQueryParams {
+  query: string;
 }
 
 // ──────────────────────────── Tournament ──────────────────────
@@ -210,13 +274,21 @@ export interface CreateTournamentPayload {
 }
 
 export interface GetTournamentByIdParams {
-  tournamentId: Id;
+  id: Id;
 }
 
 export interface FilterTournamentsParams {
   name?: string;
   startDate?: string;
   endDate?: string;
+}
+
+export interface UpdateTournamentPayload {
+  tournamentId: Id;
+  name: string;
+  matchType: MatchType;
+  startDate: string;
+  endDate: string;
 }
 
 // ──────────────────────────── Tournament Instance ─────────────
@@ -248,6 +320,14 @@ export interface GetTournamentInstanceByIdParams {
 
 export interface GetTournamentInstanceByInviteCodeParams {
   inviteCode: string;
+}
+
+export interface GetTournamentInstancesByQueryParams {
+  query: string;
+}
+
+export interface GetTournamentInstancesByTournamentIdParams {
+  tournamentId: Id;
 }
 
 export interface GetCurrentRankingParams {
@@ -289,6 +369,34 @@ export interface CreateUserEnrollmentPayload {
   tournamentInstanceId: Id;
 }
 
+export interface GetUserEnrollmentByIdParams {
+  userEnrollmentId: Id;
+}
+
+export interface GetUserEnrollmentsByTournamentIdParams {
+  tournamentId: Id;
+}
+
+export interface GetEnrollmentsWithoutPredictionParams {
+  matchId: Id;
+  tournamentInstanceId: Id;
+}
+
+export interface IsAUserInTournamentInstancePayload {
+  tournamentInstanceId: Id;
+  userId: Id;
+}
+
+export interface IsAUserInTournamentInstanceResult {
+  userEnrollmentId?: Id;
+}
+
+export interface UpdateUserEnrollmentPayload {
+  userEnrollmentId: Id;
+  points: number;
+  isExact: boolean;
+}
+
 // ──────────────────────────── Endpoints ───────────────────────
 
 export const skorifyEndpoints = {
@@ -296,6 +404,8 @@ export const skorifyEndpoints = {
     create: '/user/create-user',
     getById: '/user/get-user-by-id',
     registerNotificationToken: '/user/register-notification-token',
+    delete: '/user/delete-user',
+    register: '/user/register-user',
   },
   match: {
     create: '/match/create-match',
@@ -314,26 +424,41 @@ export const skorifyEndpoints = {
     getByMatch: '/prediction/get-predictions-by-match',
     getByUserAndMatch: '/prediction/get-prediction-by-user-and-match',
     checkCanBet: '/prediction/check-match-can-bet',
+    getRules: '/prediction/get-prediction-rules',
+    editDirectly: '/prediction/edit-prediction-directly',
+    getByMatchAndTournamentInstance: '/prediction/get-predictions-by-match-and-tournament-instance',
+    simulate: '/prediction/simulate-prediction',
   },
   team: {
     create: '/team/create-team',
     getById: '/team/get-team-by-id',
     getByIds: '/team/get-team-by-ids',
+    edit: '/team/edit-team',
+    getByQuery: '/team/get-teams-by-query',
   },
   tournament: {
     create: '/tournament/create-tournament',
     getById: '/tournament/get-tournament-by-id',
     filter: '/tournament/filter-tournaments',
+    getAvailable: '/tournament/get-available-tournaments',
+    update: '/tournament/update-tournament',
   },
   tournamentInstance: {
     create: '/tournament-instance/create-tournament-instance',
     getById: '/tournament-instance/get-tournament-instance-by-id',
     getByInviteCode: '/tournament-instance/get-tournament-instance-by-invite-code',
     getCurrentRanking: '/tournament-instance/get-current-ranking',
+    getByQuery: '/tournament-instance/get-tournament-instances-by-query',
+    getByTournamentId: '/tournament-instance/get-tournament-instances-by-tournament-id',
   },
   userEnrollment: {
     create: '/user-enrollment/create-user-enrollment',
     getByUserId: '/user-enrollment/get-user-enrollments-by-user-id',
     getByTournamentInstanceId: '/user-enrollment/get-user-enrollments-by-tournament-instance-id',
+    getById: '/user-enrollment/get-user-enrollment-by-id',
+    getByTournamentId: '/user-enrollment/get-user-enrollments-by-tournament-id',
+    getWithoutPrediction: '/user-enrollment/get-enrollments-without-prediction',
+    isUserInTournamentInstance: '/user-enrollment/is-a-user-in-tournament-instance',
+    update: '/user-enrollment/update-user-enrollment',
   },
 } as const;

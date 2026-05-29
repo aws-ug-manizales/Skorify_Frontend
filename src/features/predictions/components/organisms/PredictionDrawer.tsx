@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState, type ElementType } from 'react';
 import { useForm } from 'react-hook-form';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import ScoreboardIcon from '@mui/icons-material/Scoreboard';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import GpsFixedIcon from '@mui/icons-material/GpsFixed';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import CloseIcon from '@mui/icons-material/Close';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -13,6 +14,7 @@ import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
+import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { useTranslations } from 'next-intl';
@@ -24,6 +26,36 @@ import TeamLabel from '../atoms/TeamLabel';
 import ScoreEditor from '../molecules/ScoreEditor';
 import PredictionScoreRuleCard from '../molecules/PredictionScoreRuleCard';
 import PredictionScoreStreakCallout from '../molecules/PredictionScoreStreakCallout';
+import { useGetPredictionRules } from '../../hooks/useGetPredictionRules';
+
+const RULE_UI_MAP: Record<string, { icon: ElementType; titleKey: string; descriptionKey: string }> =
+  {
+    WinnerDrawRule: {
+      icon: EmojiEventsIcon,
+      titleKey: 'scoreRules.winnerTitle',
+      descriptionKey: 'scoreRules.winnerDescription',
+    },
+    TeamGoalsRule: {
+      icon: CheckCircleOutlineIcon,
+      titleKey: 'scoreRules.eachHitTitle',
+      descriptionKey: 'scoreRules.eachHitDescription',
+    },
+    ExactScoreRule: {
+      icon: GpsFixedIcon,
+      titleKey: 'scoreRules.exactTitle',
+      descriptionKey: 'scoreRules.exactDescription',
+    },
+    HighScoringMatchRule: {
+      icon: ScoreboardIcon,
+      titleKey: 'scoreRules.lopsidedTitle',
+      descriptionKey: 'scoreRules.lopsidedDescription',
+    },
+    InverseResultRule: {
+      icon: SwapHorizIcon,
+      titleKey: 'scoreRules.reverseTitle',
+      descriptionKey: 'scoreRules.reverseDescription',
+    },
+  };
 
 export interface PredictionDrawerMatch {
   id: string;
@@ -73,6 +105,26 @@ const PredictionDrawer = ({
   const t = useTranslations('predictions');
   const tCommon = useTranslations('common');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { data: scoringConfig, isLoading: rulesLoading } = useGetPredictionRules();
+
+  const visibleRules = useMemo(
+    () =>
+      (scoringConfig?.rules ?? [])
+        .map((rule) => ({ ...rule, ui: RULE_UI_MAP[rule.name] }))
+        .filter((rule): rule is typeof rule & { ui: (typeof RULE_UI_MAP)[string] } =>
+          Boolean(rule.ui),
+        ),
+    [scoringConfig?.rules],
+  );
+
+  const streakThresholds = useMemo(() => {
+    const items = scoringConfig?.streakBonusRules ?? [];
+    if (items.length === 0) return '';
+    return [...items]
+      .sort((a, b) => a.key - b.key)
+      .map((item) => `${item.key}×+${item.value}`)
+      .join(', ');
+  }, [scoringConfig?.streakBonusRules]);
 
   const { control, handleSubmit, reset, formState } = useForm<DrawerFormValues>({
     defaultValues: buildDefaults(initialScore),
@@ -229,38 +281,29 @@ const PredictionDrawer = ({
                   gap: 1,
                 }}
               >
-                <PredictionScoreRuleCard
-                  icon={EmojiEventsIcon}
-                  title={t('scoreRules.winnerTitle')}
-                  points={t('scoreRules.winnerPoints')}
-                  description={t('scoreRules.winnerDescription')}
-                />
-                <PredictionScoreRuleCard
-                  icon={ScoreboardIcon}
-                  title={t('scoreRules.lopsidedTitle')}
-                  points={t('scoreRules.lopsidedPoints')}
-                  description={t('scoreRules.lopsidedDescription')}
-                />
-                <PredictionScoreRuleCard
-                  icon={CheckCircleOutlineIcon}
-                  title={t('scoreRules.eachHitTitle')}
-                  points={t('scoreRules.eachHitPoints')}
-                  description={t('scoreRules.eachHitDescription')}
-                />
-                <PredictionScoreRuleCard
-                  icon={SwapHorizIcon}
-                  title={t('scoreRules.reverseTitle')}
-                  points={t('scoreRules.reversePoints')}
-                  description={t('scoreRules.reverseDescription')}
-                />
+                {rulesLoading && visibleRules.length === 0
+                  ? Array.from({ length: 4 }).map((_, i) => (
+                      <Skeleton key={i} variant="rounded" height={132} />
+                    ))
+                  : visibleRules.map((rule) => (
+                      <PredictionScoreRuleCard
+                        key={rule.name}
+                        icon={rule.ui.icon}
+                        title={t(rule.ui.titleKey)}
+                        points={t('scoreRules.pointsFormat', { score: rule.score })}
+                        description={t(rule.ui.descriptionKey)}
+                      />
+                    ))}
               </Box>
             </Box>
 
-            <PredictionScoreStreakCallout
-              icon={LocalFireDepartmentIcon}
-              title={t('scoreRules.streakTitle')}
-              description={t('scoreRules.streakDescription')}
-            />
+            {streakThresholds && (
+              <PredictionScoreStreakCallout
+                icon={LocalFireDepartmentIcon}
+                title={t('scoreRules.streakTitle')}
+                description={t('scoreRules.streakDescription', { thresholds: streakThresholds })}
+              />
+            )}
 
             <Box sx={{ mt: 'auto', pt: 1 }}>
               <AppButton
