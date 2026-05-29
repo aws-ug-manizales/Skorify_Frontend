@@ -42,8 +42,9 @@ const GroupsView = () => {
 
   useEffect(() => {
     if (searchParams.get('create') !== '1') return;
-    // Strip the param now that it has been consumed, so reloads/back-nav
-    // don't keep re-opening the drawer.
+    // Strip the params now that they have been consumed (lazy-read by both
+    // this component and CreateGroupForm), so reloads/back-nav don't keep
+    // re-opening the drawer or re-applying a stale tournamentId.
     router.replace(pathname, { scroll: false });
     // Intentionally mount-only — subsequent URL changes shouldn't reopen.
     // eslint-disable-next-line react-hooks/exhaustive-deps

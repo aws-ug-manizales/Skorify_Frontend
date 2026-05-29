@@ -1,5 +1,9 @@
 import { env } from '@lib/env';
-import type { AuthSession, AuthUser } from '../types/auth';
+import type { AuthRole, AuthSession, AuthUser } from '../types/auth';
+import { ADMIN_ROLE, GENERAL_ROLE } from '../types/auth';
+
+const resolveRoles = (cognitoGroups: string[]): AuthRole[] =>
+  cognitoGroups.includes(ADMIN_ROLE) ? [ADMIN_ROLE] : [GENERAL_ROLE];
 
 interface CognitoTokenResponse {
   id_token: string;
@@ -19,8 +23,6 @@ interface CognitoIdTokenPayload {
   'cognito:groups'?: string[];
   identities?: Array<{ providerName?: string }>;
 }
-
-const ADMIN_GROUP = 'admin';
 
 const decodeBase64Url = (input: string): string => {
   const normalized = input.replace(/-/g, '+').replace(/_/g, '/');
@@ -74,7 +76,7 @@ export const exchangeAuthorizationCode = async (code: string): Promise<AuthSessi
   const tokens = (await response.json()) as CognitoTokenResponse;
   const payload = decodeJwt<CognitoIdTokenPayload>(tokens.id_token);
 
-  const groups = payload['cognito:groups'] ?? [];
+  const roles = resolveRoles(payload['cognito:groups'] ?? []);
   const provider =
     (payload.identities?.[0]?.providerName?.toLowerCase() as AuthUser['provider'] | undefined) ??
     'google';
@@ -95,7 +97,7 @@ export const exchangeAuthorizationCode = async (code: string): Promise<AuthSessi
       displayName,
       provider,
       emailVerified: Boolean(payload.email_verified ?? true),
-      role: groups.includes(ADMIN_GROUP) ? 'admin' : 'user',
+      roles,
     },
   };
 };

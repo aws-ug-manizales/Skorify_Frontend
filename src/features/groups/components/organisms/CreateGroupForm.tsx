@@ -1,9 +1,9 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
@@ -26,11 +26,17 @@ import { getInitials } from '@shared/utils/string';
 const CreateGroupForm = () => {
   const t = useTranslations('groups');
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { createGroup, isLoading, error } = useCreateGroup();
   const { data: tournaments, isLoading: tournamentsLoading } = useGetAvailableTournaments();
 
+  // Lazy init: read tournamentId from the URL on first mount only. Subsequent
+  // URL changes (including the parent stripping the query) must NOT reset the
+  // form value the user might have already touched.
+  const [initialTournamentId] = useState(() => searchParams.get('tournamentId') ?? '');
+
   const { control, handleSubmit } = useForm<CreateGroupFormValues>({
-    defaultValues: { name: '', tournamentId: '' },
+    defaultValues: { name: '', tournamentId: initialTournamentId },
   });
 
   const nameValue = useWatch({ control, name: 'name' });

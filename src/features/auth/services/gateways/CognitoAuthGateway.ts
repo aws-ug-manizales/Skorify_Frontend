@@ -11,14 +11,17 @@ import { env } from '@lib/env';
 import { loginSchema, registerSchema } from '../../lib/schemas';
 import type { AuthGatewayPort, AuthGatewayResult } from '../AuthGatewayPort';
 import type {
+  AuthRole,
   AuthSession,
   AuthUser,
   ConfirmSignUpPayload,
   CredentialsPayload,
   RegisterPayload,
 } from '../../types/auth';
+import { ADMIN_ROLE, GENERAL_ROLE } from '../../types/auth';
 
-const ADMIN_GROUP = 'admin';
+const resolveRoles = (cognitoGroups: string[]): AuthRole[] =>
+  cognitoGroups.includes(ADMIN_ROLE) ? [ADMIN_ROLE] : [GENERAL_ROLE];
 
 const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
@@ -39,38 +42,29 @@ const buildHostedUiUrl = (identityProvider: string) => {
   return `https://${domain}/oauth2/authorize?${params.toString()}`;
 };
 
-const mapCognitoErrorToKey = (error: unknown): { messageKey: string; field?: string } => {
-  const code =
-    (error as { code?: string; name?: string })?.code ??
-    (error as { name?: string })?.name ??
-    'UnknownError';
+type CognitoErrorMapping = { messageKey: string; field?: 'email' | 'password' | 'code' };
 
-  switch (code) {
-    case 'NotAuthorizedException':
-      return { messageKey: 'auth.errors.invalidCredentials' };
-    case 'UserNotFoundException':
-      return { messageKey: 'auth.errors.invalidCredentials' };
-    case 'UserNotConfirmedException':
-      return { messageKey: 'auth.errors.userNotConfirmed' };
-    case 'PasswordResetRequiredException':
-      return { messageKey: 'auth.errors.passwordResetRequired' };
-    case 'UsernameExistsException':
-      return { messageKey: 'auth.errors.emailTaken', field: 'email' };
-    case 'InvalidPasswordException':
-      return { messageKey: 'auth.errors.passwordPolicy', field: 'password' };
-    case 'InvalidParameterException':
-      return { messageKey: 'auth.errors.formInvalid' };
-    case 'CodeMismatchException':
-      return { messageKey: 'auth.errors.codeMismatch', field: 'code' };
-    case 'ExpiredCodeException':
-      return { messageKey: 'auth.errors.codeExpired', field: 'code' };
-    case 'LimitExceededException':
-      return { messageKey: 'auth.errors.limitExceeded' };
-    case 'TooManyRequestsException':
-      return { messageKey: 'auth.errors.tooManyRequests' };
-    default:
-      return { messageKey: 'auth.errors.genericError' };
-  }
+const COGNITO_ERROR_MAP: Record<string, CognitoErrorMapping> = {
+  NotAuthorizedException: { messageKey: 'auth.errors.invalidCredentials' },
+  UserNotFoundException: { messageKey: 'auth.errors.invalidCredentials' },
+  UserNotConfirmedException: { messageKey: 'auth.errors.userNotConfirmed' },
+  PasswordResetRequiredException: { messageKey: 'auth.errors.passwordResetRequired' },
+  UsernameExistsException: { messageKey: 'auth.errors.emailTaken', field: 'email' },
+  InvalidPasswordException: { messageKey: 'auth.errors.passwordPolicy', field: 'password' },
+  InvalidParameterException: { messageKey: 'auth.errors.formInvalid' },
+  CodeMismatchException: { messageKey: 'auth.errors.codeMismatch', field: 'code' },
+  ExpiredCodeException: { messageKey: 'auth.errors.codeExpired', field: 'code' },
+  LimitExceededException: { messageKey: 'auth.errors.limitExceeded' },
+  TooManyRequestsException: { messageKey: 'auth.errors.tooManyRequests' },
+};
+
+const DEFAULT_COGNITO_ERROR: CognitoErrorMapping = { messageKey: 'auth.errors.genericError' };
+
+const mapCognitoErrorToKey = (error: unknown): CognitoErrorMapping => {
+  const code =
+    (error as { code?: string; name?: string })?.code ?? (error as { name?: string })?.name;
+
+  return (code && COGNITO_ERROR_MAP[code]) || DEFAULT_COGNITO_ERROR;
 };
 
 const sessionFromCognito = (
@@ -83,8 +77,8 @@ const sessionFromCognito = (
   const refreshToken = cognitoSession.getRefreshToken().getToken();
   const expiresAt = new Date(cognitoSession.getAccessToken().getExpiration() * 1000).toISOString();
 
-  const groups = (idTokenPayload['cognito:groups'] as string[] | undefined) ?? [];
-  const role = groups.includes(ADMIN_GROUP) ? 'admin' : 'user';
+  const cognitoGroups = (idTokenPayload['cognito:groups'] as string[] | undefined) ?? [];
+  const roles = resolveRoles(cognitoGroups);
   const email = (idTokenPayload.email as string) ?? fallback?.email ?? '';
   const sub = (idTokenPayload.sub as string) ?? fallback?.id ?? '';
   const nickname =
@@ -112,7 +106,7 @@ const sessionFromCognito = (
       displayName: nickname,
       provider,
       emailVerified,
-      role,
+      roles,
     },
   };
 };

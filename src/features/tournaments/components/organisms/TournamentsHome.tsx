@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Skeleton from '@mui/material/Skeleton';
@@ -10,6 +10,7 @@ import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import AppButton from '@shared/components/atoms/AppButton';
 import { tokens, avatarPalette } from '@lib/theme/theme';
@@ -39,10 +40,22 @@ const colorForId = (id: string) => {
   return avatarPalette[hash % avatarPalette.length];
 };
 
-const deriveStatus = (start: Date, end: Date, now: Date): TournamentStatus => {
+const deriveStatus = (start: Date | null, end: Date | null, now: Date): TournamentStatus => {
+  // If dates are missing/invalid we'd rather lock the join/create CTAs (treat
+  // as finished) than expose them on bad data. Status chip + filters then read
+  // consistently across the list.
+  if (!start || !end || Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    return 'finished';
+  }
   if (now < start) return 'upcoming';
   if (now > end) return 'finished';
   return 'active';
+};
+
+const parseDate = (value: string | null): Date | null => {
+  if (!value) return null;
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? null : d;
 };
 
 const daysBetween = (from: Date, to: Date) =>
@@ -53,28 +66,48 @@ interface DerivedTournament {
   name: string;
   status: TournamentStatus;
   daysLeft: number;
+  endDate: Date | null;
   color: string;
 }
 
 const deriveTournament = (dto: TournamentDto, now: Date): DerivedTournament => {
-  const start = new Date(dto.startDate);
-  const end = new Date(dto.endDate);
+  const start = parseDate(dto.start_date);
+  const end = parseDate(dto.end_date);
   const status = deriveStatus(start, end, now);
-  const daysLeft = status === 'upcoming' ? daysBetween(now, start) : daysBetween(now, end);
+  const daysLeft =
+    status === 'upcoming' && start
+      ? daysBetween(now, start)
+      : status === 'active' && end
+        ? daysBetween(now, end)
+        : 0;
   return {
     id: dto.id,
     name: dto.name,
     status,
     daysLeft,
+    endDate: end,
     color: colorForId(dto.id),
   };
 };
 
 const TournamentsHome = () => {
   const t = useTranslations('tournaments');
+  const locale = useLocale();
   const { isAdmin } = useAuthSession();
   const snackbar = useSnackbar();
   const { data, isLoading, error, getAvailableTournaments } = useGetAvailableTournaments();
+
+  const finishedDateFormatter = useMemo(
+    () => new Intl.DateTimeFormat(locale, { day: '2-digit', month: 'short', year: 'numeric' }),
+    [locale],
+  );
+
+  const emptyStateMessageKey: Record<FilterKey, string> = {
+    filterAll: 'noTournaments',
+    filterActive: 'noActive',
+    filterUpcoming: 'noUpcoming',
+    filterFinished: 'noFinished',
+  };
 
   const [activeFilter, setActiveFilter] = useState<FilterKey>('filterAll');
   const [createOpen, setCreateOpen] = useState(false);
@@ -195,12 +228,12 @@ const TournamentsHome = () => {
         >
           <EmojiEventsIcon sx={{ fontSize: '3rem', color: `${tokens.onSurfaceVariant}4D` }} />
           <Typography sx={{ color: tokens.onSurfaceVariant, fontSize: '0.875rem' }}>
-            {t('noActive')}
+            {t(emptyStateMessageKey[activeFilter])}
           </Typography>
         </Box>
       ) : (
         <Grid container spacing={3}>
-          {filtered.map(({ id, name, status, daysLeft, color }) => (
+          {filtered.map(({ id, name, status, daysLeft, endDate, color }) => (
             <Grid key={id} size={{ xs: 12, sm: 6, lg: 4 }}>
               <Box
                 sx={{
@@ -272,20 +305,23 @@ const TournamentsHome = () => {
                   </Typography>
                 </Box>
 
-                {status !== 'finished' && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                    <CalendarMonthIcon
-                      sx={{ fontSize: '0.875rem', color: tokens.onSurfaceVariant }}
-                    />
-                    <Typography sx={{ fontSize: '0.75rem', color: tokens.onSurfaceVariant }}>
-                      {status === 'active' ? t('endsIn') : t('startsIn')} {daysLeft}d
-                    </Typography>
-                  </Box>
-                )}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                  <CalendarMonthIcon
+                    sx={{ fontSize: '0.875rem', color: tokens.onSurfaceVariant }}
+                  />
+                  <Typography sx={{ fontSize: '0.75rem', color: tokens.onSurfaceVariant }}>
+                    {status === 'finished'
+                      ? endDate
+                        ? `${t('finishedOn')} ${finishedDateFormatter.format(endDate)}`
+                        : t('noDates')
+                      : `${status === 'active' ? t('endsIn') : t('startsIn')} ${daysLeft}d`}
+                  </Typography>
+                </Box>
 
                 <AppButton
-                  variant={status === 'active' ? 'primary' : 'secondary'}
+                  variant="secondary"
                   fullWidth
+                  startIcon={<VisibilityIcon sx={{ fontSize: '1rem' }} />}
                   onClick={() => setDetailId(id)}
                   sx={{
                     fontSize: '0.6875rem',
@@ -294,7 +330,7 @@ const TournamentsHome = () => {
                     fontWeight: 700,
                   }}
                 >
-                  {status === 'active' ? t('join') : t('view')}
+                  {t('viewDetail')}
                 </AppButton>
               </Box>
             </Grid>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import Box from '@mui/material/Box';
@@ -16,7 +16,6 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
-import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import { tokens, avatarPalette } from '@lib/theme/theme';
 import AppButton from '@shared/components/atoms/AppButton';
@@ -25,9 +24,8 @@ import { getInitials } from '@shared/utils/string';
 import { useAuthSession } from '@features/auth/hooks/useAuthSession';
 import { useUserGroups, type UserGroupSummary } from '@features/groups/hooks/useUserGroups';
 import JoinGroupDialog from '@features/groups/components/organisms/JoinGroupDialog';
-import { useMatchesList } from '@features/matches/hooks/useMatchesList';
-import MatchCard from '@features/matches/components/molecules/MatchCard';
-import { formatKickoff } from '@features/matches/utils/formatKickoff';
+import { useGetAvailableTournaments } from '@features/tournaments/hooks/useGetAvailableTournaments';
+import type { TournamentDto } from '@lib/api/skorify';
 
 const numberFormatter = new Intl.NumberFormat('es-CO');
 
@@ -56,16 +54,29 @@ const colorForId = (id: string) => {
   return avatarPalette[hash % avatarPalette.length];
 };
 
+const ACTIVE_TOURNAMENTS_LIMIT = 5;
+
 const UserDashboardHome = () => {
   const t = useTranslations('userDashboard');
-  const tMatches = useTranslations('matches');
   const locale = useLocale();
   const { session } = useAuthSession();
   const { groups, isLoading: groupsLoading } = useUserGroups();
-  const { loading: matchesLoading, items: matches } = useMatchesList(3);
+  const { data: tournaments, isLoading: tournamentsLoading } = useGetAvailableTournaments();
 
   const displayName = session?.user.displayName ?? t('defaultUser');
-  const topMatches = matches.slice(0, 3);
+  const activeTournaments = useMemo(
+    () =>
+      tournaments
+        .filter(
+          (tournament) =>
+            !!tournament.start_date &&
+            !!tournament.end_date &&
+            !Number.isNaN(new Date(tournament.start_date).getTime()) &&
+            !Number.isNaN(new Date(tournament.end_date).getTime()),
+        )
+        .slice(0, ACTIVE_TOURNAMENTS_LIMIT),
+    [tournaments],
+  );
   const [joinDialogOpen, setJoinDialogOpen] = useState(false);
 
   return (
@@ -86,92 +97,12 @@ const UserDashboardHome = () => {
         </Grid>
 
         <Grid size={{ xs: 12, lg: 6 }}>
-          <Stack spacing={3}>
-            <Stack
-              direction="row"
-              alignItems="center"
-              justifyContent="space-between"
-              sx={{ flexWrap: 'wrap', gap: 1 }}
-            >
-              <Stack direction="row" alignItems="center" spacing={1.5}>
-                <Typography
-                  variant="h4"
-                  sx={{ fontWeight: 900, letterSpacing: '-0.02em', color: tokens.onSurface }}
-                >
-                  {t('upcomingMatches')}
-                </Typography>
-                <Chip
-                  size="small"
-                  icon={
-                    <Box
-                      sx={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: '50%',
-                        bgcolor: tokens.secondary,
-                        '@keyframes pulseLive': {
-                          '0%, 100%': { opacity: 1 },
-                          '50%': { opacity: 0.4 },
-                        },
-                        animation: 'pulseLive 2s ease-in-out infinite',
-                      }}
-                    />
-                  }
-                  label={t('liveBadge')}
-                  sx={{
-                    bgcolor: `${tokens.secondary}1F`,
-                    color: tokens.secondary,
-                    fontWeight: 800,
-                    letterSpacing: '0.08em',
-                    fontSize: '0.625rem',
-                    height: 22,
-                  }}
-                />
-              </Stack>
-              <AppButton
-                component={Link}
-                href="/matches"
-                variant="tertiary"
-                sx={{ fontSize: '0.6875rem' }}
-              >
-                {t('viewAllMatches')}
-              </AppButton>
-            </Stack>
-
-            {matchesLoading ? (
-              <Stack spacing={2}>
-                {[0, 1, 2].map((i) => (
-                  <Skeleton key={i} variant="rounded" height={220} />
-                ))}
-              </Stack>
-            ) : topMatches.length === 0 ? (
-              <AppCard>
-                <Stack alignItems="center" spacing={1.5} sx={{ py: 5, px: 3, textAlign: 'center' }}>
-                  <SportsSoccerIcon sx={{ color: tokens.onSurfaceVariant, fontSize: 40 }} />
-                  <Typography sx={{ color: tokens.onSurfaceVariant }}>
-                    {tMatches('noMatches')}
-                  </Typography>
-                </Stack>
-              </AppCard>
-            ) : (
-              <Stack spacing={2}>
-                {topMatches.map((match) => (
-                  <MatchCard
-                    key={match.id}
-                    match={match}
-                    tournamentLabel={tMatches(match.tournamentKey)}
-                    stageLabel={tMatches(match.stageKey)}
-                    statusLabel={tMatches(match.status)}
-                    kickoffLabel={formatKickoff(match.kickoffAt, locale)}
-                    vsLabel={tMatches('vs')}
-                    addPredictionLabel={tMatches('addPrediction')}
-                    editPredictionLabel={tMatches('editPrediction')}
-                    predictionLabel={tMatches('predictionLabel')}
-                  />
-                ))}
-              </Stack>
-            )}
-          </Stack>
+          <ActiveTournamentsSection
+            tournaments={activeTournaments}
+            loading={tournamentsLoading}
+            locale={locale}
+            t={t}
+          />
         </Grid>
 
         <Grid size={{ xs: 12, lg: 3 }}>
@@ -189,6 +120,156 @@ const UserDashboardHome = () => {
 };
 
 export default UserDashboardHome;
+
+interface ActiveTournamentsSectionProps {
+  tournaments: TournamentDto[];
+  loading: boolean;
+  locale: string;
+  t: ReturnType<typeof useTranslations<'userDashboard'>>;
+}
+
+const formatDateSafe = (
+  value: string | null | undefined,
+  formatter: Intl.DateTimeFormat,
+): string => {
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '—';
+  return formatter.format(date);
+};
+
+const formatDateRange = (
+  startDate: string | null | undefined,
+  endDate: string | null | undefined,
+  locale: string,
+): string => {
+  const formatter = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' });
+  return `${formatDateSafe(startDate, formatter)} - ${formatDateSafe(endDate, formatter)}`;
+};
+
+const ActiveTournamentsSection = ({
+  tournaments,
+  loading,
+  locale,
+  t,
+}: ActiveTournamentsSectionProps) => (
+  <Stack spacing={3}>
+    <Stack
+      direction="row"
+      alignItems="center"
+      justifyContent="space-between"
+      sx={{ flexWrap: 'wrap', gap: 1 }}
+    >
+      <Stack direction="row" alignItems="center" spacing={1.5}>
+        <Typography
+          variant="h4"
+          sx={{ fontWeight: 900, letterSpacing: '-0.02em', color: tokens.onSurface }}
+        >
+          {t('activeTournamentsTitle')}
+        </Typography>
+        <Chip
+          size="small"
+          icon={
+            <Box
+              sx={{
+                width: 6,
+                height: 6,
+                borderRadius: '50%',
+                bgcolor: tokens.secondary,
+                '@keyframes pulseLive': {
+                  '0%, 100%': { opacity: 1 },
+                  '50%': { opacity: 0.4 },
+                },
+                animation: 'pulseLive 2s ease-in-out infinite',
+              }}
+            />
+          }
+          label={t('liveBadge')}
+          sx={{
+            bgcolor: `${tokens.secondary}1F`,
+            color: tokens.secondary,
+            fontWeight: 800,
+            letterSpacing: '0.08em',
+            fontSize: '0.625rem',
+            height: 22,
+          }}
+        />
+      </Stack>
+      <AppButton
+        component={Link}
+        href="/tournaments"
+        variant="tertiary"
+        sx={{ fontSize: '0.6875rem' }}
+      >
+        {t('viewAllTournaments')}
+      </AppButton>
+    </Stack>
+
+    {loading ? (
+      <Stack spacing={2}>
+        {[0, 1, 2].map((i) => (
+          <Skeleton key={i} variant="rounded" height={88} />
+        ))}
+      </Stack>
+    ) : tournaments.length === 0 ? (
+      <AppCard>
+        <Stack alignItems="center" spacing={1.5} sx={{ py: 5, px: 3, textAlign: 'center' }}>
+          <EmojiEventsIcon sx={{ color: tokens.onSurfaceVariant, fontSize: 40 }} />
+          <Typography sx={{ color: tokens.onSurfaceVariant }}>
+            {t('noActiveTournaments')}
+          </Typography>
+        </Stack>
+      </AppCard>
+    ) : (
+      <Stack spacing={1.5}>
+        {tournaments.map((tournament) => (
+          <AppCard key={tournament.id} variant="interactive" href={`/tournaments/${tournament.id}`}>
+            <Stack direction="row" alignItems="center" spacing={2} sx={{ p: { xs: 2, md: 2.5 } }}>
+              <Box
+                sx={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: '12px',
+                  background: tokens.ctaGradient,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <EmojiEventsIcon sx={{ color: tokens.onSurface, fontSize: 22 }} />
+              </Box>
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography
+                  sx={{
+                    fontSize: '0.9375rem',
+                    fontWeight: 800,
+                    color: tokens.onSurface,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {tournament.name}
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: '0.75rem',
+                    color: tokens.onSurfaceVariant,
+                    fontVariantNumeric: 'tabular-nums',
+                  }}
+                >
+                  {formatDateRange(tournament.start_date, tournament.end_date, locale)}
+                </Typography>
+              </Box>
+              <ChevronRightIcon sx={{ color: tokens.onSurfaceVariant, fontSize: 20 }} />
+            </Stack>
+          </AppCard>
+        ))}
+      </Stack>
+    )}
+  </Stack>
+);
 
 interface WelcomeBannerProps {
   displayName: string;

@@ -258,12 +258,13 @@ export type MatchType = 'single_match_per_round' | 'home_and_away_per_round';
 export interface TournamentDto {
   id: Id;
   name: string;
-  startDate: string;
-  endDate: string;
-  matchType: MatchType;
+  start_date: string | null;
+  end_date: string | null;
+  match_type: MatchType | null;
   token: string;
-  createdAt: string;
-  updatedAt?: string;
+  created_at: string;
+  updated_at: string | null;
+  deleted_at: string | null;
 }
 
 export interface CreateTournamentPayload {
@@ -274,7 +275,7 @@ export interface CreateTournamentPayload {
 }
 
 export interface GetTournamentByIdParams {
-  id: Id;
+  tournamentId: Id;
 }
 
 export interface FilterTournamentsParams {
