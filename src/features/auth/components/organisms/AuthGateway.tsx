@@ -124,7 +124,7 @@ const AuthGateway = () => {
               isResending={isResending}
               codeError={codeError}
               title={t('confirm.title')}
-              description={t('confirm.description')}
+              description={t('confirm.description', { email: pendingEmail })}
               codeLabel={t('confirm.codeLabel')}
               codePlaceholder={t('confirm.codePlaceholder')}
               submitLabel={t('confirm.submitCta')}
