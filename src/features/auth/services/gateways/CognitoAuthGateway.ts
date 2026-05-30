@@ -146,7 +146,7 @@ export class CognitoAuthGateway implements AuthGatewayPort {
     const email = normalizeEmail(parsed.data.email);
     const attributes = [
       new CognitoUserAttribute({ Name: 'email', Value: email }),
-      new CognitoUserAttribute({ Name: 'nickname', Value: parsed.data.nickname }),
+      new CognitoUserAttribute({ Name: 'name', Value: parsed.data.nickname }),
     ];
 
     return new Promise<AuthGatewayResult>((resolve) => {
