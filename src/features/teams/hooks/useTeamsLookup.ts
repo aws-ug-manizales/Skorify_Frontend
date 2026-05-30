@@ -62,6 +62,7 @@ export const useTeamsLookup = (teamIds: ReadonlyArray<string>) => {
   const key = teamIds.slice().sort().join('|');
   useEffect(() => {
     if (!key) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void resolve(teamIds);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
