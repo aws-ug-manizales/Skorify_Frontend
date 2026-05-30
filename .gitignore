@@ -50,3 +50,5 @@ AGENTS.md
 
 # usar yarn, no npm
 package-lock.json
+
+.idea
