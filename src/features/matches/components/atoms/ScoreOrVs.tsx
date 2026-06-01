@@ -33,4 +33,3 @@ const ScoreOrVs = ({ showScore, score, vsLabel }: Props) => (
 );
 
 export default ScoreOrVs;
-

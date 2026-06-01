@@ -23,6 +23,10 @@ export interface JoinGroupResponse {
   groupId: string;
   groupName: string;
   message: string;
+  error?: {
+    code: GroupInvitationError['code'];
+    message: string;
+  };
 }
 
 export interface ValidateCodeResponse {
@@ -34,6 +38,12 @@ export interface ValidateCodeResponse {
 }
 
 export interface GroupInvitationError {
-  code: 'INVALID_CODE' | 'GROUP_NOT_FOUND' | 'ALREADY_MEMBER' | 'CODE_EXPIRED' | 'MAX_USES_REACHED' | 'UNAUTHORIZED';
+  code:
+    | 'INVALID_CODE'
+    | 'GROUP_NOT_FOUND'
+    | 'ALREADY_MEMBER'
+    | 'CODE_EXPIRED'
+    | 'MAX_USES_REACHED'
+    | 'UNAUTHORIZED';
   message: string;
 }

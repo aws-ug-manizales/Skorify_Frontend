@@ -55,4 +55,3 @@ const PaginatedMatchesGrid = <T,>({
 };
 
 export default PaginatedMatchesGrid;
-

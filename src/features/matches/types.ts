@@ -26,4 +26,3 @@ export type Match = {
   score?: MatchScore;
   prediction?: MatchPrediction;
 };
-

@@ -62,13 +62,8 @@ const MatchesHeader = ({
       </Box>
     </Box>
 
-    <MatchesFilters
-      active={activeFilter}
-      onChange={onFilterChange}
-      labelFor={filterLabelFor}
-    />
+    <MatchesFilters active={activeFilter} onChange={onFilterChange} labelFor={filterLabelFor} />
   </Box>
 );
 
 export default MatchesHeader;
-

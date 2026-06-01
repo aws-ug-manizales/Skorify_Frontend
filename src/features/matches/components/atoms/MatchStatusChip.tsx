@@ -37,4 +37,3 @@ const MatchStatusChip = ({ status, label }: Props) => {
 };
 
 export default MatchStatusChip;
-

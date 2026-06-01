@@ -1,18 +1,18 @@
 import { getRequestConfig } from 'next-intl/server';
-import { cookies } from 'next/headers';
 import { routing } from './routing';
 
 export default getRequestConfig(async () => {
-  const cookieStore = await cookies();
-  const cookieLocale = cookieStore.get('locale')?.value;
-
-  const locale =
-    cookieLocale && routing.locales.includes(cookieLocale as 'es' | 'en')
-      ? cookieLocale
-      : routing.defaultLocale;
+  const locale = routing.defaultLocale;
 
   return {
     locale,
-    messages: (await import(`../../messages/${locale}.json`)).default,
+    messages: (await import(`./messages/${locale}.json`)).default,
+    onError() {
+      // Suppress full-screen error overlays for missing translations
+    },
+    getMessageFallback({ key }) {
+      // Gracefully fall back to the last segment of the key
+      return key.split('.').pop() || key;
+    },
   };
 });

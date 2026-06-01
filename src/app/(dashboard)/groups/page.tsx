@@ -1,9 +1,10 @@
-import { getTranslations } from 'next-intl/server';
-import ComingSoonPage from '@shared/components/organisms/ComingSoonPage';
+import { Suspense } from 'react';
+import { GroupsView } from '@features/groups';
 
-const GroupsPage = async () => {
-  const t = await getTranslations('nav');
-  return <ComingSoonPage title={t('groups')} />;
-};
+const GroupsPage = () => (
+  <Suspense fallback={null}>
+    <GroupsView />
+  </Suspense>
+);
 
 export default GroupsPage;

@@ -1,14 +1,16 @@
 'use client';
 
+import type { AnchorHTMLAttributes } from 'react';
 import MuiButton, { type ButtonProps as MuiButtonProps } from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 
 type ButtonVariant = 'primary' | 'secondary' | 'tertiary';
 
-export type AppButtonProps = Omit<MuiButtonProps, 'variant'> & {
-  variant?: ButtonVariant;
-  loading?: boolean;
-};
+export type AppButtonProps = Omit<MuiButtonProps, 'variant'> &
+  Pick<AnchorHTMLAttributes<HTMLAnchorElement>, 'target' | 'rel'> & {
+    variant?: ButtonVariant;
+    loading?: boolean;
+  };
 
 const variantMap: Record<ButtonVariant, MuiButtonProps['variant']> = {
   primary: 'contained',

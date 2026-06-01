@@ -3,7 +3,9 @@ import { Lexend } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 import ThemeRegistry from '@/lib/theme/ThemeRegistry';
+import { NotificationProvider } from '@shared/notifications';
 import './globals.scss';
+// Trigger translation reload
 
 const lexend = Lexend({
   subsets: ['latin'],
@@ -25,11 +27,11 @@ const RootLayout = async ({ children }: Readonly<{ children: React.ReactNode }>)
   const messages = await getMessages();
 
   return (
-    <html lang={locale} className={lexend.variable}>
+    <html lang={locale} className={lexend.variable} suppressHydrationWarning>
       <body>
         <ThemeRegistry>
           <NextIntlClientProvider locale={locale} messages={messages}>
-            {children}
+            <NotificationProvider>{children}</NotificationProvider>
           </NextIntlClientProvider>
         </ThemeRegistry>
       </body>

@@ -22,7 +22,7 @@ export const InvitationCodeInput = ({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\s+/g, '').toUpperCase();
     e.target.value = value;
-    onChange?.(e as any);
+    onChange?.(e);
   };
 
   return (

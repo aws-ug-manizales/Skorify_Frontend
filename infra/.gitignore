@@ -1,0 +1,11 @@
+node_modules
+*.js
+!jest.config.js
+!*rc.js
+*.d.ts
+cdk.out
+.cdk.staging
+*.log
+
+# Para no commitear typescript build output (build local, no tracked).
+dist/

@@ -4,7 +4,12 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Match } from '../types';
 import type { MatchesFilterKey } from '../components/molecules/MatchesFilters';
 import { matchesService } from '../services/matchesService';
-import { statusFromFilter, worldCupWeekToFromToIso, type MatchesQuery } from '../filters/MatchesQuery';
+import { useCurrentUserId } from '@features/auth/hooks/useCurrentUserId';
+import {
+  statusFromFilter,
+  worldCupWeekToFromToIso,
+  type MatchesQuery,
+} from '../filters/MatchesQuery';
 
 type UseMatchesListState = {
   query: MatchesQuery;
@@ -19,9 +24,12 @@ type UseMatchesListState = {
   total: number;
 };
 
-export const useMatchesList = (initialPageSize = 10): UseMatchesListState => {
+export const useMatchesList = (
+  initialPageSize = 10,
+  initialFilter: MatchesFilterKey = 'filterAll',
+): UseMatchesListState => {
   const [query, setQuery] = useState<MatchesQuery>({
-    statusFilter: 'filterAll',
+    statusFilter: initialFilter,
     team: '',
     week: '',
     page: 1,
@@ -31,6 +39,8 @@ export const useMatchesList = (initialPageSize = 10): UseMatchesListState => {
   const [items, setItems] = useState<Match[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+
+  const userId = useCurrentUserId();
 
   const params = useMemo(() => {
     const status = statusFromFilter(query.statusFilter);
@@ -47,6 +57,7 @@ export const useMatchesList = (initialPageSize = 10): UseMatchesListState => {
 
   useEffect(() => {
     let mounted = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     matchesService
       .listMatches(params)
@@ -62,7 +73,7 @@ export const useMatchesList = (initialPageSize = 10): UseMatchesListState => {
     return () => {
       mounted = false;
     };
-  }, [params]);
+  }, [params, userId]);
 
   const setStatusFilter = (filter: MatchesFilterKey) =>
     setQuery((q) => ({ ...q, statusFilter: filter, page: 1 }));
@@ -73,7 +84,7 @@ export const useMatchesList = (initialPageSize = 10): UseMatchesListState => {
     setQuery((q) => ({ ...q, pageSize: Math.max(1, pageSize), page: 1 }));
 
   const resetFilters = () =>
-    setQuery((q) => ({ ...q, statusFilter: 'filterAll', team: '', week: '', page: 1 }));
+    setQuery((q) => ({ ...q, statusFilter: initialFilter, team: '', week: '', page: 1 }));
 
   return {
     query,
@@ -88,4 +99,3 @@ export const useMatchesList = (initialPageSize = 10): UseMatchesListState => {
     total,
   };
 };
-

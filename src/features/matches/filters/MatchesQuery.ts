@@ -30,7 +30,7 @@ export const worldCupWeekToFromToIso = (week: number) => {
     return { from: undefined as string | undefined, to: undefined as string | undefined };
   }
 
-  const startDate = new Date("2026-06-11T00:00:00"); // inicio mundial
+  const startDate = new Date('2026-06-11T00:00:00'); // inicio mundial
 
   // cada semana suma 7 días
   const fromDate = new Date(startDate);
@@ -40,7 +40,7 @@ export const worldCupWeekToFromToIso = (week: number) => {
   toDate.setDate(fromDate.getDate() + 6); // semana completa
 
   // opcional: cortar al final real del mundial
-  const worldCupEnd = new Date("2026-07-19T23:59:59");
+  const worldCupEnd = new Date('2026-07-19T23:59:59');
   if (toDate > worldCupEnd) {
     toDate.setTime(worldCupEnd.getTime());
   }

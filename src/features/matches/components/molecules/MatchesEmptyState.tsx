@@ -26,4 +26,3 @@ const MatchesEmptyState = ({ message }: Props) => (
 );
 
 export default MatchesEmptyState;
-

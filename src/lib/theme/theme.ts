@@ -36,6 +36,7 @@ const tokens = {
   // Status
   success: '#00C853',
   error: '#ff6e84',
+  info: '#38bdf8',
 
   // Gradient — purple → orange (kinetic brand)
   ctaGradient: 'linear-gradient(135deg, #8A2BE2 0%, #FF8A00 100%)',
@@ -44,7 +45,22 @@ const tokens = {
   shadowSm: '0 4px 30px rgba(202, 152, 255, 0.08)',
   shadowMd: '0 8px 60px rgba(202, 152, 255, 0.08)',
   glowHover: '0 0 20px rgba(202, 152, 255, 0.25)',
+
+  // External brands (kept here for single-source-of-truth)
+  whatsapp: '#25D366',
 } as const;
+
+const avatarPalette = [
+  tokens.primaryContainer,
+  tokens.secondaryContainer,
+  tokens.surfaceContainerHighest,
+  '#1a4a2e',
+  '#2a1f4a',
+  '#2E7D32',
+  '#1565C0',
+  '#6A1B9A',
+  '#C62828',
+] as const;
 
 const theme = createTheme({
   palette: {
@@ -67,6 +83,9 @@ const theme = createTheme({
     },
     success: {
       main: tokens.success,
+    },
+    info: {
+      main: tokens.info,
     },
     background: {
       default: tokens.background,
@@ -127,10 +146,12 @@ const theme = createTheme({
       },
       styleOverrides: {
         root: {
-          textTransform: 'none',
+          textTransform: 'uppercase',
+          letterSpacing: '0.06em',
           borderRadius: 8,
           transition: 'all 250ms ease-in-out',
           fontWeight: 700,
+          minHeight: 44,
         },
         containedPrimary: {
           background: tokens.ctaGradient,
@@ -196,9 +217,10 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundColor: tokens.surfaceContainerLowest,
-          borderRadius: 4,
+          borderRadius: 12,
           '& .MuiOutlinedInput-notchedOutline': {
             borderColor: `${tokens.outlineVariant}26`,
+            borderRadius: 12,
           },
           '&:hover .MuiOutlinedInput-notchedOutline': {
             borderColor: `${tokens.outlineVariant}66`,
@@ -207,6 +229,14 @@ const theme = createTheme({
             borderColor: tokens.primaryContainer,
             boxShadow: tokens.glowHover,
           },
+          '& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus, & input:-webkit-autofill:active':
+            {
+              WebkitBoxShadow: `0 0 0 1000px ${tokens.surfaceContainerLowest} inset`,
+              WebkitTextFillColor: tokens.onSurface,
+              caretColor: tokens.onSurface,
+              borderRadius: 'inherit',
+              transition: 'background-color 9999s ease-in-out 0s',
+            },
         },
       },
     },
@@ -272,5 +302,5 @@ const theme = createTheme({
   },
 });
 
-export { tokens };
+export { tokens, avatarPalette };
 export default theme;

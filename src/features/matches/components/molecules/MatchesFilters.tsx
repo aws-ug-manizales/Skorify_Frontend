@@ -39,4 +39,3 @@ const MatchesFilters = ({ active, onChange, labelFor }: Props) => (
 );
 
 export default MatchesFilters;
-

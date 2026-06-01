@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
@@ -11,10 +12,14 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
+import Box from '@mui/material/Box';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
+import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import Link from 'next/link';
 import { tokens } from '@lib/theme/theme';
+import { useAuthSession } from '@features/auth/hooks/useAuthSession';
+import { useAuthStore } from '@features/auth/store/useAuthStore';
 
 const APPBAR_HEIGHT = 64;
 
@@ -23,14 +28,22 @@ type Props = {
 };
 
 const DashboardNavbar = ({ username = 'Usuario' }: Props) => {
+  const router = useRouter();
   const [anchor, setAnchor] = useState<null | HTMLElement>(null);
+  const { session, isAdmin } = useAuthSession();
+  const logout = useAuthStore((state) => state.logout);
   const t = useTranslations('auth');
   const tNav = useTranslations('nav');
   const tCommon = useTranslations('common');
+  const profileName = session?.user.displayName || username;
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => setAnchor(e.currentTarget);
   const handleClose = () => setAnchor(null);
-  const handleLogout = () => handleClose();
+  const handleLogout = () => {
+    logout();
+    handleClose();
+    router.replace('/auth');
+  };
 
   return (
     <AppBar
@@ -88,8 +101,34 @@ const DashboardNavbar = ({ username = 'Usuario' }: Props) => {
               lineHeight: 1,
             }}
           >
-            {username}
+            {profileName}
           </Typography>
+          {isAdmin ? (
+            <Box
+              component="span"
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 0.5,
+                px: 0.75,
+                py: 0.35,
+                borderRadius: 999,
+                bgcolor: `${tokens.primaryContainer}40`,
+                color: tokens.primary,
+                fontSize: '0.6875rem',
+                fontWeight: 800,
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase',
+                lineHeight: 1,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <WorkspacePremiumIcon sx={{ fontSize: '0.9rem' }} />
+              <Box component="span" sx={{ display: { xs: 'none', md: 'inline' } }}>
+                {tNav('admin')}
+              </Box>
+            </Box>
+          ) : null}
         </IconButton>
 
         <Menu

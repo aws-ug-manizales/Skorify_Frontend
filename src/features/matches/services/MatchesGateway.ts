@@ -20,4 +20,3 @@ export type ListMatchesParams = {
 export interface MatchesGateway {
   listMatches(params?: ListMatchesParams): Promise<PaginatedResult<Match>>;
 }
-
