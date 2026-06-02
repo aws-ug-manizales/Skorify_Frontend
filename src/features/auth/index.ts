@@ -11,8 +11,15 @@ export { default as AuthGatewayModeTabs } from './components/molecules/AuthGatew
 export { default as AuthGatewayForm } from './components/organisms/AuthGatewayForm';
 export { default as AuthConfirmSignUpForm } from './components/organisms/AuthConfirmSignUpForm';
 export { authService } from './services/authService';
-export { hasRole, hasAnyRole, isAdminSession, createForbiddenError } from './lib/adminAccess';
-export { ADMIN_ROLE, GENERAL_ROLE } from './types/auth';
+export {
+  hasRole,
+  hasAnyRole,
+  isAdminSession,
+  isManagerSession,
+  canCreateGroups,
+  createForbiddenError,
+} from './lib/adminAccess';
+export { ADMIN_ROLE, MANAGER_ROLE, GENERAL_ROLE } from './types/auth';
 export type { AuthGatewayPort, AuthGatewayResult } from './services/AuthGatewayPort';
 export type {
   AuthActionResult,

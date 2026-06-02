@@ -10,10 +10,7 @@ import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
-import Divider from '@mui/material/Divider';
-import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
-import LinearProgress from '@mui/material/LinearProgress';
 import ListItemButton from '@mui/material/ListItemButton';
 import Paper from '@mui/material/Paper';
 import Skeleton from '@mui/material/Skeleton';
@@ -21,18 +18,12 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import BoltIcon from '@mui/icons-material/Bolt';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CloseIcon from '@mui/icons-material/Close';
 import EmailIcon from '@mui/icons-material/Email';
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import GpsFixedIcon from '@mui/icons-material/GpsFixed';
 import GroupsIcon from '@mui/icons-material/Groups';
-import PercentIcon from '@mui/icons-material/Percent';
 import PersonIcon from '@mui/icons-material/Person';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
-import ShowChartIcon from '@mui/icons-material/ShowChart';
-import SportsScoreIcon from '@mui/icons-material/SportsScore';
 
 import { tokens } from '@lib/theme/theme';
 import AppButton from '@shared/components/atoms/AppButton';
@@ -40,31 +31,23 @@ import AppCard from '@shared/components/molecules/AppCard';
 import FormField from '@shared/components/atoms/FormField';
 import UploadFile from '@shared/components/atoms/UploadFile';
 import { useUserGroups, type UserGroupSummary } from '@features/groups';
+import { useAuthSession } from '@features/auth';
 
-const PARTICIPATION = 85;
-const STREAK_TOTAL = 9;
-const STREAK_ACTIVE = 7;
-const STREAK_COUNT = 12;
-const TOTAL_POINTS = 2450;
-
-const STAT_ITEMS = [
-  { key: 'exact', value: '25 / 100', Icon: GpsFixedIcon, color: tokens.success },
-  { key: 'partial', value: '40 / 100', Icon: ShowChartIcon, color: tokens.info },
-  { key: 'accuracy', value: '45%', Icon: PercentIcon, color: tokens.secondary },
-  { key: 'total', value: '120', Icon: SportsScoreIcon, color: tokens.primary },
-] as const;
-
-const numberFormatter = new Intl.NumberFormat('es-CO');
+interface ProfileFormData {
+  fullName: string;
+  email: string;
+}
 
 export default function ProfileDashboard() {
   const t = useTranslations('profile');
+  const { session } = useAuthSession();
   const [showModal, setShowModal] = useState(false);
 
-  const [userData, setUserData] = useState({
-    fullName: 'James Rodriguez',
-    handle: '@el_10',
-    email: 'james@skorify.com',
-  });
+  const [editedData, setEditedData] = useState<ProfileFormData | null>(null);
+  const userData: ProfileFormData = editedData ?? {
+    fullName: session?.user.displayName ?? '',
+    email: session?.user.email ?? '',
+  };
 
   const [avatarImage, setAvatarImage] = useState<string | null>(null);
   const { groups, isLoading: groupsLoading } = useUserGroups();
@@ -74,8 +57,8 @@ export default function ProfileDashboard() {
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
 
-  const onSubmit = (data: typeof userData) => {
-    setUserData(data);
+  const onSubmit = (data: ProfileFormData) => {
+    setEditedData(data);
     handleCloseModal();
   };
 
@@ -93,15 +76,7 @@ export default function ProfileDashboard() {
         justifyContent: 'center',
       }}
     >
-      <Box
-        sx={{
-          width: '100%',
-          maxWidth: 1100,
-          display: 'grid',
-          gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: '360px minmax(0, 1fr)' },
-          gap: { xs: 2, md: 3 },
-        }}
-      >
+      <Box sx={{ width: '100%', maxWidth: 420 }}>
         <Paper
           component="aside"
           elevation={1}
@@ -118,160 +93,6 @@ export default function ProfileDashboard() {
             />
 
             <GroupsCard groups={groups} loading={groupsLoading} t={t} />
-          </Stack>
-        </Paper>
-
-        <Paper
-          component="main"
-          elevation={1}
-          sx={{ p: { xs: 2.5, md: 3 }, borderRadius: 2, alignSelf: 'start' }}
-          aria-label={t('stats.title')}
-        >
-          <Stack spacing={3}>
-            <Typography variant="h4" component="h2" sx={{ fontWeight: 900 }}>
-              {t('stats.title')}
-            </Typography>
-
-            <Grid container spacing={2}>
-              {STAT_ITEMS.map(({ key, value, Icon, color }) => (
-                <Grid key={key} size={{ xs: 6, md: 6, lg: 3 }}>
-                  <AppCard sx={{ height: '100%' }}>
-                    <Stack
-                      alignItems="center"
-                      spacing={1.25}
-                      sx={{ px: 1.5, py: 2.5, minHeight: 140, justifyContent: 'center' }}
-                    >
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          width: 40,
-                          height: 40,
-                          borderRadius: '50%',
-                          bgcolor: `${color}14`,
-                        }}
-                      >
-                        <Icon sx={{ color, fontSize: 22 }} />
-                      </Box>
-                      <Typography
-                        sx={{
-                          color: tokens.onSurface,
-                          fontSize: { xs: '1.25rem', md: '1.5rem' },
-                          fontWeight: 900,
-                          lineHeight: 1.1,
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {value}
-                      </Typography>
-                      <Typography
-                        variant="overline"
-                        sx={{
-                          color: tokens.onSurfaceVariant,
-                          fontWeight: 700,
-                          letterSpacing: '0.08em',
-                          lineHeight: 1.2,
-                          textAlign: 'center',
-                          fontSize: '0.6875rem',
-                        }}
-                      >
-                        {t(`stats.${key}`)}
-                      </Typography>
-                    </Stack>
-                  </AppCard>
-                </Grid>
-              ))}
-            </Grid>
-
-            <Stack spacing={2.5}>
-              <AppCard>
-                <Box sx={{ p: 3 }}>
-                  <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    sx={{ mb: 2 }}
-                  >
-                    <Typography
-                      variant="overline"
-                      sx={{ color: tokens.onSurface, fontWeight: 800, letterSpacing: '0.08em' }}
-                    >
-                      {t('participation')}
-                    </Typography>
-                    <Typography sx={{ color: tokens.onSurface, fontWeight: 900 }}>
-                      {PARTICIPATION}%
-                    </Typography>
-                  </Stack>
-                  <LinearProgress
-                    variant="determinate"
-                    value={PARTICIPATION}
-                    aria-label={t('participation')}
-                    sx={{
-                      height: 6,
-                      borderRadius: 10,
-                      bgcolor: tokens.surfaceContainerHigh,
-                      '& .MuiLinearProgress-bar': {
-                        borderRadius: 10,
-                        background: tokens.ctaGradient,
-                      },
-                    }}
-                  />
-                </Box>
-              </AppCard>
-
-              <AppCard>
-                <Box sx={{ p: 3 }}>
-                  <Stack direction="row" alignItems="center" spacing={1.75} sx={{ mb: 2 }}>
-                    <Box
-                      sx={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: '50%',
-                        bgcolor: `${tokens.secondary}14`,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <BoltIcon sx={{ color: tokens.secondary, fontSize: 22 }} />
-                    </Box>
-                    <Stack spacing={0.25}>
-                      <Typography
-                        sx={{ fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase' }}
-                      >
-                        {t('streakTitle')}
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: tokens.onSurfaceVariant }}>
-                        {t('streakSubtitle', { count: STREAK_COUNT })}
-                      </Typography>
-                    </Stack>
-                  </Stack>
-                  <Stack
-                    direction="row"
-                    spacing={0.75}
-                    role="progressbar"
-                    aria-valuenow={STREAK_ACTIVE}
-                    aria-valuemin={0}
-                    aria-valuemax={STREAK_TOTAL}
-                    aria-label={t('streakTitle')}
-                  >
-                    {Array.from({ length: STREAK_TOTAL }).map((_, i) => (
-                      <Box
-                        key={i}
-                        sx={{
-                          flex: 1,
-                          height: 6,
-                          borderRadius: 0.5,
-                          bgcolor:
-                            i < STREAK_ACTIVE ? tokens.secondary : tokens.surfaceContainerHigh,
-                        }}
-                      />
-                    ))}
-                  </Stack>
-                </Box>
-              </AppCard>
-            </Stack>
           </Stack>
         </Paper>
       </Box>
@@ -298,7 +119,6 @@ export default function ProfileDashboard() {
           <FormProvider {...methods}>
             <Stack component="form" onSubmit={methods.handleSubmit(onSubmit)} spacing={2}>
               <FormField name="fullName" label={t('fullNameLabel')} control={methods.control} />
-              <FormField name="handle" label={t('handleLabel')} control={methods.control} />
               <FormField name="email" label={t('emailLabel')} control={methods.control} />
               <Box sx={{ mt: 0.5 }}>
                 <AppButton type="submit" fullWidth>
@@ -314,7 +134,7 @@ export default function ProfileDashboard() {
 }
 
 interface IdentityCardProps {
-  userData: { fullName: string; handle: string; email: string };
+  userData: ProfileFormData;
   avatarImage: string | null;
   onAvatarSelect: (files: File[]) => void;
   onEdit: () => void;
@@ -374,9 +194,6 @@ const IdentityCard = ({ userData, avatarImage, onAvatarSelect, onEdit, t }: Iden
         >
           {userData.fullName}
         </Typography>
-        <Typography sx={{ color: tokens.primary, fontWeight: 700, fontSize: '0.8125rem' }}>
-          {userData.handle}
-        </Typography>
         <Stack
           direction="row"
           alignItems="center"
@@ -387,37 +204,6 @@ const IdentityCard = ({ userData, avatarImage, onAvatarSelect, onEdit, t }: Iden
           <Typography sx={{ fontSize: '0.75rem', wordBreak: 'break-all' }}>
             {userData.email}
           </Typography>
-        </Stack>
-      </Stack>
-
-      <Divider flexItem sx={{ borderColor: `${tokens.outlineVariant}26` }} />
-
-      <Stack alignItems="center" spacing={0.5}>
-        <Typography
-          variant="overline"
-          sx={{
-            color: tokens.onSurfaceVariant,
-            fontWeight: 700,
-            letterSpacing: '0.1em',
-            lineHeight: 1,
-            fontSize: '0.6875rem',
-          }}
-        >
-          {t('totalPointsLabel')}
-        </Typography>
-        <Stack direction="row" alignItems="baseline" spacing={0.75}>
-          <Typography
-            sx={{
-              fontSize: '2.25rem',
-              fontWeight: 900,
-              lineHeight: 1,
-              color: tokens.onSurface,
-              fontVariantNumeric: 'tabular-nums',
-            }}
-          >
-            {numberFormatter.format(TOTAL_POINTS)}
-          </Typography>
-          <EmojiEventsIcon sx={{ fontSize: 22, color: tokens.primary }} />
         </Stack>
       </Stack>
 

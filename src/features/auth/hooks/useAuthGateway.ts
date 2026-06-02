@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl';
 import { loginSchema, registerFormSchema } from '../lib/schemas';
 import type { RegisterFormInput } from '../lib/schemas';
 import { useAuthStore } from '../store/useAuthStore';
+import { useNotification, NotificationType } from '@shared/notifications';
 
 type Mode = 'login' | 'register' | 'confirm';
 type TransitionPhase = 'idle' | 'exiting' | 'entering';
@@ -46,6 +47,7 @@ export const useAuthGateway = () => {
   const router = useRouter();
   const t = useTranslations('auth');
   const tRoot = useTranslations();
+  const { show: notify } = useNotification();
 
   const [mode, setMode] = useState<Mode>('login');
   const [pendingMode, setPendingMode] = useState<Mode | null>(null);
@@ -179,6 +181,24 @@ export const useAuthGateway = () => {
         return;
       }
 
+      if (mode === 'register') {
+        reset();
+        notify({
+          type: NotificationType.MODAL,
+          titleKey: 'auth.registeredModal.title',
+          messageKey: 'auth.registeredModal.message',
+          actions: [
+            {
+              labelKey: 'auth.registeredModal.cta',
+              onClick: () => {
+                transitionTo('login', 'backward');
+              },
+            },
+          ],
+        });
+        return;
+      }
+
       if (result.session) {
         setNotice({
           type: 'success',
@@ -191,6 +211,7 @@ export const useAuthGateway = () => {
     [
       loginWithEmail,
       mode,
+      notify,
       registerWithEmail,
       reset,
       router,

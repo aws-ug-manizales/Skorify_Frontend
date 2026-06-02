@@ -22,7 +22,7 @@ import { enUS as enLocale } from 'date-fns/locale/en-US';
 import FormField, { type FormFieldOption } from '@shared/components/atoms/FormField';
 import AppButton from '@shared/components/atoms/AppButton';
 import { tokens } from '@lib/theme/theme';
-import { useFilterTournaments } from '@features/tournaments/hooks/useFilterTournaments';
+import { useGetAvailableTournaments } from '@features/tournaments/hooks/useGetAvailableTournaments';
 import { useCreateMatch } from '../../hooks/useCreateMatch';
 import type { CreateMatchPayload, MatchStage } from '@lib/api/skorify';
 
@@ -58,7 +58,7 @@ const CreateMatchForm = ({ onCreated }: CreateMatchFormProps = {}) => {
   const locale = useLocale();
   const adapterLocale = locale.startsWith('es') ? esLocale : enLocale;
   const { createMatch, isLoading, error, data } = useCreateMatch();
-  const { data: tournaments, isLoading: tournamentsLoading } = useFilterTournaments();
+  const { data: tournaments, isLoading: tournamentsLoading } = useGetAvailableTournaments();
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const { control, handleSubmit, reset } = useForm<FormValues>({

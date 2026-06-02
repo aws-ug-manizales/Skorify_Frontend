@@ -1,7 +1,8 @@
 export type AuthProvider = 'email' | 'google';
-export type AuthRole = 'admin' | 'general';
+export type AuthRole = 'admin' | 'manager' | 'general';
 
 export const ADMIN_ROLE: AuthRole = 'admin';
+export const MANAGER_ROLE: AuthRole = 'manager';
 export const GENERAL_ROLE: AuthRole = 'general';
 
 export interface AuthUser {

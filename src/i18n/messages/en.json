@@ -145,6 +145,11 @@
       "loggedIn": "Signed in successfully",
       "googleLoggedIn": "Signed in with Google"
     },
+    "registeredModal": {
+      "title": "Account created!",
+      "message": "Your account was created successfully. You can now sign in with your credentials.",
+      "cta": "Go to sign in"
+    },
     "confirm": {
       "title": "Confirm your account",
       "description": "We sent a code to {email}. Enter it to activate your account.",
@@ -535,6 +540,8 @@
   },
   "userProfile": {
     "backToGroups": "Back to groups",
+    "unavailableTitle": "Profile unavailable",
+    "unavailableSubtitle": "We can't show this profile's information yet.",
     "publicProfileLabel": "Public profile",
     "memberSince": "Member since {date}",
     "totalPoints": "Points",
@@ -550,27 +557,18 @@
   },
   "dashboard": {
     "title": "Control Panel",
-    "liveStatus": "Engine online • Latency 14ms",
+    "liveStatus": "Engine online",
     "lastUpdate": "Last update",
     "totalUsers": "Total users",
     "activePredictions": "Active predictions",
     "matchesToday": "Matches today",
     "recentEvents": "Recent events",
-    "viewAll": "View all events",
     "analyticsTitle": "Traffic analytics",
     "analyticsSubtitle": "Server activity over the last 24 hours",
-    "badgeGrowth": "+12%",
     "badgeRealtime": "Real-time",
     "badgeLive": "Live",
-    "peak": "Peak",
-    "event0Text": "Results validated - Champions League",
-    "event0Time": "14 minutes ago",
-    "event1Text": "New group created: La Quiniela FC",
-    "event1Time": "2 hours ago",
-    "event2Text": "3 new users registered",
-    "event2Time": "5 hours ago",
-    "event3Text": "Predictions closed - La Liga J28",
-    "event3Time": "Yesterday",
+    "noData": "No data available",
+    "noEvents": "No recent events",
     "quickActions": "Quick actions",
     "actions": {
       "users": "Users",

@@ -1,9 +1,6 @@
 import { env } from '@lib/env';
-import type { AuthRole, AuthSession, AuthUser } from '../types/auth';
-import { ADMIN_ROLE, GENERAL_ROLE } from '../types/auth';
-
-const resolveRoles = (cognitoGroups: string[]): AuthRole[] =>
-  cognitoGroups.includes(ADMIN_ROLE) ? [ADMIN_ROLE] : [GENERAL_ROLE];
+import type { AuthSession, AuthUser } from '../types/auth';
+import { resolveRoles } from './resolveRoles';
 
 interface CognitoTokenResponse {
   id_token: string;
