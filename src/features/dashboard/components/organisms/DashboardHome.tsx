@@ -13,49 +13,40 @@ import GroupIcon from '@mui/icons-material/Group';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
-import AppButton from '@shared/components/atoms/AppButton';
 import { tokens } from '@lib/theme/theme';
 
-const CHART_BARS = [40, 35, 60, 75, 50, 95, 65, 45, 30, 55, 40, 80];
 const CHART_LABELS = ['00:00', '06:00', '12:00', '18:00', '23:59'];
 const TIME_FILTERS = ['24H', '7D', '30D'] as const;
 
 const METRIC_CARDS = [
   {
     key: 'totalUsers',
-    value: '124.8K',
-    badgeKey: 'badgeGrowth',
-    badgeColor: tokens.tertiary,
+    value: '0',
+    badgeKey: 'badgeRealtime',
+    badgeColor: tokens.onSurfaceVariant,
     Icon: PersonAddIcon,
   },
   {
     key: 'activePredictions',
-    value: '8,291',
+    value: '0',
     badgeKey: 'badgeRealtime',
     badgeColor: tokens.onSurfaceVariant,
     Icon: QueryStatsIcon,
   },
   {
     key: 'matchesToday',
-    value: '14',
-    badgeKey: 'badgeLive',
-    badgeColor: tokens.success,
+    value: '0',
+    badgeKey: 'badgeRealtime',
+    badgeColor: tokens.onSurfaceVariant,
     Icon: SportsSoccerIcon,
   },
 ] as const;
 
 const QUICK_ACTIONS = [
-  { key: 'users', href: '/profile', Icon: PersonAddIcon },
+  { key: 'users', href: '/users', Icon: PersonAddIcon },
   { key: 'matches', href: '/matches', Icon: CalendarMonthIcon },
   { key: 'groups', href: '/groups', Icon: GroupIcon },
   { key: 'tournaments', href: '/tournaments', Icon: EmojiEventsIcon },
-] as const;
-
-const RECENT_EVENTS = [
-  { color: tokens.success, textKey: 'event0Text', timeKey: 'event0Time' },
-  { color: tokens.primary, textKey: 'event1Text', timeKey: 'event1Time' },
-  { color: tokens.tertiary, textKey: 'event2Text', timeKey: 'event2Time' },
-  { color: tokens.onSurfaceVariant, textKey: 'event3Text', timeKey: 'event3Time' },
 ] as const;
 
 const DashboardHome = () => {
@@ -270,52 +261,28 @@ const DashboardHome = () => {
                 ))}
               </Box>
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 0.75, height: 160, px: 1 }}>
-              {CHART_BARS.map((h, i) => (
-                <Box
-                  key={i}
-                  sx={{
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'flex-end',
-                    height: '100%',
-                    position: 'relative',
-                  }}
-                >
-                  {h === 95 && (
-                    <Typography
-                      sx={{
-                        position: 'absolute',
-                        top: -24,
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        bgcolor: tokens.primary,
-                        color: tokens.background,
-                        fontSize: '0.5625rem',
-                        fontWeight: 700,
-                        px: 0.75,
-                        py: 0.25,
-                        borderRadius: '3px',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {t('peak')}
-                    </Typography>
-                  )}
-                  <Box
-                    sx={{
-                      width: '100%',
-                      height: `${h}%`,
-                      bgcolor:
-                        h === 95 ? `${tokens.primaryContainer}CC` : `${tokens.primaryContainer}33`,
-                      borderRadius: '4px 4px 0 0',
-                      transition: 'background 200ms ease',
-                      '&:hover': { bgcolor: `${tokens.primaryContainer}99` },
-                    }}
-                  />
-                </Box>
-              ))}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: 160,
+                px: 1,
+                borderRadius: '4px',
+                bgcolor: `${tokens.surfaceContainerHigh}80`,
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: '0.75rem',
+                  color: tokens.onSurfaceVariant,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  fontWeight: 600,
+                }}
+              >
+                {t('noData')}
+              </Typography>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1.5, px: 1 }}>
               {CHART_LABELS.map((label) => (
@@ -352,63 +319,27 @@ const DashboardHome = () => {
             >
               {t('recentEvents')}
             </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, flexGrow: 1 }}>
-              {RECENT_EVENTS.map(({ color, textKey, timeKey }, i) => (
-                <Box key={i} sx={{ display: 'flex', gap: 2 }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      flexShrink: 0,
-                    }}
-                  >
-                    <Box
-                      sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: color, mt: 0.5 }}
-                    />
-                    {i < RECENT_EVENTS.length - 1 && (
-                      <Box
-                        sx={{
-                          width: 1,
-                          flexGrow: 1,
-                          bgcolor: `${tokens.outlineVariant}33`,
-                          mt: 0.5,
-                        }}
-                      />
-                    )}
-                  </Box>
-                  <Box sx={{ pb: i < RECENT_EVENTS.length - 1 ? 2 : 0 }}>
-                    <Typography
-                      sx={{
-                        fontSize: '0.8125rem',
-                        fontWeight: 600,
-                        lineHeight: 1.3,
-                        color: tokens.onSurface,
-                        mb: 0.5,
-                      }}
-                    >
-                      {t(textKey)}
-                    </Typography>
-                    <Typography sx={{ fontSize: '0.6875rem', color: tokens.onSurfaceVariant }}>
-                      {t(timeKey)}
-                    </Typography>
-                  </Box>
-                </Box>
-              ))}
-            </Box>
-            <AppButton
-              variant="secondary"
-              fullWidth
+            <Box
               sx={{
-                mt: 3,
-                fontSize: '0.6875rem',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexGrow: 1,
+                minHeight: 160,
               }}
             >
-              {t('viewAll')}
-            </AppButton>
+              <Typography
+                sx={{
+                  fontSize: '0.75rem',
+                  color: tokens.onSurfaceVariant,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  fontWeight: 600,
+                }}
+              >
+                {t('noEvents')}
+              </Typography>
+            </Box>
           </Box>
         </Grid>
       </Grid>

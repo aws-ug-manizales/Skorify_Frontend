@@ -150,6 +150,11 @@
       "loggedIn": "Inicio de sesión exitoso",
       "googleLoggedIn": "Sesión iniciada con Google"
     },
+    "registeredModal": {
+      "title": "¡Cuenta creada!",
+      "message": "Tu cuenta se creó correctamente. Ya puedes iniciar sesión con tus credenciales.",
+      "cta": "Ir a iniciar sesión"
+    },
     "confirm": {
       "title": "Confirma tu cuenta",
       "description": "Te enviamos un código a {email}. Ingrésalo para activar tu cuenta.",
@@ -171,8 +176,8 @@
   "predictions": {
     "title": "Mis predicciones",
     "pageTitle": "Próximos partidos",
-    "instanceSelectLabel": "Instancia de torneo",
-    "instanceSelectPlaceholder": "Selecciona una instancia",
+    "instanceSelectLabel": "Tus grupos",
+    "instanceSelectPlaceholder": "Selecciona un grupo",
     "noEnrollments": "Aún no estás inscrito en ningún torneo. Únete a un grupo para empezar a predecir.",
     "make": "Hacer predicción",
     "home": "Local",
@@ -540,6 +545,8 @@
   },
   "userProfile": {
     "backToGroups": "Volver a grupos",
+    "unavailableTitle": "Perfil no disponible",
+    "unavailableSubtitle": "Aún no podemos mostrar la información de este perfil.",
     "publicProfileLabel": "Perfil público",
     "memberSince": "Miembro desde {date}",
     "totalPoints": "Puntos",
@@ -555,27 +562,18 @@
   },
   "dashboard": {
     "title": "Panel de Control",
-    "liveStatus": "Motor en línea • Latencia 14ms",
+    "liveStatus": "Motor en línea",
     "lastUpdate": "Última actualización",
     "totalUsers": "Usuarios totales",
     "activePredictions": "Predicciones activas",
     "matchesToday": "Partidos hoy",
     "recentEvents": "Eventos recientes",
-    "viewAll": "Ver todos los eventos",
     "analyticsTitle": "Analítica de tráfico",
     "analyticsSubtitle": "Actividad en las últimas 24 horas",
-    "badgeGrowth": "+12%",
     "badgeRealtime": "Tiempo real",
     "badgeLive": "En vivo",
-    "peak": "Pico",
-    "event0Text": "Resultados validados - Champions League",
-    "event0Time": "Hace 14 minutos",
-    "event1Text": "Nuevo grupo creado: La Quiniela FC",
-    "event1Time": "Hace 2 horas",
-    "event2Text": "3 nuevos usuarios registrados",
-    "event2Time": "Hace 5 horas",
-    "event3Text": "Predicciones cerradas - La Liga J28",
-    "event3Time": "Ayer",
+    "noData": "Sin datos disponibles",
+    "noEvents": "Sin eventos recientes",
     "quickActions": "Acciones rápidas",
     "actions": {
       "users": "Usuarios",

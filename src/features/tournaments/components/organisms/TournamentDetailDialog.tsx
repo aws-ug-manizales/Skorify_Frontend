@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import JoinGroupDialog from '@features/groups/components/organisms/JoinGroupDialog';
+import { useAuthSession } from '@features/auth';
 import { useLocale, useTranslations } from 'next-intl';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
@@ -52,6 +53,7 @@ const TournamentDetailDialog = ({ open, onClose, tournamentId }: TournamentDetai
   const tDetail = useTranslations('tournaments.detail');
   const locale = useLocale();
   const router = useRouter();
+  const { canCreateGroups } = useAuthSession();
 
   const { data, isLoading, error, getTournamentById, reset } = useGetTournamentById();
   const [joinDialogOpen, setJoinDialogOpen] = useState(false);
@@ -258,21 +260,23 @@ const TournamentDetailDialog = ({ open, onClose, tournamentId }: TournamentDetai
               >
                 {tDetail('joinCta')}
               </AppButton>
-              <AppButton
-                variant="primary"
-                fullWidth
-                disabled={isFinished}
-                startIcon={<AddIcon sx={{ fontSize: '1rem' }} />}
-                onClick={handleCreateGroup}
-                sx={{
-                  fontSize: '0.6875rem',
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  fontWeight: 700,
-                }}
-              >
-                {tDetail('createGroupCta')}
-              </AppButton>
+              {canCreateGroups && (
+                <AppButton
+                  variant="primary"
+                  fullWidth
+                  disabled={isFinished}
+                  startIcon={<AddIcon sx={{ fontSize: '1rem' }} />}
+                  onClick={handleCreateGroup}
+                  sx={{
+                    fontSize: '0.6875rem',
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    fontWeight: 700,
+                  }}
+                >
+                  {tDetail('createGroupCta')}
+                </AppButton>
+              )}
             </DialogActions>
           </Box>
         )}

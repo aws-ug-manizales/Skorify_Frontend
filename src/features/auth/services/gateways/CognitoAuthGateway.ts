@@ -11,17 +11,13 @@ import { env } from '@lib/env';
 import { loginSchema, registerSchema } from '../../lib/schemas';
 import type { AuthGatewayPort, AuthGatewayResult } from '../AuthGatewayPort';
 import type {
-  AuthRole,
   AuthSession,
   AuthUser,
   ConfirmSignUpPayload,
   CredentialsPayload,
   RegisterPayload,
 } from '../../types/auth';
-import { ADMIN_ROLE, GENERAL_ROLE } from '../../types/auth';
-
-const resolveRoles = (cognitoGroups: string[]): AuthRole[] =>
-  cognitoGroups.includes(ADMIN_ROLE) ? [ADMIN_ROLE] : [GENERAL_ROLE];
+import { resolveRoles } from '../../lib/resolveRoles';
 
 const normalizeEmail = (email: string) => email.trim().toLowerCase();
 

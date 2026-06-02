@@ -59,7 +59,7 @@ const ACTIVE_TOURNAMENTS_LIMIT = 5;
 const UserDashboardHome = () => {
   const t = useTranslations('userDashboard');
   const locale = useLocale();
-  const { session } = useAuthSession();
+  const { session, canCreateGroups } = useAuthSession();
   const { groups, isLoading: groupsLoading } = useUserGroups();
   const { data: tournaments, isLoading: tournamentsLoading } = useGetAvailableTournaments();
 
@@ -84,6 +84,7 @@ const UserDashboardHome = () => {
       <WelcomeBanner
         displayName={displayName}
         streak={USER_STREAK}
+        canCreateGroups={canCreateGroups}
         t={t}
         onJoinGroup={() => setJoinDialogOpen(true)}
       />
@@ -274,11 +275,18 @@ const ActiveTournamentsSection = ({
 interface WelcomeBannerProps {
   displayName: string;
   streak: number;
+  canCreateGroups: boolean;
   t: ReturnType<typeof useTranslations<'userDashboard'>>;
   onJoinGroup: () => void;
 }
 
-const WelcomeBanner = ({ displayName, streak, t, onJoinGroup }: WelcomeBannerProps) => (
+const WelcomeBanner = ({
+  displayName,
+  streak,
+  canCreateGroups,
+  t,
+  onJoinGroup,
+}: WelcomeBannerProps) => (
   <Box
     sx={{
       position: 'relative',
@@ -381,14 +389,16 @@ const WelcomeBanner = ({ displayName, streak, t, onJoinGroup }: WelcomeBannerPro
       </Typography>
 
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mt: 3.5 }}>
-        <AppButton
-          component={Link}
-          href="/groups?create=1"
-          startIcon={<AddCircleOutlineIcon />}
-          size="large"
-        >
-          {t('createGroup')}
-        </AppButton>
+        {canCreateGroups && (
+          <AppButton
+            component={Link}
+            href="/groups?create=1"
+            startIcon={<AddCircleOutlineIcon />}
+            size="large"
+          >
+            {t('createGroup')}
+          </AppButton>
+        )}
         <AppButton
           onClick={onJoinGroup}
           variant="secondary"
