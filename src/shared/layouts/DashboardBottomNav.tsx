@@ -50,7 +50,10 @@ const buildBottomNavItems = (isAdmin: boolean): ReadonlyArray<BottomNavItem> => 
     Icon: CalendarMonthIcon,
     children: isAdmin ? [...MATCHES_CHILDREN, ...MATCHES_ADMIN_CHILDREN] : MATCHES_CHILDREN,
   },
-  { key: 'tournaments', href: '/tournaments', Icon: EmojiEventsIcon },
+  // Tournaments management is admin-only.
+  ...(isAdmin
+    ? [{ key: 'tournaments', href: '/tournaments', Icon: EmojiEventsIcon } as BottomNavItem]
+    : []),
   { key: 'groups', href: '/groups', Icon: GroupIcon },
 ];
 

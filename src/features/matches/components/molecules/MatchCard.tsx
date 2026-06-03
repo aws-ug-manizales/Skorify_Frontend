@@ -121,9 +121,20 @@ const MatchCard = ({
           gap: 1,
         }}
       >
-        <TeamBlock name={match.homeTeam.name} code={match.homeTeam.code} />
+        <TeamBlock
+          name={match.homeTeam.name}
+          code={match.homeTeam.code}
+          image={match.homeTeam.image}
+          loading={match.homeTeam.loading}
+        />
         <ScoreOrVs showScore={showScore} score={match.score} vsLabel={vsLabel} />
-        <TeamBlock name={match.awayTeam.name} code={match.awayTeam.code} align="right" />
+        <TeamBlock
+          name={match.awayTeam.name}
+          code={match.awayTeam.code}
+          image={match.awayTeam.image}
+          loading={match.awayTeam.loading}
+          align="right"
+        />
       </Box>
 
       <Box

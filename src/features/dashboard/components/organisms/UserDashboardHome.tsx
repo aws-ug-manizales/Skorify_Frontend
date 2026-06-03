@@ -25,6 +25,7 @@ import { useAuthSession } from '@features/auth/hooks/useAuthSession';
 import { useUserGroups, type UserGroupSummary } from '@features/groups/hooks/useUserGroups';
 import JoinGroupDialog from '@features/groups/components/organisms/JoinGroupDialog';
 import { useGetAvailableTournaments } from '@features/tournaments/hooks/useGetAvailableTournaments';
+import TournamentDetailDialog from '@features/tournaments/components/organisms/TournamentDetailDialog';
 import type { TournamentDto } from '@lib/api/skorify';
 
 const numberFormatter = new Intl.NumberFormat('es-CO');
@@ -60,7 +61,7 @@ const UserDashboardHome = () => {
   const t = useTranslations('userDashboard');
   const locale = useLocale();
   const { session, canCreateGroups } = useAuthSession();
-  const { groups, isLoading: groupsLoading } = useUserGroups();
+  const { groups, isLoading: groupsLoading, refresh: refreshGroups } = useUserGroups();
   const { data: tournaments, isLoading: tournamentsLoading } = useGetAvailableTournaments();
 
   const displayName = session?.user.displayName ?? t('defaultUser');
@@ -78,6 +79,7 @@ const UserDashboardHome = () => {
     [tournaments],
   );
   const [joinDialogOpen, setJoinDialogOpen] = useState(false);
+  const [tournamentDetailId, setTournamentDetailId] = useState<string | null>(null);
 
   return (
     <Box sx={{ p: { xs: 2.5, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
@@ -103,6 +105,7 @@ const UserDashboardHome = () => {
             loading={tournamentsLoading}
             locale={locale}
             t={t}
+            onSelectTournament={setTournamentDetailId}
           />
         </Grid>
 
@@ -116,6 +119,16 @@ const UserDashboardHome = () => {
       </Grid>
 
       <JoinGroupDialog open={joinDialogOpen} onClose={() => setJoinDialogOpen(false)} />
+
+      <TournamentDetailDialog
+        open={tournamentDetailId !== null}
+        onClose={() => setTournamentDetailId(null)}
+        tournamentId={tournamentDetailId}
+        globalInstanceId={
+          tournaments.find((tournament) => tournament.id === tournamentDetailId)?.globalInstanceId
+        }
+        onJoined={refreshGroups}
+      />
     </Box>
   );
 };
@@ -127,6 +140,7 @@ interface ActiveTournamentsSectionProps {
   loading: boolean;
   locale: string;
   t: ReturnType<typeof useTranslations<'userDashboard'>>;
+  onSelectTournament: (id: string) => void;
 }
 
 const formatDateSafe = (
@@ -153,6 +167,7 @@ const ActiveTournamentsSection = ({
   loading,
   locale,
   t,
+  onSelectTournament,
 }: ActiveTournamentsSectionProps) => (
   <Stack spacing={3}>
     <Stack
@@ -224,7 +239,11 @@ const ActiveTournamentsSection = ({
     ) : (
       <Stack spacing={1.5}>
         {tournaments.map((tournament) => (
-          <AppCard key={tournament.id} variant="interactive" href={`/tournaments/${tournament.id}`}>
+          <AppCard
+            key={tournament.id}
+            variant="interactive"
+            onClick={() => onSelectTournament(tournament.id)}
+          >
             <Stack direction="row" alignItems="center" spacing={2} sx={{ p: { xs: 2, md: 2.5 } }}>
               <Box
                 sx={{

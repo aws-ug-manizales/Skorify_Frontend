@@ -13,6 +13,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import FormField from '@shared/components/atoms/FormField';
 import AppButton from '@shared/components/atoms/AppButton';
 import { tokens } from '@lib/theme/theme';
+import { useApiErrorMessage } from '@lib/api';
 import { useCreateUser } from '../../hooks/useCreateUser';
 
 interface CreateUserFormValues {
@@ -29,6 +30,7 @@ interface CreateUserFormProps {
 const CreateUserForm = ({ onSuccess }: CreateUserFormProps) => {
   const t = useTranslations('users');
   const { createUser, isLoading, error, reset } = useCreateUser();
+  const formatApiError = useApiErrorMessage();
   const [createdUser, setCreatedUser] = useState<{ id: string; name: string } | null>(null);
 
   const {
@@ -154,7 +156,7 @@ const CreateUserForm = ({ onSuccess }: CreateUserFormProps) => {
 
       {error && (
         <Alert severity="error" sx={{ mt: 2, borderRadius: '10px' }}>
-          {error.message}
+          {formatApiError(error)}
         </Alert>
       )}
 

@@ -1,16 +1,13 @@
 import { api } from '@lib/api';
-import { skorifyEndpoints, type MatchDto, type SkorifyEnvelope } from '@lib/api/skorify';
-import type { Match, MatchStatus } from '../../types';
+import {
+  skorifyEndpoints,
+  type MatchDto,
+  type MatchWithTeamsDto,
+  type SkorifyEnvelope,
+  type TeamDto,
+} from '@lib/api/skorify';
+import type { Match, MatchStatus, MatchTeam } from '../../types';
 import type { ListMatchesParams, MatchesGateway, PaginatedResult } from '../MatchesGateway';
-
-const TEAM_CACHE: Record<string, { name: string; code?: string }> = {};
-
-const teamFromId = (teamId: string): { name: string; code?: string } => {
-  if (TEAM_CACHE[teamId]) return TEAM_CACHE[teamId];
-  // The matches endpoint only returns team IDs. Until the frontend joins team
-  // data, surface a short label derived from the ID so the UI is still usable.
-  return { name: teamId, code: undefined };
-};
 
 const mapStatus = (status: MatchDto['status']): MatchStatus => {
   if (status === 'in_progress') return 'live';
@@ -18,17 +15,25 @@ const mapStatus = (status: MatchDto['status']): MatchStatus => {
   return 'upcoming';
 };
 
-const toMatch = (dto: MatchDto): Match => ({
-  id: dto.id,
-  tournamentKey: dto.tournamentId,
-  stageKey: dto.stage ?? 'group',
-  status: mapStatus(dto.status),
-  kickoffAt: dto.kickOff,
-  homeTeam: teamFromId(dto.homeTeamId),
-  awayTeam: teamFromId(dto.awayTeamId),
+const toTeam = (team: TeamDto | undefined, fallbackId: string): MatchTeam => ({
+  name: team?.name ?? fallbackId,
+  code: team?.code,
+  image: team?.shieldUrl ?? undefined,
+});
+
+const toMatch = ({ match, homeTeam, awayTeam }: MatchWithTeamsDto): Match => ({
+  id: match.id,
+  tournamentKey: match.tournamentId,
+  stageKey: match.stage ?? 'group',
+  status: mapStatus(match.status),
+  kickoffAt: match.kickOff,
+  homeTeamId: match.homeTeamId,
+  awayTeamId: match.awayTeamId,
+  homeTeam: toTeam(homeTeam, match.homeTeamId),
+  awayTeam: toTeam(awayTeam, match.awayTeamId),
   score:
-    typeof dto.homeScore === 'number' && typeof dto.awayScore === 'number'
-      ? { home: dto.homeScore, away: dto.awayScore }
+    typeof match.homeScore === 'number' && typeof match.awayScore === 'number'
+      ? { home: match.homeScore, away: match.awayScore }
       : undefined,
 });
 
@@ -70,7 +75,7 @@ export class ApiMatchesGateway implements MatchesGateway {
       return { items: [], total: 0, page, pageSize };
     }
 
-    const res = await api.get<SkorifyEnvelope<MatchDto[]>>(
+    const res = await api.get<SkorifyEnvelope<MatchWithTeamsDto[]>>(
       skorifyEndpoints.match.getByTournamentId,
       { tournamentId: params.tournamentId },
     );

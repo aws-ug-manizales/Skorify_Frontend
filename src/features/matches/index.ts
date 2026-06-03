@@ -10,3 +10,4 @@ export { useGetMatchById } from './hooks/useGetMatchById';
 export { useGetMatchesByTournamentId } from './hooks/useGetMatchesByTournamentId';
 export { useCalculateMatchScore } from './hooks/useCalculateMatchScore';
 export { useCloseMatch } from './hooks/useCloseMatch';
+export { useCloseMatches } from './hooks/useCloseMatches';

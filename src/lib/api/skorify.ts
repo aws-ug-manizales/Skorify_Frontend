@@ -118,6 +118,15 @@ export interface GetMatchesByTournamentIdParams {
   tournamentId: Id;
 }
 
+// get-matches-by-tournament-id now returns each match joined with its resolved
+// home/away team (name + shield), so the frontend no longer resolves team
+// names separately.
+export interface MatchWithTeamsDto {
+  match: MatchDto;
+  homeTeam: TeamDto;
+  awayTeam: TeamDto;
+}
+
 export interface CalculateMatchScorePayload {
   matchId: Id;
   tournamentInstanceId: Id;
@@ -243,6 +252,7 @@ export interface SimulatePredictionResult {
 export interface TeamDto {
   id: Id;
   name: string;
+  code?: string;
   shieldUrl?: string;
   createdAt: string;
 }
@@ -283,6 +293,9 @@ export interface TournamentDto {
   createdAt: string;
   updatedAt: string | null;
   deletedAt: string | null;
+  // Id of the auto-created "Global" tournament instance. Present on the
+  // get-available-tournaments response; used to enroll a user directly.
+  globalInstanceId?: string | null;
 }
 
 export interface CreateTournamentPayload {
@@ -290,6 +303,9 @@ export interface CreateTournamentPayload {
   matchType: MatchType;
   startDate: string;
   endDate: string;
+  // Owner of the tournament; the backend validates this user exists and uses it
+  // as the owner of the auto-created global tournament instance.
+  userId: Id;
 }
 
 export interface GetTournamentByIdParams {
@@ -423,6 +439,7 @@ export const skorifyEndpoints = {
     create: '/user/create-user',
     getById: '/user/get-user-by-id',
     getBySub: '/user/get-user-by-sub',
+    getAvailable: '/user/get-available-users',
     registerNotificationToken: '/user/register-notification-token',
     delete: '/user/delete-user',
     register: '/user/register-user',

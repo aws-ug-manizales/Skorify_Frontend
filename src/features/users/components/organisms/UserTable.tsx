@@ -18,11 +18,10 @@ import type { User } from '@features/users/types/user';
 
 type Props = {
   users: User[];
-  locale: string;
   onToggleStatus: (userId: string) => void;
 };
 
-const UserTable = ({ users, locale, onToggleStatus }: Props) => {
+const UserTable = ({ users, onToggleStatus }: Props) => {
   const t = useTranslations('users');
 
   return (
@@ -56,19 +55,7 @@ const UserTable = ({ users, locale, onToggleStatus }: Props) => {
               align="center"
               sx={{ color: tokens.onSurfaceVariant, fontWeight: 700, fontSize: '0.75rem' }}
             >
-              {t('table.predictions')}
-            </TableCell>
-            <TableCell
-              align="center"
-              sx={{ color: tokens.onSurfaceVariant, fontWeight: 700, fontSize: '0.75rem' }}
-            >
               {t('table.groups')}
-            </TableCell>
-            <TableCell
-              align="center"
-              sx={{ color: tokens.onSurfaceVariant, fontWeight: 700, fontSize: '0.75rem' }}
-            >
-              {t('table.accuracy')}
             </TableCell>
             <TableCell
               align="center"
@@ -105,17 +92,7 @@ const UserTable = ({ users, locale, onToggleStatus }: Props) => {
               </TableCell>
               <TableCell align="center">
                 <Typography sx={{ color: tokens.onSurface, fontWeight: 600 }}>
-                  {user.predictions.toLocaleString(locale)}
-                </Typography>
-              </TableCell>
-              <TableCell align="center">
-                <Typography sx={{ color: tokens.onSurface, fontWeight: 600 }}>
                   {user.groups}
-                </Typography>
-              </TableCell>
-              <TableCell align="center">
-                <Typography sx={{ color: tokens.tertiary, fontWeight: 600 }}>
-                  {user.accuracyRate}%
                 </Typography>
               </TableCell>
               <TableCell align="center">
@@ -123,6 +100,8 @@ const UserTable = ({ users, locale, onToggleStatus }: Props) => {
                   variant={user.status === 'active' ? 'secondary' : 'primary'}
                   size="small"
                   onClick={() => onToggleStatus(user.id)}
+                  disabled={user.status === 'suspended'}
+                  title={user.status === 'suspended' ? t('reactivateUnavailable') : undefined}
                   sx={{
                     fontSize: '0.6875rem',
                     letterSpacing: '0.05em',

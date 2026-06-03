@@ -62,18 +62,17 @@ const DashboardNavbar = ({ username = 'Usuario' }: Props) => {
         }}
       >
         {/* Brand — left */}
-        <Typography
+        <Box
+          component="img"
+          src="/skorify-logo-2.svg"
+          alt={tCommon('appName')}
           sx={{
-            fontWeight: 900,
-            fontSize: '1.125rem',
-            letterSpacing: '-0.04em',
-            color: tokens.primary,
-            textTransform: 'uppercase',
+            height: 130,
+            width: 'auto',
+            display: 'block',
             userSelect: 'none',
           }}
-        >
-          {tCommon('appName')}
-        </Typography>
+        />
 
         {/* Profile — right */}
         <IconButton

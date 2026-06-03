@@ -279,26 +279,34 @@ export class CognitoAuthGateway implements AuthGatewayPort {
     }
   }
 
-  async restoreSession(): Promise<AuthSession | null> {
+  /**
+   * Validates the Cognito session locally (getSession silently refreshes the
+   * id/access token when only those expired). Returns the session WITHOUT the
+   * domain user ID — it does not hit `get-user-by-sub`, so it is safe to call
+   * repeatedly (e.g. from the session-expiry watcher).
+   */
+  async getValidSession(): Promise<AuthSession | null> {
     const currentUser = this.userPool.getCurrentUser();
     if (!currentUser) {
       return null;
     }
     return new Promise<AuthSession | null>((resolve) => {
-      currentUser.getSession(
-        async (err: Error | null, cognitoSession: CognitoUserSession | null) => {
-          if (err || !cognitoSession || !cognitoSession.isValid()) {
-            resolve(null);
-            return;
-          }
-          const session = sessionFromCognito(cognitoSession);
-          const domainUserId = await fetchDomainUserId(
-            session.user.id,
-            session.idToken ?? session.token,
-          );
-          resolve({ ...session, domainUserId });
-        },
-      );
+      currentUser.getSession((err: Error | null, cognitoSession: CognitoUserSession | null) => {
+        if (err || !cognitoSession || !cognitoSession.isValid()) {
+          resolve(null);
+          return;
+        }
+        resolve(sessionFromCognito(cognitoSession));
+      });
     });
+  }
+
+  async restoreSession(): Promise<AuthSession | null> {
+    const session = await this.getValidSession();
+    if (!session) {
+      return null;
+    }
+    const domainUserId = await fetchDomainUserId(session.user.id, session.idToken ?? session.token);
+    return { ...session, domainUserId };
   }
 }
