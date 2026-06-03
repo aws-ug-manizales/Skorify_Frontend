@@ -42,12 +42,12 @@ const normalizeTournament = (raw: RawTournament): TournamentDto => ({
   id: raw.id,
   name: raw.name,
   token: raw.token,
-  start_date: raw.start_date ?? raw.startDate ?? null,
-  end_date: raw.end_date ?? raw.endDate ?? null,
-  match_type: raw.match_type ?? raw.matchType ?? null,
-  created_at: raw.created_at ?? raw.createdAt ?? '',
-  updated_at: raw.updated_at ?? raw.updatedAt ?? null,
-  deleted_at: raw.deleted_at ?? raw.deletedAt ?? null,
+  startDate: raw.startDate ?? raw.startDate ?? null,
+  endDate: raw.endDate ?? raw.endDate ?? null,
+  matchType: raw.matchType ?? raw.matchType ?? null,
+  createdAt: raw.createdAt ?? raw.createdAt ?? '',
+  updatedAt: raw.updatedAt ?? raw.updatedAt ?? null,
+  deletedAt: raw.deletedAt ?? raw.deletedAt ?? null,
 });
 
 export const useGetTournamentById = () => {

@@ -44,14 +44,23 @@ const fetchInstance = async (
   return result.success ? result.data.data : null;
 };
 
+const fetchMemberCount = async (tournamentInstanceId: string): Promise<number> => {
+  const result = await api.get<SkorifyEnvelope<UserEnrollmentDto[]>>(
+    skorifyEndpoints.userEnrollment.getByTournamentInstanceId,
+    { tournamentInstanceId },
+  );
+  return result.success ? (result.data.data?.length ?? 0) : 0;
+};
+
 const mapToSummary = (
   enrollment: UserEnrollmentDto,
   instance: TournamentInstanceDto | null,
+  memberCount: number,
 ): UserGroupSummary => ({
   id: enrollment.tournamentInstanceId,
   name: instance?.name ?? enrollment.tournamentInstanceId,
-  memberCount: 0,
-  rank: enrollment.currentPosition,
+  memberCount,
+  rank: enrollment.currentPosition ?? 0,
   points: enrollment.currentScore,
 });
 
@@ -76,12 +85,13 @@ export const useUserGroups = () => {
     }
 
     const enrollments = enrollmentsResult.data.data ?? [];
-    const instances = await Promise.all(
-      enrollments.map((enrollment) => fetchInstance(enrollment.tournamentInstanceId)),
-    );
+    const [instances, memberCounts] = await Promise.all([
+      Promise.all(enrollments.map((e) => fetchInstance(e.tournamentInstanceId))),
+      Promise.all(enrollments.map((e) => fetchMemberCount(e.tournamentInstanceId))),
+    ]);
 
     const groups = enrollments.map((enrollment, index) =>
-      mapToSummary(enrollment, instances[index]),
+      mapToSummary(enrollment, instances[index], memberCounts[index]),
     );
 
     setState({ groups, isLoading: false, error: null });
@@ -93,7 +103,7 @@ export const useUserGroups = () => {
     didFetch.current = true;
     // setState inside refresh is deferred via `await Promise.resolve()`,
     // and didFetch guards against cascading re-runs.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     void refresh();
   }, [hydrated, userId, refresh]);
 

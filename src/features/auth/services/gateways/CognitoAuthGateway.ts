@@ -18,6 +18,7 @@ import type {
   RegisterPayload,
 } from '../../types/auth';
 import { resolveRoles } from '../../lib/resolveRoles';
+import { fetchDomainUserId } from '@features/auth/services/fetchDomainUserId';
 
 const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
@@ -96,6 +97,7 @@ const sessionFromCognito = (
     refreshToken,
     expiresAt,
     createdAt: new Date().toISOString(),
+    sub,
     user: {
       id: sub,
       email,
@@ -283,13 +285,20 @@ export class CognitoAuthGateway implements AuthGatewayPort {
       return null;
     }
     return new Promise<AuthSession | null>((resolve) => {
-      currentUser.getSession((err: Error | null, cognitoSession: CognitoUserSession | null) => {
-        if (err || !cognitoSession || !cognitoSession.isValid()) {
-          resolve(null);
-          return;
-        }
-        resolve(sessionFromCognito(cognitoSession));
-      });
+      currentUser.getSession(
+        async (err: Error | null, cognitoSession: CognitoUserSession | null) => {
+          if (err || !cognitoSession || !cognitoSession.isValid()) {
+            resolve(null);
+            return;
+          }
+          const session = sessionFromCognito(cognitoSession);
+          const domainUserId = await fetchDomainUserId(
+            session.user.id,
+            session.idToken ?? session.token,
+          );
+          resolve({ ...session, domainUserId });
+        },
+      );
     });
   }
 }

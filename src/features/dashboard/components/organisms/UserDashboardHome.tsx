@@ -69,10 +69,10 @@ const UserDashboardHome = () => {
       tournaments
         .filter(
           (tournament) =>
-            !!tournament.start_date &&
-            !!tournament.end_date &&
-            !Number.isNaN(new Date(tournament.start_date).getTime()) &&
-            !Number.isNaN(new Date(tournament.end_date).getTime()),
+            !!tournament.startDate &&
+            !!tournament.endDate &&
+            !Number.isNaN(new Date(tournament.startDate).getTime()) &&
+            !Number.isNaN(new Date(tournament.endDate).getTime()),
         )
         .slice(0, ACTIVE_TOURNAMENTS_LIMIT),
     [tournaments],
@@ -260,7 +260,7 @@ const ActiveTournamentsSection = ({
                     fontVariantNumeric: 'tabular-nums',
                   }}
                 >
-                  {formatDateRange(tournament.start_date, tournament.end_date, locale)}
+                  {formatDateRange(tournament.startDate, tournament.endDate, locale)}
                 </Typography>
               </Box>
               <ChevronRightIcon sx={{ color: tokens.onSurfaceVariant, fontSize: 20 }} />

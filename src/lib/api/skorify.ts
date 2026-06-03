@@ -54,6 +54,24 @@ export interface RegisterUserPayload {
   email: string;
 }
 
+export interface GetUserBySubPayload {
+  sub: string;
+}
+
+export interface GetUserBySubResult {
+  id: Id;
+  name: string;
+  is_active: boolean;
+  notification_token: string | null;
+  email: string;
+  sub: string;
+  image: string | null;
+  role: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
 // ──────────────────────────── Match ───────────────────────────
 
 export type MatchStatus = 'draft' | 'scheduled' | 'in_progress' | 'finished' | 'cancelled';
@@ -258,13 +276,13 @@ export type MatchType = 'single_match_per_round' | 'home_and_away_per_round';
 export interface TournamentDto {
   id: Id;
   name: string;
-  start_date: string | null;
-  end_date: string | null;
-  match_type: MatchType | null;
+  startDate: string | null;
+  endDate: string | null;
+  matchType: MatchType | null;
   token: string;
-  created_at: string;
-  updated_at: string | null;
-  deleted_at: string | null;
+  createdAt: string;
+  updatedAt: string | null;
+  deletedAt: string | null;
 }
 
 export interface CreateTournamentPayload {
@@ -404,6 +422,7 @@ export const skorifyEndpoints = {
   user: {
     create: '/user/create-user',
     getById: '/user/get-user-by-id',
+    getBySub: '/user/get-user-by-sub',
     registerNotificationToken: '/user/register-notification-token',
     delete: '/user/delete-user',
     register: '/user/register-user',

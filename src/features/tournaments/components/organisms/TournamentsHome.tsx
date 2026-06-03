@@ -71,8 +71,8 @@ interface DerivedTournament {
 }
 
 const deriveTournament = (dto: TournamentDto, now: Date): DerivedTournament => {
-  const start = parseDate(dto.start_date);
-  const end = parseDate(dto.end_date);
+  const start = parseDate(dto.startDate);
+  const end = parseDate(dto.endDate);
   const status = deriveStatus(start, end, now);
   const daysLeft =
     status === 'upcoming' && start

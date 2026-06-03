@@ -5,9 +5,10 @@ import { useAuthSession } from './useAuthSession';
 
 export const useCurrentUserId = (): string | undefined => {
   const { session } = useAuthSession();
-  return session?.user.id;
+  return session?.domainUserId ?? session?.user.id;
 };
 
 export const getCurrentUserId = (): string | undefined => {
-  return useAuthStore.getState().session?.user.id;
+  const session = useAuthStore.getState().session;
+  return session?.domainUserId ?? session?.user.id;
 };

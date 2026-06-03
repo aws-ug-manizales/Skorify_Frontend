@@ -1,6 +1,7 @@
 import { env } from '@lib/env';
 import type { AuthSession, AuthUser } from '../types/auth';
 import { resolveRoles } from './resolveRoles';
+import { fetchDomainUserId } from '@features/auth/services/fetchDomainUserId';
 
 interface CognitoTokenResponse {
   id_token: string;
@@ -81,13 +82,14 @@ export const exchangeAuthorizationCode = async (code: string): Promise<AuthSessi
   const displayName =
     payload.nickname ?? payload.preferred_username ?? payload.name ?? email.split('@')[0];
 
-  return {
+  const session: AuthSession = {
     token: tokens.id_token,
     idToken: tokens.id_token,
     accessToken: tokens.access_token,
     refreshToken: tokens.refresh_token,
     createdAt: new Date().toISOString(),
     expiresAt: new Date(Date.now() + tokens.expires_in * 1000).toISOString(),
+    sub: payload.sub,
     user: {
       id: payload.sub,
       email,
@@ -97,4 +99,7 @@ export const exchangeAuthorizationCode = async (code: string): Promise<AuthSessi
       roles,
     },
   };
+
+  const domainUserId = await fetchDomainUserId(payload.sub, tokens.id_token);
+  return { ...session, domainUserId };
 };

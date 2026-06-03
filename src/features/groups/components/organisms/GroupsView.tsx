@@ -24,7 +24,8 @@ import { useUserGroups, type UserGroupSummary } from '../../hooks/useUserGroups'
 
 const numberFormatter = new Intl.NumberFormat('es-CO');
 
-const colorForGroup = (id: string) => {
+const colorForGroup = (id: string | undefined) => {
+  if (!id) return avatarPalette[0];
   let hash = 0;
   for (let i = 0; i < id.length; i += 1) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
   return avatarPalette[hash % avatarPalette.length];

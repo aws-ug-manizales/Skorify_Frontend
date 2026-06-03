@@ -18,6 +18,8 @@ export {
   type UserDto,
   type CreateUserPayload,
   type GetUserByIdParams,
+  type GetUserBySubPayload,
+  type GetUserBySubResult,
   type RegisterNotificationTokenPayload,
   type MatchDto,
   type MatchStage,
