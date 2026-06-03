@@ -62,8 +62,8 @@ const TournamentDetailDialog = ({ open, onClose, tournamentId }: TournamentDetai
     if (!data) return false;
     // Treat missing/invalid dates as finished too — same rule as the list view
     // so a tournament without valid dates can't be joined or used as a group base.
-    if (!data.end_date) return true;
-    const end = new Date(data.end_date);
+    if (!data.endDate) return true;
+    const end = new Date(data.endDate);
     if (Number.isNaN(end.getTime())) return true;
     return end < new Date();
   }, [data]);
@@ -149,13 +149,13 @@ const TournamentDetailDialog = ({ open, onClose, tournamentId }: TournamentDetai
 
           {data &&
             (() => {
-              const start = data.start_date ? new Date(data.start_date) : null;
-              const end = data.end_date ? new Date(data.end_date) : null;
+              const start = data.startDate ? new Date(data.startDate) : null;
+              const end = data.endDate ? new Date(data.endDate) : null;
               const status = deriveStatus(start, end, new Date());
               const matchTypeKey =
-                data.match_type === 'single_match_per_round'
+                data.matchType === 'single_match_per_round'
                   ? 'matchTypeSingle'
-                  : data.match_type === 'home_and_away_per_round'
+                  : data.matchType === 'home_and_away_per_round'
                     ? 'matchTypeHomeAway'
                     : null;
 
