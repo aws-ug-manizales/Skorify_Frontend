@@ -24,10 +24,16 @@ type UseMatchesListState = {
   total: number;
 };
 
+interface UseMatchesListOptions {
+  tournamentId?: string;
+}
+
 export const useMatchesList = (
   initialPageSize = 10,
   initialFilter: MatchesFilterKey = 'filterAll',
+  options: UseMatchesListOptions = {},
 ): UseMatchesListState => {
+  const { tournamentId } = options;
   const [query, setQuery] = useState<MatchesQuery>({
     statusFilter: initialFilter,
     team: '',
@@ -46,6 +52,7 @@ export const useMatchesList = (
     const status = statusFromFilter(query.statusFilter);
     const { from, to } = worldCupWeekToFromToIso(Number(query.week));
     return {
+      tournamentId,
       page: query.page,
       pageSize: query.pageSize,
       status,
@@ -53,7 +60,7 @@ export const useMatchesList = (
       from,
       to,
     };
-  }, [query]);
+  }, [query, tournamentId]);
 
   useEffect(() => {
     let mounted = true;
