@@ -5,8 +5,6 @@ export interface User {
   name: string;
   email: string;
   status: UserStatus;
-  predictions: number;
+  // Number of groups (tournament-instance enrollments) the user belongs to.
   groups: number;
-  accuracyRate: number;
-  lastActiveAt: string;
 }

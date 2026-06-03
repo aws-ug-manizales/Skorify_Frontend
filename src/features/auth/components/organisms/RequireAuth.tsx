@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useAuthSession } from '@features/auth/hooks/useAuthSession';
+import SessionExpiryGuard from './SessionExpiryGuard';
 
 const RequireAuth = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
@@ -34,7 +35,12 @@ const RequireAuth = ({ children }: { children: React.ReactNode }) => {
     return null;
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <SessionExpiryGuard />
+      {children}
+    </>
+  );
 };
 
 export default RequireAuth;

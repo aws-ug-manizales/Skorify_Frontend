@@ -17,12 +17,15 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { es as esLocale } from 'date-fns/locale/es';
 import { enUS as enLocale } from 'date-fns/locale/en-US';
+import { startOfDay } from 'date-fns';
 import FormField from '@shared/components/atoms/FormField';
 import AppButton from '@shared/components/atoms/AppButton';
+import { useApiErrorMessage } from '@lib/api';
 import useSnackbar from '@shared/hooks/useSnackbar';
 import { tokens } from '@lib/theme/theme';
 import { getInitials } from '@shared/utils/string';
 import type { MatchType } from '@lib/api/skorify';
+import { useCurrentUserId } from '@features/auth/hooks/useCurrentUserId';
 import useCreateTournament from '../../hooks/useCreateTournament';
 
 interface CreateTournamentFormValues {
@@ -41,7 +44,9 @@ const CreateTournamentForm = ({ onCreated }: CreateTournamentFormProps) => {
   const locale = useLocale();
   const adapterLocale = locale.startsWith('es') ? esLocale : enLocale;
   const snackbar = useSnackbar();
+  const userId = useCurrentUserId();
   const { createTournament, isLoading, error } = useCreateTournament();
+  const formatApiError = useApiErrorMessage();
 
   const { control, handleSubmit } = useForm<CreateTournamentFormValues>({
     defaultValues: { name: '', matchType: '', startDate: null, endDate: null },
@@ -49,6 +54,7 @@ const CreateTournamentForm = ({ onCreated }: CreateTournamentFormProps) => {
 
   const nameValue = useWatch({ control, name: 'name' });
   const startDateValue = useWatch({ control, name: 'startDate' });
+  const today = startOfDay(new Date());
 
   const matchTypeOptions = [
     { value: 'single_match_per_round', label: t('matchTypeSingle') },
@@ -58,12 +64,18 @@ const CreateTournamentForm = ({ onCreated }: CreateTournamentFormProps) => {
   const onSubmit = async (values: CreateTournamentFormValues) => {
     if (!values.matchType || !values.startDate || !values.endDate) return;
 
+    if (!userId) {
+      snackbar.error(t('createError'));
+      return;
+    }
+
     const name = values.name.trim();
     const tournament = await createTournament({
       name,
       matchType: values.matchType,
       startDate: values.startDate.toISOString(),
       endDate: values.endDate.toISOString(),
+      userId,
     });
 
     if (tournament) {
@@ -224,12 +236,16 @@ const CreateTournamentForm = ({ onCreated }: CreateTournamentFormProps) => {
             <Controller
               control={control}
               name="startDate"
-              rules={{ required: t('startDateRequired') }}
+              rules={{
+                required: t('startDateRequired'),
+                validate: (value) => !value || startOfDay(value) >= today || t('startDateInPast'),
+              }}
               render={({ field, fieldState }) => (
                 <DatePicker
                   value={field.value}
                   onChange={field.onChange}
                   inputRef={field.ref}
+                  minDate={today}
                   slotProps={{
                     textField: {
                       fullWidth: true,
@@ -262,14 +278,17 @@ const CreateTournamentForm = ({ onCreated }: CreateTournamentFormProps) => {
               rules={{
                 required: t('endDateRequired'),
                 validate: (value) =>
-                  !startDateValue || !value || value > startDateValue || t('endDateBeforeStart'),
+                  !startDateValue ||
+                  !value ||
+                  startOfDay(value) >= startOfDay(startDateValue) ||
+                  t('endDateBeforeStart'),
               }}
               render={({ field, fieldState }) => (
                 <DatePicker
                   value={field.value}
                   onChange={field.onChange}
                   inputRef={field.ref}
-                  minDate={startDateValue ?? undefined}
+                  minDate={startDateValue ?? today}
                   slotProps={{
                     textField: {
                       fullWidth: true,
@@ -311,7 +330,7 @@ const CreateTournamentForm = ({ onCreated }: CreateTournamentFormProps) => {
 
         {error && (
           <Alert severity="error" sx={{ mt: 2, borderRadius: '10px' }}>
-            {error.message}
+            {formatApiError(error)}
           </Alert>
         )}
 

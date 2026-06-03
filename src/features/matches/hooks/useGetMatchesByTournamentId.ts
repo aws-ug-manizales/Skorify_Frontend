@@ -5,7 +5,7 @@ import { api } from '@lib/api';
 import {
   skorifyEndpoints,
   type GetMatchesByTournamentIdParams,
-  type MatchDto,
+  type MatchWithTeamsDto,
   type SkorifyEnvelope,
 } from '@lib/api/skorify';
 import type { ApiError } from '@lib/api/types';
@@ -13,7 +13,7 @@ import type { ApiError } from '@lib/api/types';
 interface UseGetMatchesByTournamentIdState {
   isLoading: boolean;
   error: ApiError | null;
-  data: MatchDto[];
+  data: MatchWithTeamsDto[];
 }
 
 const initialState: UseGetMatchesByTournamentIdState = {
@@ -32,11 +32,11 @@ export const useGetMatchesByTournamentId = (options: UseGetMatchesByTournamentId
   const [state, setState] = useState<UseGetMatchesByTournamentIdState>(initialState);
 
   const getMatchesByTournamentId = useCallback(
-    async (params: GetMatchesByTournamentIdParams): Promise<MatchDto[]> => {
+    async (params: GetMatchesByTournamentIdParams): Promise<MatchWithTeamsDto[]> => {
       await Promise.resolve();
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-      const result = await api.get<SkorifyEnvelope<MatchDto[]>>(
+      const result = await api.get<SkorifyEnvelope<MatchWithTeamsDto[]>>(
         skorifyEndpoints.match.getByTournamentId,
         params as unknown as Record<string, unknown>,
       );
@@ -60,7 +60,7 @@ export const useGetMatchesByTournamentId = (options: UseGetMatchesByTournamentId
     lastFetchedId.current = tournamentId;
     // setState inside the callback is deferred via `await Promise.resolve()`,
     // and the lastFetchedId guard prevents the cascade the lint rule warns about.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+
     void getMatchesByTournamentId({ tournamentId });
   }, [autoFetch, tournamentId, getMatchesByTournamentId]);
 

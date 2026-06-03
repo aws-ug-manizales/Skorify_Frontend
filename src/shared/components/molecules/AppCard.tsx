@@ -8,9 +8,10 @@ import { type ReactNode } from 'react';
 
 type CardVariant = 'default' | 'elevated' | 'outlined' | 'interactive';
 
-export type AppCardProps = Omit<MuiCardProps, 'variant'> & {
+export type AppCardProps = Omit<MuiCardProps, 'variant' | 'onClick'> & {
   variant?: CardVariant;
   href?: string;
+  onClick?: () => void;
   children: ReactNode;
 };
 
@@ -40,10 +41,14 @@ const variantStyles: Record<CardVariant, object> = {
   },
 };
 
-const AppCard = ({ variant = 'default', href, children, sx, ...rest }: AppCardProps) => (
+const AppCard = ({ variant = 'default', href, onClick, children, sx, ...rest }: AppCardProps) => (
   <MuiCard {...rest} sx={[variantStyles[variant], ...(Array.isArray(sx) ? sx : [sx])]}>
     {href ? (
       <CardActionArea component={Link} href={href} sx={{ height: '100%' }}>
+        {children}
+      </CardActionArea>
+    ) : onClick ? (
+      <CardActionArea onClick={onClick} sx={{ height: '100%' }}>
         {children}
       </CardActionArea>
     ) : (

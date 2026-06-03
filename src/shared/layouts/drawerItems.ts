@@ -32,7 +32,10 @@ const buildBaseItems = (role: DrawerRole): ReadonlyArray<DrawerItem> => [
     Icon: CalendarMonthIcon,
     children: role === 'admin' ? [...matchesChildren, ...matchesAdminChildren] : matchesChildren,
   },
-  { key: 'tournaments', href: '/tournaments', Icon: EmojiEventsIcon },
+  // Tournaments management is admin-only.
+  ...(role === 'admin'
+    ? [{ key: 'tournaments', href: '/tournaments', Icon: EmojiEventsIcon } as DrawerItem]
+    : []),
   { key: 'groups', href: '/groups', Icon: GroupIcon },
 ];
 

@@ -15,7 +15,6 @@ export const fetchDomainUserId = async (
   idToken: string,
 ): Promise<string | undefined> => {
   try {
-    console.log(`Fetching domain user ID for sub ${sub} with idToken ${idToken}`);
     // Temporarily set the token so the api interceptor sends it as Authorization
     const previous = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
     if (typeof window !== 'undefined') {
@@ -28,8 +27,6 @@ export const fetchDomainUserId = async (
         params: { sub },
       },
     );
-
-    console.log(result.data);
 
     // Restore the previous token value
     if (typeof window !== 'undefined') {

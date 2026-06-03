@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import JoinGroupDialog from '@features/groups/components/organisms/JoinGroupDialog';
 import { useAuthSession } from '@features/auth';
 import { useLocale, useTranslations } from 'next-intl';
 import Box from '@mui/material/Box';
@@ -20,10 +19,11 @@ import CloseIcon from '@mui/icons-material/Close';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
-import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import AppButton from '@shared/components/atoms/AppButton';
+import useSnackbar from '@shared/hooks/useSnackbar';
 import { tokens } from '@lib/theme/theme';
 import { useGetTournamentById } from '../../hooks/useGetTournamentById';
+import { useJoinTournament } from '../../hooks/useJoinTournament';
 
 type TournamentStatus = 'active' | 'upcoming' | 'finished';
 
@@ -46,17 +46,28 @@ interface TournamentDetailDialogProps {
   open: boolean;
   onClose: () => void;
   tournamentId: string | null;
+  /** Global tournament instance the user is enrolled into when joining. */
+  globalInstanceId?: string | null;
+  /** Called after a successful enrollment so callers can refresh their data (e.g. the user's groups). */
+  onJoined?: () => void;
 }
 
-const TournamentDetailDialog = ({ open, onClose, tournamentId }: TournamentDetailDialogProps) => {
+const TournamentDetailDialog = ({
+  open,
+  onClose,
+  tournamentId,
+  globalInstanceId,
+  onJoined,
+}: TournamentDetailDialogProps) => {
   const t = useTranslations('tournaments');
   const tDetail = useTranslations('tournaments.detail');
   const locale = useLocale();
   const router = useRouter();
+  const snackbar = useSnackbar();
   const { canCreateGroups } = useAuthSession();
 
   const { data, isLoading, error, getTournamentById, reset } = useGetTournamentById();
-  const [joinDialogOpen, setJoinDialogOpen] = useState(false);
+  const { joinTournament, isLoading: isJoining } = useJoinTournament();
 
   const isFinished = useMemo(() => {
     if (!data) return false;
@@ -68,9 +79,21 @@ const TournamentDetailDialog = ({ open, onClose, tournamentId }: TournamentDetai
     return end < new Date();
   }, [data]);
 
-  const handleJoin = () => {
+  // Joins the tournament's global instance directly — no invite code needed.
+  const handleJoin = async () => {
     if (isFinished) return;
-    setJoinDialogOpen(true);
+    const result = await joinTournament(globalInstanceId);
+    if (result === 'joined') {
+      snackbar.success(tDetail('joinSuccess'));
+      onJoined?.();
+      onClose();
+    } else if (result === 'already') {
+      snackbar.info(tDetail('joinAlready'));
+      onJoined?.();
+      onClose();
+    } else {
+      snackbar.error(tDetail('joinError'));
+    }
   };
 
   const handleCreateGroup = () => {
@@ -218,12 +241,6 @@ const TournamentDetailDialog = ({ open, onClose, tournamentId }: TournamentDetai
                       label={tDetail('matchTypeLabel')}
                       value={matchTypeKey ? t(matchTypeKey) : '—'}
                     />
-                    <DetailRow
-                      icon={<VpnKeyIcon sx={{ color: tokens.onSurfaceVariant }} />}
-                      label={tDetail('tokenLabel')}
-                      value={data.token}
-                      monospace
-                    />
                   </Stack>
                 </Stack>
               );
@@ -248,7 +265,8 @@ const TournamentDetailDialog = ({ open, onClose, tournamentId }: TournamentDetai
               <AppButton
                 variant="secondary"
                 fullWidth
-                disabled={isFinished}
+                loading={isJoining}
+                disabled={isFinished || !globalInstanceId}
                 startIcon={<GroupAddIcon sx={{ fontSize: '1rem' }} />}
                 onClick={handleJoin}
                 sx={{
@@ -281,7 +299,6 @@ const TournamentDetailDialog = ({ open, onClose, tournamentId }: TournamentDetai
           </Box>
         )}
       </Dialog>
-      <JoinGroupDialog open={joinDialogOpen} onClose={() => setJoinDialogOpen(false)} />
     </>
   );
 };

@@ -7,6 +7,7 @@ import {
   isSkorifyEnvelope,
   stripControllerPrefix,
 } from './skorify-events';
+import { notifySessionExpired } from './sessionEvents';
 
 const apiInstance: AxiosInstance = axios.create({
   baseURL: env.NEXT_PUBLIC_API_URL,
@@ -73,7 +74,9 @@ apiInstance.interceptors.response.use(
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token');
-        window.location.href = '/auth';
+        // Defer to the React layer (SessionExpiryGuard) so the user sees the
+        // "session expired" modal before being redirected to the login screen.
+        notifySessionExpired();
       }
     }
 

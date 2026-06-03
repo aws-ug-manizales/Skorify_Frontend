@@ -5,12 +5,18 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
+import MenuItem from '@mui/material/MenuItem';
 import AddIcon from '@mui/icons-material/Add';
+import LockIcon from '@mui/icons-material/Lock';
 import AppButton from '@shared/components/atoms/AppButton';
 import { useAuthSession } from '@features/auth/hooks/useAuthSession';
+import { useGetAvailableTournaments } from '@features/tournaments';
 import { formatKickoff } from '../../utils/formatKickoff';
 import CreateMatchDrawer from './CreateMatchDrawer';
+import BulkCloseMatchesDialog from './BulkCloseMatchesDialog';
 import MatchCard from '../molecules/MatchCard';
+import MatchAdminActions from '../molecules/MatchAdminActions';
 import MatchesEmptyState from '../molecules/MatchesEmptyState';
 import MatchesHeader from '../molecules/MatchesHeader';
 import PaginatedMatchesGrid from '../molecules/PaginatedMatchesGrid';
@@ -28,9 +34,9 @@ import type { Match } from '../../types';
 const toPredictionDrawerMatch = (match: Match): PredictionDrawerMatch => ({
   id: match.id,
   homeTeam: match.homeTeam.name,
-  homeTeamFlag: getCountryFlagUrl(match.homeTeam.code),
+  homeTeamFlag: match.homeTeam.image ?? getCountryFlagUrl(match.homeTeam.code),
   awayTeam: match.awayTeam.name,
-  awayTeamFlag: getCountryFlagUrl(match.awayTeam.code),
+  awayTeamFlag: match.awayTeam.image ?? getCountryFlagUrl(match.awayTeam.code),
   kickoffAt: match.kickoffAt,
 });
 
@@ -43,9 +49,40 @@ const MatchesHome = () => {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  const { query, setStatusFilter, setTeam, setWeek, setPage, loading, items, total, resetFilters } =
-    useMatchesList(10);
+
+  const { data: tournaments } = useGetAvailableTournaments();
+  const [tournamentId, setTournamentId] = useState<string>(
+    () => searchParams.get('tournamentId') ?? '',
+  );
+  const selectedTournamentName =
+    tournaments.find((tournament) => tournament.id === tournamentId)?.name ?? '';
+
+  const handleTournamentChange = useCallback(
+    (id: string) => {
+      setTournamentId(id);
+      const next = new URLSearchParams(searchParams.toString());
+      if (id) next.set('tournamentId', id);
+      else next.delete('tournamentId');
+      const qs = next.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const {
+    query,
+    setStatusFilter,
+    setTeam,
+    setWeek,
+    setPage,
+    loading,
+    items,
+    total,
+    resetFilters,
+    reload,
+  } = useMatchesList(10, 'filterAll', tournamentId || undefined);
   const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
+  const [bulkCloseOpen, setBulkCloseOpen] = useState(false);
   // Open the drawer on mount when arriving with `?create=1` (linked from the
   // admin nav). Reads the param once via lazy init to avoid effect cascades.
   const [createDrawerOpen, setCreateDrawerOpen] = useState(
@@ -68,6 +105,8 @@ const MatchesHome = () => {
       }, {}),
   );
 
+  // The matches endpoint already returns resolved team names + shields inline,
+  // so we only overlay the locally-edited prediction here.
   const monthOptions = useMemo(() => getWorldCupWeekOptions2026(locale), [locale]);
   const displayedItems = useMemo(
     () =>
@@ -119,12 +158,38 @@ const MatchesHome = () => {
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
       {isAdmin && (
-        <Stack direction="row" justifyContent="flex-end" sx={{ mb: 2 }}>
+        <Stack direction="row" justifyContent="flex-end" spacing={1.5} sx={{ mb: 2 }}>
+          <AppButton
+            variant="secondary"
+            startIcon={<LockIcon />}
+            onClick={() => setBulkCloseOpen(true)}
+            disabled={!tournamentId || items.length === 0}
+          >
+            {tAdmin('actions.bulkCloseAction')}
+          </AppButton>
           <AppButton startIcon={<AddIcon />} onClick={() => setCreateDrawerOpen(true)}>
             {tAdmin('submit')}
           </AppButton>
         </Stack>
       )}
+
+      <Stack sx={{ mb: 3, maxWidth: { sm: 360 } }}>
+        <TextField
+          select
+          size="small"
+          label={tAdmin('tournamentLabel')}
+          value={tournamentId}
+          onChange={(e) => handleTournamentChange(e.target.value)}
+          fullWidth
+        >
+          <MenuItem value="">{tAdmin('tournamentPlaceholder')}</MenuItem>
+          {tournaments.map((tournament) => (
+            <MenuItem key={tournament.id} value={tournament.id}>
+              {tournament.name}
+            </MenuItem>
+          ))}
+        </TextField>
+      </Stack>
 
       <MatchesHeader
         title={t('title')}
@@ -147,7 +212,9 @@ const MatchesHome = () => {
         onClear={resetFilters}
       />
 
-      {loading ? (
+      {!tournamentId ? (
+        <MatchesEmptyState message={tAdmin('actions.selectTournamentPrompt')} />
+      ) : loading ? (
         <MatchesEmptyState message={tCommon('loading')} />
       ) : total === 0 ? (
         <MatchesEmptyState message={t('noMatches')} />
@@ -161,19 +228,30 @@ const MatchesHome = () => {
           getKey={(m) => m.id}
           gridSize={{ xs: 12, sm: 12, md: 6, lg: 6 }}
           renderItem={(m) => (
-            <MatchCard
-              match={m}
-              tournamentLabel={t(m.tournamentKey)}
-              stageLabel={t(m.stageKey)}
-              statusLabel={t(m.status)}
-              kickoffLabel={formatKickoff(m.kickoffAt, locale)}
-              vsLabel={t('vs')}
-              addPredictionLabel={t('addPrediction')}
-              editPredictionLabel={t('editPrediction')}
-              predictionLabel={t('predictionLabel')}
-              onAddPrediction={handleOpenPrediction}
-              onEditPrediction={handleOpenPrediction}
-            />
+            <Box sx={{ position: 'relative' }}>
+              {isAdmin && (
+                <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 1 }}>
+                  <MatchAdminActions
+                    matchId={m.id}
+                    tournamentId={tournamentId}
+                    onChanged={reload}
+                  />
+                </Box>
+              )}
+              <MatchCard
+                match={m}
+                tournamentLabel={selectedTournamentName}
+                stageLabel={m.stageKey === 'finals' ? t('stageFinals') : t('stageGroup')}
+                statusLabel={t(m.status)}
+                kickoffLabel={formatKickoff(m.kickoffAt, locale)}
+                vsLabel={t('vs')}
+                addPredictionLabel={t('addPrediction')}
+                editPredictionLabel={t('editPrediction')}
+                predictionLabel={t('predictionLabel')}
+                onAddPrediction={handleOpenPrediction}
+                onEditPrediction={handleOpenPrediction}
+              />
+            </Box>
           )}
         />
       )}
@@ -187,7 +265,15 @@ const MatchesHome = () => {
       />
 
       {isAdmin && (
-        <CreateMatchDrawer open={createDrawerOpen} onClose={() => setCreateDrawerOpen(false)} />
+        <>
+          <CreateMatchDrawer open={createDrawerOpen} onClose={() => setCreateDrawerOpen(false)} />
+          <BulkCloseMatchesDialog
+            open={bulkCloseOpen}
+            onClose={() => setBulkCloseOpen(false)}
+            matches={items}
+            onClosed={reload}
+          />
+        </>
       )}
     </Box>
   );

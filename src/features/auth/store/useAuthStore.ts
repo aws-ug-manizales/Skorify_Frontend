@@ -22,6 +22,7 @@ type AuthState = {
   resendConfirmationCode: (email: string) => Promise<AuthGatewayResult>;
   loginWithGoogle: () => Promise<AuthGatewayResult>;
   restoreSession: () => Promise<void>;
+  validateSession: () => Promise<boolean>;
   logout: () => Promise<void>;
 };
 
@@ -36,7 +37,7 @@ const persistToken = (token: string | null) => {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       hydrated: false,
       session: null,
       setHydrated: (value) => set({ hydrated: value }),
@@ -84,6 +85,33 @@ export const useAuthStore = create<AuthState>()(
         } else {
           persistToken(null);
         }
+      },
+
+      // Re-validates against Cognito (getSession refreshes silently when only the
+      // id/access token expired). Returns false and clears the session when the
+      // refresh token is gone — i.e. the session is truly expired.
+      //
+      // Avoids hitting `get-user-by-sub` on every call: it only resolves the
+      // domain user ID (the expensive backend call) when we don't already have
+      // it. Once resolved it is carried over, so repeated validations from the
+      // session-expiry watcher stay purely local to Cognito.
+      validateSession: async () => {
+        const previousDomainUserId = get().session?.domainUserId;
+        const session = previousDomainUserId
+          ? await authService.getValidSession()
+          : await authService.restoreSession();
+
+        if (session) {
+          const next = previousDomainUserId
+            ? { ...session, domainUserId: previousDomainUserId }
+            : session;
+          set({ session: next });
+          persistToken(next.token);
+          return true;
+        }
+        set({ session: null });
+        persistToken(null);
+        return false;
       },
 
       logout: async () => {

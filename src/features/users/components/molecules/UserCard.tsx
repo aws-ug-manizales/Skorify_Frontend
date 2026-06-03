@@ -4,8 +4,6 @@ import { useTranslations } from 'next-intl';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import PeopleIcon from '@mui/icons-material/People';
-import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AppButton from '@shared/components/atoms/AppButton';
 import { tokens } from '@lib/theme/theme';
 import UserAvatar from '../atoms/UserAvatar';
@@ -19,11 +17,10 @@ const STATUS_COLORS: Record<User['status'], string> = {
 
 type Props = {
   user: User;
-  locale: string;
   onToggleStatus: (userId: string) => void;
 };
 
-const UserCard = ({ user, locale, onToggleStatus }: Props) => {
+const UserCard = ({ user, onToggleStatus }: Props) => {
   const t = useTranslations('users');
   const statusColor = STATUS_COLORS[user.status];
 
@@ -91,24 +88,11 @@ const UserCard = ({ user, locale, onToggleStatus }: Props) => {
 
       <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <SportsSoccerIcon sx={{ fontSize: '0.875rem', color: tokens.primary }} />
-          <Typography sx={{ fontSize: '0.75rem', color: tokens.onSurfaceVariant }}>
-            {user.predictions.toLocaleString(locale)} {t('predictions')}
-          </Typography>
-        </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <PeopleIcon sx={{ fontSize: '0.875rem', color: tokens.primary }} />
           <Typography sx={{ fontSize: '0.75rem', color: tokens.onSurfaceVariant }}>
             {user.groups} {t('groups')}
           </Typography>
         </Box>
-      </Box>
-
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-        <TrendingUpIcon sx={{ fontSize: '0.875rem', color: tokens.tertiary }} />
-        <Typography sx={{ fontSize: '0.75rem', color: tokens.onSurfaceVariant }}>
-          {user.accuracyRate}% {t('accuracy')}
-        </Typography>
       </Box>
 
       <AppButton

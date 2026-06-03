@@ -6,3 +6,5 @@ export { useGetTournamentById } from './hooks/useGetTournamentById';
 export { useFilterTournaments } from './hooks/useFilterTournaments';
 export { useGetAvailableTournaments } from './hooks/useGetAvailableTournaments';
 export { useCreateTournamentInstance } from './hooks/useCreateTournamentInstance';
+export { useGetTournamentInstancesByTournamentId } from './hooks/useGetTournamentInstancesByTournamentId';
+export { useJoinTournament } from './hooks/useJoinTournament';

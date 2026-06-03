@@ -4,6 +4,7 @@ export { useAuthGateway } from './hooks/useAuthGateway';
 export { useCurrentUserId, getCurrentUserId } from './hooks/useCurrentUserId';
 export { default as AuthGateway } from './components/organisms/AuthGateway';
 export { default as RequireAuth } from './components/organisms/RequireAuth';
+export { default as SessionExpiryGuard } from './components/organisms/SessionExpiryGuard';
 export { default as RequireAdmin } from './components/organisms/RequireAdmin';
 export { default as RequireGuest } from './components/organisms/RequireGuest';
 export { default as AuthGatewayHeader } from './components/molecules/AuthGatewayHeader';

@@ -25,8 +25,7 @@ import { getWorldCupWeekOptions2026 } from '@shared/components/organisms/MatchLi
 import { useCurrentUserId } from '@features/auth/hooks/useCurrentUserId';
 import { useGetUserEnrollmentsByUserId } from '@features/groups/hooks/useGetUserEnrollmentsByUserId';
 import { useGetMatchesByTournamentId } from '@features/matches/hooks/useGetMatchesByTournamentId';
-import { useTeamsLookup } from '@features/teams';
-import type { MatchDto, PredictionDto } from '@lib/api/skorify';
+import type { PredictionDto } from '@lib/api/skorify';
 import PredictionsToolbar, { type PredictionsToolbarValues } from '../molecules/PredictionsToolbar';
 import MatchesPanel, { type MatchesPanelSavedPrediction } from './MatchesPanel';
 import PredictionDrawer, { type PredictionDrawerMatch } from './PredictionDrawer';
@@ -105,16 +104,6 @@ const PredictionsView = () => {
     refreshPredictions();
   }, [refreshPredictions]);
 
-  const teamIds = useMemo(() => {
-    const ids = new Set<string>();
-    backendMatches.forEach((dto) => {
-      ids.add(dto.homeTeamId);
-      ids.add(dto.awayTeamId);
-    });
-    return Array.from(ids);
-  }, [backendMatches]);
-  const { teams: teamsLookup } = useTeamsLookup(teamIds);
-
   const { savedPredictions, predictionIdByMatch } = useMemo(() => {
     const saved: Record<string, MatchesPanelSavedPrediction> = {};
     const ids: Record<string, string> = {};
@@ -129,20 +118,16 @@ const PredictionsView = () => {
   }, [userPredictions]);
 
   const matches = useMemo<PredictionMatch[]>(() => {
-    return backendMatches.map((dto: MatchDto) => {
-      const home = teamsLookup[dto.homeTeamId];
-      const away = teamsLookup[dto.awayTeamId];
-      return {
-        id: dto.id,
-        homeTeam: home?.name ?? dto.homeTeamId,
-        awayTeam: away?.name ?? dto.awayTeamId,
-        homeTeamFlag: home?.shieldUrl ?? '',
-        awayTeamFlag: away?.shieldUrl ?? '',
-        date: dto.kickOff,
-        isUserPredicted: dto.id in savedPredictions,
-      };
-    });
-  }, [backendMatches, teamsLookup, savedPredictions]);
+    return backendMatches.map(({ match, homeTeam, awayTeam }) => ({
+      id: match.id,
+      homeTeam: homeTeam?.name ?? match.homeTeamId,
+      awayTeam: awayTeam?.name ?? match.awayTeamId,
+      homeTeamFlag: homeTeam?.shieldUrl ?? '',
+      awayTeamFlag: awayTeam?.shieldUrl ?? '',
+      date: match.kickOff,
+      isUserPredicted: match.id in savedPredictions,
+    }));
+  }, [backendMatches, savedPredictions]);
 
   const savedMessages = useMemo(() => t.raw('savedMessages') as string[], [t]);
 

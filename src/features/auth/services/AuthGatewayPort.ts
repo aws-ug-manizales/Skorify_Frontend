@@ -20,4 +20,5 @@ export interface AuthGatewayPort {
   loginWithGoogle(): Promise<AuthGatewayResult>;
   logout(): Promise<void>;
   restoreSession(): Promise<AuthSession | null>;
+  getValidSession(): Promise<AuthSession | null>;
 }

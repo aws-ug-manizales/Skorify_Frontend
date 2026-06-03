@@ -1,18 +1,22 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Skeleton from '@mui/material/Skeleton';
+import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import AppButton from '@shared/components/atoms/AppButton';
+import Confetti from '@shared/components/organisms/Confetti';
 import { tokens, avatarPalette } from '@lib/theme/theme';
 import useSnackbar from '@shared/hooks/useSnackbar';
 import { useAuthSession } from '@features/auth/hooks/useAuthSession';
@@ -93,6 +97,7 @@ const deriveTournament = (dto: TournamentDto, now: Date): DerivedTournament => {
 const TournamentsHome = () => {
   const t = useTranslations('tournaments');
   const locale = useLocale();
+  const router = useRouter();
   const { isAdmin } = useAuthSession();
   const snackbar = useSnackbar();
   const { data, isLoading, error, getAvailableTournaments } = useGetAvailableTournaments();
@@ -112,6 +117,7 @@ const TournamentsHome = () => {
   const [activeFilter, setActiveFilter] = useState<FilterKey>('filterAll');
   const [createOpen, setCreateOpen] = useState(false);
   const [detailId, setDetailId] = useState<string | null>(null);
+  const [celebrate, setCelebrate] = useState(false);
 
   // Show one error toast per failed load (not on every re-render).
   useEffect(() => {
@@ -318,20 +324,36 @@ const TournamentsHome = () => {
                   </Typography>
                 </Box>
 
-                <AppButton
-                  variant="secondary"
-                  fullWidth
-                  startIcon={<VisibilityIcon sx={{ fontSize: '1rem' }} />}
-                  onClick={() => setDetailId(id)}
-                  sx={{
-                    fontSize: '0.6875rem',
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    fontWeight: 700,
-                  }}
-                >
-                  {t('viewDetail')}
-                </AppButton>
+                <Stack direction="row" spacing={1}>
+                  <AppButton
+                    variant="secondary"
+                    fullWidth
+                    startIcon={<VisibilityIcon sx={{ fontSize: '1rem' }} />}
+                    onClick={() => setDetailId(id)}
+                    sx={{
+                      fontSize: '0.6875rem',
+                      letterSpacing: '0.1em',
+                      textTransform: 'uppercase',
+                      fontWeight: 700,
+                    }}
+                  >
+                    {t('viewDetail')}
+                  </AppButton>
+                  <AppButton
+                    variant="secondary"
+                    fullWidth
+                    startIcon={<SportsSoccerIcon sx={{ fontSize: '1rem' }} />}
+                    onClick={() => router.push(`/matches?tournamentId=${id}`)}
+                    sx={{
+                      fontSize: '0.6875rem',
+                      letterSpacing: '0.1em',
+                      textTransform: 'uppercase',
+                      fontWeight: 700,
+                    }}
+                  >
+                    {t('viewMatches')}
+                  </AppButton>
+                </Stack>
               </Box>
             </Grid>
           ))}
@@ -342,14 +364,20 @@ const TournamentsHome = () => {
         <CreateTournamentDrawer
           open={createOpen}
           onClose={() => setCreateOpen(false)}
-          onCreated={() => void getAvailableTournaments()}
+          onCreated={() => {
+            setCelebrate(true);
+            void getAvailableTournaments();
+          }}
         />
       )}
+
+      <Confetti active={celebrate} onComplete={() => setCelebrate(false)} />
 
       <TournamentDetailDialog
         open={detailId !== null}
         onClose={() => setDetailId(null)}
         tournamentId={detailId}
+        globalInstanceId={data.find((tournament) => tournament.id === detailId)?.globalInstanceId}
       />
     </Box>
   );

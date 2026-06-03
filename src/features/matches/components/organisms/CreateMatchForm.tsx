@@ -11,7 +11,6 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import GroupsIcon from '@mui/icons-material/Groups';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import StadiumIcon from '@mui/icons-material/Stadium';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -22,7 +21,12 @@ import { enUS as enLocale } from 'date-fns/locale/en-US';
 import FormField, { type FormFieldOption } from '@shared/components/atoms/FormField';
 import AppButton from '@shared/components/atoms/AppButton';
 import { tokens } from '@lib/theme/theme';
+import { useApiErrorMessage } from '@lib/api';
 import { useGetAvailableTournaments } from '@features/tournaments/hooks/useGetAvailableTournaments';
+import { useGetTeamsByQuery } from '@features/teams';
+import MatchAutocompleteField, {
+  type MatchAutocompleteOption,
+} from '../atoms/MatchAutocompleteField';
 import { useCreateMatch } from '../../hooks/useCreateMatch';
 import type { CreateMatchPayload, MatchStage } from '@lib/api/skorify';
 
@@ -58,7 +62,9 @@ const CreateMatchForm = ({ onCreated }: CreateMatchFormProps = {}) => {
   const locale = useLocale();
   const adapterLocale = locale.startsWith('es') ? esLocale : enLocale;
   const { createMatch, isLoading, error, data } = useCreateMatch();
+  const formatApiError = useApiErrorMessage();
   const { data: tournaments, isLoading: tournamentsLoading } = useGetAvailableTournaments();
+  const { data: teams, isLoading: teamsLoading } = useGetTeamsByQuery();
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const { control, handleSubmit, reset } = useForm<FormValues>({
@@ -75,6 +81,11 @@ const CreateMatchForm = ({ onCreated }: CreateMatchFormProps = {}) => {
   const tournamentOptions = useMemo<FormFieldOption[]>(
     () => tournaments.map((tournament) => ({ label: tournament.name, value: tournament.id })),
     [tournaments],
+  );
+
+  const teamOptions = useMemo<MatchAutocompleteOption[]>(
+    () => teams.map((team) => ({ id: team.id, label: team.name })),
+    [teams],
   );
 
   const onSubmit = async (values: FormValues) => {
@@ -182,40 +193,28 @@ const CreateMatchForm = ({ onCreated }: CreateMatchFormProps = {}) => {
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
             <Box sx={{ flex: 1 }}>
               <Typography sx={FIELD_LABEL_SX}>{t('homeTeamLabel')}</Typography>
-              <FormField<FormValues>
+              <MatchAutocompleteField<FormValues>
                 name="homeTeamId"
                 control={control}
-                rules={{ required: t('homeTeamRequired') }}
-                fullWidth
+                label=""
                 placeholder={t('teamIdPlaceholder')}
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <GroupsIcon sx={{ color: tokens.onSurfaceVariant, fontSize: '1.25rem' }} />
-                      </InputAdornment>
-                    ),
-                  },
-                }}
+                options={teamOptions}
+                disabled={teamsLoading || teamOptions.length === 0}
+                helperText={!teamsLoading && teamOptions.length === 0 ? t('noTeams') : undefined}
+                rules={{ required: t('homeTeamRequired') }}
               />
             </Box>
             <Box sx={{ flex: 1 }}>
               <Typography sx={FIELD_LABEL_SX}>{t('awayTeamLabel')}</Typography>
-              <FormField<FormValues>
+              <MatchAutocompleteField<FormValues>
                 name="awayTeamId"
                 control={control}
-                rules={{ required: t('awayTeamRequired') }}
-                fullWidth
+                label=""
                 placeholder={t('teamIdPlaceholder')}
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <GroupsIcon sx={{ color: tokens.onSurfaceVariant, fontSize: '1.25rem' }} />
-                      </InputAdornment>
-                    ),
-                  },
-                }}
+                options={teamOptions}
+                disabled={teamsLoading || teamOptions.length === 0}
+                helperText={!teamsLoading && teamOptions.length === 0 ? t('noTeams') : undefined}
+                rules={{ required: t('awayTeamRequired') }}
               />
             </Box>
           </Stack>
@@ -324,7 +323,7 @@ const CreateMatchForm = ({ onCreated }: CreateMatchFormProps = {}) => {
 
         {error && (
           <Alert severity="error" sx={{ mt: 2, borderRadius: '12px' }}>
-            {error.message}
+            {formatApiError(error)}
           </Alert>
         )}
 
