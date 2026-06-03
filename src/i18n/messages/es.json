@@ -298,6 +298,7 @@
     "finished": "Finalizados",
     "worldcup": "Copa del Mundo FIFA 2026",
     "groupStage": "Fase de grupos",
+    "finalsStage": "Fase final",
     "roundOf16": "Octavos de final",
     "resultForm": {
       "title": "Cargar resultado del partido",

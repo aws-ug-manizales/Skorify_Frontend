@@ -25,8 +25,15 @@ import { getWorldCupWeekOptions2026 } from '@shared/components/organisms/MatchLi
 import { useCurrentUserId } from '@features/auth/hooks/useCurrentUserId';
 import { useGetUserEnrollmentsByUserId } from '@features/groups/hooks/useGetUserEnrollmentsByUserId';
 import { useGetMatchesByTournamentId } from '@features/matches/hooks/useGetMatchesByTournamentId';
-import { useTeamsLookup } from '@features/teams';
-import type { MatchDto, PredictionDto } from '@lib/api/skorify';
+import { useGetTeamsByIds } from '@features/teams';
+import { api } from '@lib/api';
+import type {
+  MatchDto,
+  PredictionDto,
+  SkorifyEnvelope,
+  TournamentInstanceDto,
+} from '@lib/api/skorify';
+import { skorifyEndpoints } from '@lib/api/skorify';
 import PredictionsToolbar, { type PredictionsToolbarValues } from '../molecules/PredictionsToolbar';
 import MatchesPanel, { type MatchesPanelSavedPrediction } from './MatchesPanel';
 import PredictionDrawer, { type PredictionDrawerMatch } from './PredictionDrawer';
@@ -80,6 +87,27 @@ const PredictionsView = () => {
     void getUserEnrollmentsByUserId({ userId });
   }, [userId, getUserEnrollmentsByUserId]);
 
+  // ── fetch instance names for the selector ──────────────────────────────
+  const [instancesById, setInstancesById] = useState<Record<string, TournamentInstanceDto>>({});
+
+  useEffect(() => {
+    if (enrollments.length === 0) return;
+    void Promise.all(
+      enrollments.map((e) =>
+        api.get<SkorifyEnvelope<TournamentInstanceDto>>(
+          skorifyEndpoints.tournamentInstance.getById,
+          { tournamentInstanceId: e.tournamentInstanceId },
+        ),
+      ),
+    ).then((results) => {
+      const lookup: Record<string, TournamentInstanceDto> = {};
+      results.forEach((res) => {
+        if (res.success) lookup[res.data.data.id] = res.data.data;
+      });
+      setInstancesById(lookup);
+    });
+  }, [enrollments]);
+
   const activeEnrollment = useMemo(
     () => enrollments.find((e) => e.tournamentInstanceId === tournamentInstanceId) ?? null,
     [enrollments, tournamentInstanceId],
@@ -113,7 +141,7 @@ const PredictionsView = () => {
     });
     return Array.from(ids);
   }, [backendMatches]);
-  const { teams: teamsLookup } = useTeamsLookup(teamIds);
+  const { teams: teamsLookup } = useGetTeamsByIds(teamIds);
 
   const { savedPredictions, predictionIdByMatch } = useMemo(() => {
     const saved: Record<string, MatchesPanelSavedPrediction> = {};
@@ -129,19 +157,21 @@ const PredictionsView = () => {
   }, [userPredictions]);
 
   const matches = useMemo<PredictionMatch[]>(() => {
-    return backendMatches.map((dto: MatchDto) => {
-      const home = teamsLookup[dto.homeTeamId];
-      const away = teamsLookup[dto.awayTeamId];
-      return {
-        id: dto.id,
-        homeTeam: home?.name ?? dto.homeTeamId,
-        awayTeam: away?.name ?? dto.awayTeamId,
-        homeTeamFlag: home?.shieldUrl ?? '',
-        awayTeamFlag: away?.shieldUrl ?? '',
-        date: dto.kickOff,
-        isUserPredicted: dto.id in savedPredictions,
-      };
-    });
+    return [...backendMatches]
+      .sort((a, b) => new Date(a.kickOff).getTime() - new Date(b.kickOff).getTime())
+      .map((dto: MatchDto) => {
+        const home = teamsLookup[dto.homeTeamId];
+        const away = teamsLookup[dto.awayTeamId];
+        return {
+          id: dto.id,
+          homeTeam: home?.name ?? dto.homeTeamId,
+          awayTeam: away?.name ?? dto.awayTeamId,
+          homeTeamFlag: home?.shieldUrl ?? '',
+          awayTeamFlag: away?.shieldUrl ?? '',
+          date: dto.kickOff,
+          isUserPredicted: dto.id in savedPredictions,
+        };
+      });
   }, [backendMatches, teamsLookup, savedPredictions]);
 
   const savedMessages = useMemo(() => t.raw('savedMessages') as string[], [t]);
@@ -387,7 +417,8 @@ const PredictionsView = () => {
           </MenuItem>
           {enrollments.map((enrollment) => (
             <MenuItem key={enrollment.id} value={enrollment.tournamentInstanceId}>
-              {enrollment.tournamentInstanceId}
+              {instancesById[enrollment.tournamentInstanceId]?.name ??
+                enrollment.tournamentInstanceId}
             </MenuItem>
           ))}
         </Select>
