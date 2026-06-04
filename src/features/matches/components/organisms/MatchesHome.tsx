@@ -170,7 +170,11 @@ const MatchesHome = () => {
       )}
 
       {isAdmin && (
-        <CreateMatchDrawer open={createDrawerOpen} onClose={() => setCreateDrawerOpen(false)} />
+        <CreateMatchDrawer
+          open={createDrawerOpen}
+          onClose={() => setCreateDrawerOpen(false)}
+          onCreated={reload}
+        />
       )}
     </Box>
   );

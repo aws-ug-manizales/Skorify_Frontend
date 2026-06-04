@@ -326,14 +326,6 @@ const ActiveTournamentsSection = ({
           }}
         />
       </Stack>
-      <AppButton
-        component={Link}
-        href="/tournaments"
-        variant="tertiary"
-        sx={{ fontSize: '0.6875rem' }}
-      >
-        {t('viewAllTournaments')}
-      </AppButton>
     </Stack>
 
     {loading ? (

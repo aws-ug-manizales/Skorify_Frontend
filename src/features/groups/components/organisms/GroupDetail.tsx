@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CloseIcon from '@mui/icons-material/Close';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
@@ -27,8 +29,10 @@ import StandingsTable from './StandingsTable';
 import TopPodium from '../molecules/TopPodium';
 import { useMatchesList } from '@features/matches/hooks/useMatchesList';
 import FinishedMatchCard from '@features/matches/components/molecules/FinishedMatchCard';
+import MatchCard from '@features/matches/components/molecules/MatchCard';
 import { formatKickoff } from '@features/matches/utils/formatKickoff';
 import { useGetPredictionsByUser } from '@features/predictions/hooks/useGetPredictionsByUser';
+import { isMatchLocked } from '@features/predictions/hooks/useMatchCountdown';
 
 interface GroupDetailProps {
   groupId: string;
@@ -40,8 +44,14 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
   const m = useTranslations('matches');
   const tResults = useTranslations('results');
   const locale = useLocale();
+  const router = useRouter();
 
-  const [activeTab, setActiveTab] = useState<'standings' | 'results'>('standings');
+  const [activeTab, setActiveTab] = useState<'standings' | 'upcoming' | 'results'>('standings');
+  const isDesktop = useMediaQuery('(min-width:900px)');
+
+  // On mobile, hide the members list on the matches/results tabs — it only adds
+  // noise there; keep it on desktop where it lives in a dedicated sidebar column.
+  const showMembers = isDesktop || activeTab === 'standings';
 
   const { data, isLoading, error, refetch } = useGroupDetail(groupId);
   const currentUserId = useCurrentUserId() ?? '';
@@ -51,6 +61,14 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
   const { items: matchItems, loading: loadingResults } = useMatchesList(
     20,
     'filterFinished',
+    data?.group.tournamentId,
+  );
+
+  // Upcoming tab: upcoming matches of this group's tournament, with the user's
+  // predictions attached when available.
+  const { items: upcomingItems, loading: loadingUpcoming } = useMatchesList(
+    20,
+    'filterUpcoming',
     data?.group.tournamentId,
   );
 
@@ -77,6 +95,18 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
         prediction: predictionByMatch[match.id] ?? match.prediction,
       }));
   }, [matchItems, predictionByMatch]);
+
+  const upcomingMatches = useMemo(() => {
+    // Hide matches within the lock window (10 min before kickoff), mirroring the
+    // predictions view — those are no longer open for prediction.
+    return [...upcomingItems]
+      .filter((match) => match.status === 'upcoming' && !isMatchLocked(match.kickoffAt))
+      .sort((a, b) => new Date(a.kickoffAt).getTime() - new Date(b.kickoffAt).getTime())
+      .map((match) => ({
+        ...match,
+        prediction: predictionByMatch[match.id] ?? match.prediction,
+      }));
+  }, [upcomingItems, predictionByMatch]);
 
   const [shareOpen, setShareOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(() => {
@@ -184,6 +214,7 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
               }}
             >
               <Tab value="standings" label={t('standingsTitle') || 'Clasificación'} />
+              <Tab value="upcoming" label={t('upcomingMatchesTitle') || 'Próximos partidos'} />
               <Tab value="results" label={t('finishedMatchesTitle') || 'Resultados'} />
             </Tabs>
 
@@ -202,6 +233,56 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
                   onRefresh={refetch}
                   isRefreshing={isLoading}
                 />
+              </Box>
+            )}
+
+            {activeTab === 'upcoming' && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                {loadingUpcoming ? (
+                  <Box sx={{ p: 4, textAlign: 'center' }}>
+                    <Typography variant="body1" sx={{ color: tokens.onSurfaceVariant }}>
+                      {t('upcomingMatchesLoading')}
+                    </Typography>
+                  </Box>
+                ) : upcomingMatches.length === 0 ? (
+                  <Box sx={{ p: 4, textAlign: 'center' }}>
+                    <Typography variant="body1" sx={{ color: tokens.onSurfaceVariant }}>
+                      {t('upcomingMatchesEmpty')}
+                    </Typography>
+                  </Box>
+                ) : (
+                  <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: '1fr' }}>
+                    {upcomingMatches.map((match) => (
+                      <Box
+                        key={match.id}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() =>
+                          router.push(`/predictions?group=${groupId}&match=${match.id}`)
+                        }
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            router.push(`/predictions?group=${groupId}&match=${match.id}`);
+                          }
+                        }}
+                        sx={{ cursor: 'pointer', borderRadius: '8px', outline: 'none' }}
+                      >
+                        <MatchCard
+                          match={match}
+                          tournamentLabel={data.group.name}
+                          stageLabel={
+                            match.stageKey === 'finals' ? m('stageFinals') : m('stageGroup')
+                          }
+                          statusLabel={m('upcoming')}
+                          kickoffLabel={formatKickoff(match.kickoffAt, locale)}
+                          vsLabel={m('vs')}
+                          predictionLabel={m('predictionLabel')}
+                        />
+                      </Box>
+                    ))}
+                  </Box>
+                )}
               </Box>
             )}
 
@@ -245,7 +326,7 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
           </Box>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <MemberList members={data.members} currentUserId={currentUserId} />
+            {showMembers && <MemberList members={data.members} currentUserId={currentUserId} />}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <AppCard variant="interactive" href="/predictions">
                 <Box
