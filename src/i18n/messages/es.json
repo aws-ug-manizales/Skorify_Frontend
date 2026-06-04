@@ -240,6 +240,7 @@
     "overwriteTitle": "Editar predicción",
     "overwriteMessage": "¿Deseas sobreescribir tu predicción actual?",
     "editCancelledToast": "Edición cancelada. Tu predicción original no fue modificada.",
+    "noChangesToast": "No cambiaste ningún valor de tu predicción.",
     "saveErrorToast": "No se pudo guardar tu predicción. Intenta de nuevo.",
     "savedMessages": [
       "¡El más veloz del oeste!",

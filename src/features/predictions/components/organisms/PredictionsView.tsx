@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm, useWatch } from 'react-hook-form';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
@@ -25,11 +25,11 @@ import { useCurrentUserId } from '@features/auth/hooks/useCurrentUserId';
 import { useGetUserEnrollmentsByUserId } from '@features/groups/hooks/useGetUserEnrollmentsByUserId';
 import { useTournamentInstanceNames } from '@features/tournaments/hooks/useTournamentInstanceNames';
 import { useGetMatchesByTournamentId } from '@features/matches/hooks/useGetMatchesByTournamentId';
-import type { PredictionDto } from '@lib/api/skorify';
+import type { MatchStatus, PredictionDto } from '@lib/api/skorify';
 import PredictionsToolbar, { type PredictionsToolbarValues } from '../molecules/PredictionsToolbar';
 import MatchesPanel, { type MatchesPanelSavedPrediction } from './MatchesPanel';
 import PredictionDrawer, { type PredictionDrawerMatch } from './PredictionDrawer';
-import { isMatchLocked } from '../../hooks/useMatchCountdown';
+import { isMatchLocked, isStatusClosedForPrediction } from '../../hooks/useMatchCountdown';
 import { useMakePrediction } from '../../hooks/useMakePrediction';
 import { useEditPrediction } from '../../hooks/useEditPrediction';
 import { useGetPredictionsByUser } from '../../hooks/useGetPredictionsByUser';
@@ -58,6 +58,7 @@ const PredictionsView = () => {
 
   // Deep-link support: /predictions?group=<instanceId>&match=<matchId> selects
   // the right tournament instance and auto-opens that match's prediction modal.
+  const router = useRouter();
   const searchParams = useSearchParams();
   const groupParam = searchParams.get('group');
   const matchParam = searchParams.get('match');
@@ -130,6 +131,9 @@ const PredictionsView = () => {
       date: match.kickOff,
       isUserPredicted: match.id in savedPredictions,
       stageKey: match.stage,
+      // `get-matches-by-tournament-id` serializes the status as `_status`;
+      // fall back to it, mirroring ApiMatchesGateway.
+      status: match._status ?? match.status,
     }));
   }, [backendMatches, savedPredictions]);
 
@@ -155,6 +159,7 @@ const PredictionsView = () => {
     if (deepLinkConsumed || !matchParam) return null;
     const target = matches.find((match) => match.id === matchParam);
     if (!target || isMatchLocked(target.date)) return null;
+    if (isStatusClosedForPrediction(target.status)) return null;
     return matchParam;
   }, [selectedMatchId, deepLinkConsumed, matchParam, matches]);
 
@@ -171,11 +176,15 @@ const PredictionsView = () => {
     });
   }, [filterValues.search, filterValues.week, matches]);
 
-  // Only matches still open for prediction are shown; closed (locked) matches
-  // are excluded from the predictions view entirely.
-  const openMatches = useMemo(() => {
-    const reference = new Date();
-    return filteredMatches.filter((match) => !isMatchLocked(match.date, reference));
+  // Every match that hasn't finished yet is shown, ordered by kickoff (nearest
+  // first). Matches within the lock window or already in progress still appear
+  // but render as "closed" (no predict button) — only finished/calculated/
+  // cancelled matches drop out of the predictions view.
+  const visibleMatches = useMemo(() => {
+    const finishedStatuses: MatchStatus[] = ['finished', 'calculated', 'cancelled'];
+    return filteredMatches
+      .filter((match) => !match.status || !finishedStatuses.includes(match.status))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [filteredMatches]);
 
   const hasActiveFilters = !!(filterValues.search || filterValues.week);
@@ -241,6 +250,12 @@ const PredictionsView = () => {
           },
         });
         onSuccess?.();
+
+        // If we arrived here from a group's upcoming-matches deep link and just
+        // predicted that match, return to the group's upcoming-matches tab.
+        if (groupParam && matchId === matchParam) {
+          router.push(`/groups/${groupParam}?tab=upcoming`);
+        }
       };
 
       if (!existingId) {
@@ -254,7 +269,21 @@ const PredictionsView = () => {
         existing.homeGoals === values.homeGoals &&
         existing.awayGoals === values.awayGoals
       ) {
+        // Nothing changed: let the user know and, if we came from a group's
+        // upcoming-matches deep link, return them to that tab anyway.
+        notify({
+          type: NotificationType.TOAST,
+          messageKey: 'predictions.noChangesToast',
+          severity: ToastSeverity.INFO,
+          position: {
+            vertical: NotificationVertical.TOP,
+            horizontal: NotificationHorizontal.RIGHT,
+          },
+        });
         onSuccess?.();
+        if (groupParam && matchId === matchParam) {
+          router.push(`/groups/${groupParam}?tab=upcoming`);
+        }
         return true;
       }
 
@@ -298,6 +327,9 @@ const PredictionsView = () => {
       notify,
       refreshPredictions,
       savedMessages,
+      groupParam,
+      matchParam,
+      router,
     ],
   );
 
@@ -326,7 +358,7 @@ const PredictionsView = () => {
   }, [savedPredictions, effectiveMatchId]);
 
   const handleOpenPrediction = useCallback((match: PredictionMatch) => {
-    if (isMatchLocked(match.date)) return;
+    if (isMatchLocked(match.date) || isStatusClosedForPrediction(match.status)) return;
     setSelectedMatchId(match.id);
   }, []);
 
@@ -337,7 +369,7 @@ const PredictionsView = () => {
 
   const renderOpenPanel = (showHeader: boolean) => (
     <MatchesPanel
-      matches={openMatches}
+      matches={visibleMatches}
       title={t('openPanelTitle')}
       emptyMessage={t('noOpenMatches')}
       savedPredictions={savedPredictions}
@@ -355,7 +387,7 @@ const PredictionsView = () => {
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
       <PageHeader
         title={t('pageTitle')}
-        subtitle={t('matchesCount', { count: openMatches.length })}
+        subtitle={t('matchesCount', { count: visibleMatches.length })}
       />
 
       <Box sx={{ mb: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>

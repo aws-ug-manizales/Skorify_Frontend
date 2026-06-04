@@ -11,7 +11,7 @@ import type { ListMatchesParams, MatchesGateway, PaginatedResult } from '../Matc
 
 const mapStatus = (status: MatchDto['status']): MatchStatus => {
   if (status === 'in_progress') return 'live';
-  if (status === 'finished' || status === 'cancelled') return 'finished';
+  if (status === 'finished' || status === 'calculated' || status === 'cancelled') return 'finished';
   return 'upcoming';
 };
 
@@ -27,6 +27,7 @@ const toMatch = ({ match, homeTeam, awayTeam }: MatchWithTeamsDto): Match => ({
   stageKey: match.stage ?? 'group',
   // This endpoint exposes the status as `_status`; fall back to it.
   status: mapStatus(match._status ?? match.status),
+  rawStatus: match._status ?? match.status,
   kickoffAt: match.kickOff,
   homeTeamId: match.homeTeamId,
   awayTeamId: match.awayTeamId,

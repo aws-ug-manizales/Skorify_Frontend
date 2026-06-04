@@ -1,4 +1,4 @@
-import type { MatchStage } from '@lib/api/skorify';
+import type { MatchStage, MatchStatus } from '@lib/api/skorify';
 
 export interface PredictionMatch {
   id: string;
@@ -10,6 +10,8 @@ export interface PredictionMatch {
   isUserPredicted: boolean;
   /** Group/finals stage, shown like the matches card. */
   stageKey?: MatchStage;
+  /** Backend match status, resolved from `_status` when present. */
+  status?: MatchStatus;
 }
 
 export interface PredictionDraft {

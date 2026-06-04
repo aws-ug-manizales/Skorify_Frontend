@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import GroupDetail from '@features/groups/components/organisms/GroupDetail';
 
@@ -10,7 +11,11 @@ const GroupDetailRoute = () => {
   // client router replaces it with the real param so we don't hit the API
   // with the literal "_".
   if (!id || id === '_') return null;
-  return <GroupDetail groupId={id} />;
+  return (
+    <Suspense fallback={null}>
+      <GroupDetail groupId={id} />
+    </Suspense>
+  );
 };
 
 export default GroupDetailRoute;
