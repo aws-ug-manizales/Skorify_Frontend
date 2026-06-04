@@ -52,6 +52,44 @@ const requireCognitoDomain = () => {
 export const buildOAuthRedirectUri = () =>
   `${env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '')}/auth/callback`;
 
+/**
+ * Builds an {@link AuthSession} from a Cognito token response. The OAuth
+ * `refresh_token` grant does not return a new refresh token, so callers pass the
+ * previous one via `fallbackRefreshToken` to keep the session refreshable.
+ */
+const buildSessionFromTokens = (
+  tokens: CognitoTokenResponse,
+  fallbackRefreshToken?: string,
+): AuthSession => {
+  const payload = decodeJwt<CognitoIdTokenPayload>(tokens.id_token);
+
+  const roles = resolveRoles(payload['cognito:groups'] ?? []);
+  const provider =
+    (payload.identities?.[0]?.providerName?.toLowerCase() as AuthUser['provider'] | undefined) ??
+    'google';
+  const email = payload.email ?? '';
+  const displayName =
+    payload.nickname ?? payload.preferred_username ?? payload.name ?? email.split('@')[0];
+
+  return {
+    token: tokens.id_token,
+    idToken: tokens.id_token,
+    accessToken: tokens.access_token,
+    refreshToken: tokens.refresh_token ?? fallbackRefreshToken,
+    createdAt: new Date().toISOString(),
+    expiresAt: new Date(Date.now() + tokens.expires_in * 1000).toISOString(),
+    sub: payload.sub,
+    user: {
+      id: payload.sub,
+      email,
+      displayName,
+      provider,
+      emailVerified: Boolean(payload.email_verified ?? true),
+      roles,
+    },
+  };
+};
+
 export const exchangeAuthorizationCode = async (code: string): Promise<AuthSession> => {
   const domain = requireCognitoDomain();
   const body = new URLSearchParams({
@@ -72,34 +110,43 @@ export const exchangeAuthorizationCode = async (code: string): Promise<AuthSessi
   }
 
   const tokens = (await response.json()) as CognitoTokenResponse;
-  const payload = decodeJwt<CognitoIdTokenPayload>(tokens.id_token);
+  const session = buildSessionFromTokens(tokens);
 
-  const roles = resolveRoles(payload['cognito:groups'] ?? []);
-  const provider =
-    (payload.identities?.[0]?.providerName?.toLowerCase() as AuthUser['provider'] | undefined) ??
-    'google';
-  const email = payload.email ?? '';
-  const displayName =
-    payload.nickname ?? payload.preferred_username ?? payload.name ?? email.split('@')[0];
-
-  const session: AuthSession = {
-    token: tokens.id_token,
-    idToken: tokens.id_token,
-    accessToken: tokens.access_token,
-    refreshToken: tokens.refresh_token,
-    createdAt: new Date().toISOString(),
-    expiresAt: new Date(Date.now() + tokens.expires_in * 1000).toISOString(),
-    sub: payload.sub,
-    user: {
-      id: payload.sub,
-      email,
-      displayName,
-      provider,
-      emailVerified: Boolean(payload.email_verified ?? true),
-      roles,
-    },
-  };
-
-  const domainUserId = await fetchDomainUserId(payload.sub, tokens.id_token);
+  const domainUserId = await fetchDomainUserId(session.sub, tokens.id_token);
   return { ...session, domainUserId };
+};
+
+/**
+ * Refreshes a Hosted-UI / social (e.g. Google) session through the OAuth token
+ * endpoint. These sessions don't live in the amazon-cognito-identity-js user
+ * pool, so they can't be refreshed via `getSession()`; we exchange the stored
+ * refresh token instead. Returns `null` when the refresh token is no longer
+ * valid (i.e. the session is truly expired).
+ */
+export const refreshOAuthSession = async (refreshToken: string): Promise<AuthSession | null> => {
+  const domain = requireCognitoDomain();
+  const body = new URLSearchParams({
+    grant_type: 'refresh_token',
+    client_id: env.NEXT_PUBLIC_CLIENT_ID,
+    refresh_token: refreshToken,
+  });
+
+  let response: Response;
+  try {
+    response = await fetch(`https://${domain}/oauth2/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString(),
+    });
+  } catch {
+    return null;
+  }
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const tokens = (await response.json()) as CognitoTokenResponse;
+  // The refresh grant doesn't return a new refresh token — carry the old one over.
+  return buildSessionFromTokens(tokens, refreshToken);
 };

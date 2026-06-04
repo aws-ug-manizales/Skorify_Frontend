@@ -99,6 +99,8 @@ const UserCard = ({ user, onToggleStatus }: Props) => {
         variant={user.status === 'active' ? 'secondary' : 'primary'}
         fullWidth
         onClick={() => onToggleStatus(user.id)}
+        disabled={user.status === 'suspended'}
+        title={user.status === 'suspended' ? t('reactivateUnavailable') : undefined}
         sx={{
           mt: 'auto',
           fontSize: '0.6875rem',
