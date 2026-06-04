@@ -9,6 +9,7 @@ import { loginSchema, registerFormSchema } from '../lib/schemas';
 import type { RegisterFormInput } from '../lib/schemas';
 import { useAuthStore } from '../store/useAuthStore';
 import { useNotification, NotificationType } from '@shared/notifications';
+import { TOUR_LOGIN_FLAG } from '@features/dashboard/tourFlag';
 
 type Mode = 'login' | 'register' | 'confirm';
 type TransitionPhase = 'idle' | 'exiting' | 'entering';
@@ -205,6 +206,7 @@ export const useAuthGateway = () => {
           text: translateKey(result.messageKey, t('sessionCreated')),
         });
         reset();
+        sessionStorage.setItem(TOUR_LOGIN_FLAG, '1');
         router.replace('/home');
       }
     },

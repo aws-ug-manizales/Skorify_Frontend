@@ -86,6 +86,9 @@ export interface MatchDto {
   homeScore?: number;
   awayScore?: number;
   status: MatchStatus;
+  // `get-matches-by-tournament-id` serializes the status as `_status`
+  // (a private entity field), so consumers must fall back to it.
+  _status?: MatchStatus;
   stage?: MatchStage;
   venue?: string | null;
   createdAt: string;

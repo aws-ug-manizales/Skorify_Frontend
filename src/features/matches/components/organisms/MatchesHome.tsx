@@ -8,13 +8,11 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import AddIcon from '@mui/icons-material/Add';
-import LockIcon from '@mui/icons-material/Lock';
 import AppButton from '@shared/components/atoms/AppButton';
 import { useAuthSession } from '@features/auth/hooks/useAuthSession';
 import { useGetAvailableTournaments } from '@features/tournaments';
 import { formatKickoff } from '../../utils/formatKickoff';
 import CreateMatchDrawer from './CreateMatchDrawer';
-import BulkCloseMatchesDialog from './BulkCloseMatchesDialog';
 import MatchCard from '../molecules/MatchCard';
 import MatchAdminActions from '../molecules/MatchAdminActions';
 import MatchesEmptyState from '../molecules/MatchesEmptyState';
@@ -23,22 +21,6 @@ import PaginatedMatchesGrid from '../molecules/PaginatedMatchesGrid';
 import MatchesToolbar from '../molecules/MatchesToolbar';
 import { useMatchesList } from '../../hooks/useMatchesList';
 import { getWorldCupWeekOptions2026 } from '../../filters/weekOptions';
-import {
-  PredictionDrawer,
-  type PredictionDrawerMatch,
-  type PredictionDrawerScore,
-} from '@features/predictions';
-import { getCountryFlagUrl } from '@shared/utils/flag';
-import type { Match } from '../../types';
-
-const toPredictionDrawerMatch = (match: Match): PredictionDrawerMatch => ({
-  id: match.id,
-  homeTeam: match.homeTeam.name,
-  homeTeamFlag: match.homeTeam.image ?? getCountryFlagUrl(match.homeTeam.code),
-  awayTeam: match.awayTeam.name,
-  awayTeamFlag: match.awayTeam.image ?? getCountryFlagUrl(match.awayTeam.code),
-  kickoffAt: match.kickoffAt,
-});
 
 const MatchesHome = () => {
   const t = useTranslations('matches');
@@ -81,8 +63,6 @@ const MatchesHome = () => {
     resetFilters,
     reload,
   } = useMatchesList(10, 'filterAll', tournamentId || undefined);
-  const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
-  const [bulkCloseOpen, setBulkCloseOpen] = useState(false);
   // Open the drawer on mount when arriving with `?create=1` (linked from the
   // admin nav). Reads the param once via lazy init to avoid effect cascades.
   const [createDrawerOpen, setCreateDrawerOpen] = useState(
@@ -95,78 +75,14 @@ const MatchesHome = () => {
     router.replace(pathname, { scroll: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const [predictionsById, setPredictionsById] = useState<Record<string, PredictionDrawerScore>>(
-    () =>
-      items.reduce<Record<string, PredictionDrawerScore>>((acc, match) => {
-        if (match.prediction) {
-          acc[match.id] = { homeGoals: match.prediction.home, awayGoals: match.prediction.away };
-        }
-        return acc;
-      }, {}),
-  );
 
-  // The matches endpoint already returns resolved team names + shields inline,
-  // so we only overlay the locally-edited prediction here.
+  // The matches endpoint already returns resolved team names + shields inline.
   const monthOptions = useMemo(() => getWorldCupWeekOptions2026(locale), [locale]);
-  const displayedItems = useMemo(
-    () =>
-      items.map((match) => ({
-        ...match,
-        prediction: (() => {
-          const saved = predictionsById[match.id];
-          if (saved) return { home: saved.homeGoals, away: saved.awayGoals };
-          if (match.prediction) return match.prediction;
-          return undefined;
-        })(),
-      })),
-    [items, predictionsById],
-  );
-
-  const selectedMatch = useMemo(
-    () => displayedItems.find((match) => match.id === selectedMatchId) ?? null,
-    [displayedItems, selectedMatchId],
-  );
-
-  const selectedDrawerMatch = useMemo(
-    () => (selectedMatch ? toPredictionDrawerMatch(selectedMatch) : null),
-    [selectedMatch],
-  );
-
-  const selectedDrawerScore = useMemo<PredictionDrawerScore | undefined>(() => {
-    if (!selectedMatch) return undefined;
-    const prediction = selectedMatch.prediction;
-    if (!prediction) return undefined;
-    return { homeGoals: prediction.home, awayGoals: prediction.away };
-  }, [selectedMatch]);
-
-  const handleOpenPrediction = useCallback((match: Match) => {
-    setSelectedMatchId(match.id);
-  }, []);
-
-  const handleCloseDrawer = useCallback(() => {
-    setSelectedMatchId(null);
-  }, []);
-
-  const handleSavePrediction = useCallback(
-    async (matchId: string, values: PredictionDrawerScore) => {
-      setPredictionsById((prev) => ({ ...prev, [matchId]: values }));
-      return true;
-    },
-    [],
-  );
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
       {isAdmin && (
         <Stack direction="row" justifyContent="flex-end" spacing={1.5} sx={{ mb: 2 }}>
-          <AppButton
-            variant="secondary"
-            startIcon={<LockIcon />}
-            onClick={() => setBulkCloseOpen(true)}
-            disabled={!tournamentId || items.length === 0}
-          >
-            {tAdmin('actions.bulkCloseAction')}
-          </AppButton>
           <AppButton startIcon={<AddIcon />} onClick={() => setCreateDrawerOpen(true)}>
             {tAdmin('submit')}
           </AppButton>
@@ -220,7 +136,7 @@ const MatchesHome = () => {
         <MatchesEmptyState message={t('noMatches')} />
       ) : (
         <PaginatedMatchesGrid
-          items={displayedItems}
+          items={items}
           page={query.page}
           totalItems={total}
           pageSize={query.pageSize}
@@ -228,52 +144,33 @@ const MatchesHome = () => {
           getKey={(m) => m.id}
           gridSize={{ xs: 12, sm: 12, md: 6, lg: 6 }}
           renderItem={(m) => (
-            <Box sx={{ position: 'relative' }}>
-              {isAdmin && (
-                <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 1 }}>
+            <MatchCard
+              match={m}
+              tournamentLabel={selectedTournamentName}
+              stageLabel={m.stageKey === 'finals' ? t('stageFinals') : t('stageGroup')}
+              statusLabel={t(m.status)}
+              kickoffLabel={formatKickoff(m.kickoffAt, locale)}
+              vsLabel={t('vs')}
+              predictionLabel={t('predictionLabel')}
+              actions={
+                isAdmin ? (
                   <MatchAdminActions
                     matchId={m.id}
                     tournamentId={tournamentId}
+                    matchStatus={m.status}
+                    homeTeam={m.homeTeam}
+                    awayTeam={m.awayTeam}
                     onChanged={reload}
                   />
-                </Box>
-              )}
-              <MatchCard
-                match={m}
-                tournamentLabel={selectedTournamentName}
-                stageLabel={m.stageKey === 'finals' ? t('stageFinals') : t('stageGroup')}
-                statusLabel={t(m.status)}
-                kickoffLabel={formatKickoff(m.kickoffAt, locale)}
-                vsLabel={t('vs')}
-                addPredictionLabel={t('addPrediction')}
-                editPredictionLabel={t('editPrediction')}
-                predictionLabel={t('predictionLabel')}
-                onAddPrediction={handleOpenPrediction}
-                onEditPrediction={handleOpenPrediction}
-              />
-            </Box>
+                ) : undefined
+              }
+            />
           )}
         />
       )}
 
-      <PredictionDrawer
-        open={!!selectedDrawerMatch}
-        match={selectedDrawerMatch}
-        initialScore={selectedDrawerScore}
-        onClose={handleCloseDrawer}
-        onSave={handleSavePrediction}
-      />
-
       {isAdmin && (
-        <>
-          <CreateMatchDrawer open={createDrawerOpen} onClose={() => setCreateDrawerOpen(false)} />
-          <BulkCloseMatchesDialog
-            open={bulkCloseOpen}
-            onClose={() => setBulkCloseOpen(false)}
-            matches={items}
-            onClosed={reload}
-          />
-        </>
+        <CreateMatchDrawer open={createDrawerOpen} onClose={() => setCreateDrawerOpen(false)} />
       )}
     </Box>
   );

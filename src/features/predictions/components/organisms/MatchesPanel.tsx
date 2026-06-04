@@ -2,7 +2,6 @@
 
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
-import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { tokens } from '@lib/theme/theme';
 import MatchPredictionCard from './MatchPredictionCard';
@@ -20,6 +19,7 @@ interface MatchesPanelProps {
   savedPredictions: Record<string, MatchesPanelSavedPrediction>;
   onOpenPrediction: (match: PredictionMatch) => void;
   showHeader?: boolean;
+  tournamentLabel?: string;
 }
 
 const MatchesPanel = ({
@@ -29,6 +29,7 @@ const MatchesPanel = ({
   savedPredictions,
   onOpenPrediction,
   showHeader = true,
+  tournamentLabel,
 }: MatchesPanelProps) => (
   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
     {showHeader && title && (
@@ -78,7 +79,13 @@ const MatchesPanel = ({
         <Typography variant="body2">{emptyMessage}</Typography>
       </Box>
     ) : (
-      <Stack spacing={2}>
+      <Box
+        sx={{
+          display: 'grid',
+          gap: 2,
+          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' },
+        }}
+      >
         {matches.map((match) => {
           const saved = savedPredictions[match.id];
           return (
@@ -89,10 +96,11 @@ const MatchesPanel = ({
               initialHomeGoals={saved?.homeGoals}
               initialAwayGoals={saved?.awayGoals}
               onOpenPrediction={onOpenPrediction}
+              tournamentLabel={tournamentLabel}
             />
           );
         })}
-      </Stack>
+      </Box>
     )}
   </Box>
 );

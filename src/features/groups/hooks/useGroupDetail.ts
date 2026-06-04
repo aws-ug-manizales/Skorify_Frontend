@@ -17,6 +17,7 @@ const mapInstanceToGroup = (instance: TournamentInstanceDto, memberCount: number
   adminId: instance.ownerId,
   memberCount,
   createdAt: instance.createdAt,
+  tournamentId: instance.tournamentId,
 });
 
 const mapRankingToStanding = (item: RankingItemDto, index: number): StandingRow => ({

@@ -15,6 +15,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import AddIcon from '@mui/icons-material/Add';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
@@ -22,6 +23,8 @@ import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import AppButton from '@shared/components/atoms/AppButton';
 import useSnackbar from '@shared/hooks/useSnackbar';
 import { tokens } from '@lib/theme/theme';
+import { useCurrentUserId } from '@features/auth/hooks/useCurrentUserId';
+import { useGetUserEnrollmentsByUserId } from '@features/groups/hooks/useGetUserEnrollmentsByUserId';
 import { useGetTournamentById } from '../../hooks/useGetTournamentById';
 import { useJoinTournament } from '../../hooks/useJoinTournament';
 
@@ -66,8 +69,19 @@ const TournamentDetailDialog = ({
   const snackbar = useSnackbar();
   const { canCreateGroups } = useAuthSession();
 
+  const userId = useCurrentUserId();
   const { data, isLoading, error, getTournamentById, reset } = useGetTournamentById();
   const { joinTournament, isLoading: isJoining } = useJoinTournament();
+  const { getUserEnrollmentsByUserId, data: enrollments } = useGetUserEnrollmentsByUserId();
+
+  // The user is already in the tournament's general group when one of their
+  // enrollments points to this tournament's global instance.
+  const alreadyJoined = useMemo(
+    () =>
+      !!globalInstanceId &&
+      enrollments.some((enrollment) => enrollment.tournamentInstanceId === globalInstanceId),
+    [enrollments, globalInstanceId],
+  );
 
   const isFinished = useMemo(() => {
     if (!data) return false;
@@ -106,6 +120,11 @@ const TournamentDetailDialog = ({
     if (!open || !tournamentId) return;
     void getTournamentById({ tournamentId });
   }, [getTournamentById, open, tournamentId]);
+
+  useEffect(() => {
+    if (!open || !userId) return;
+    void getUserEnrollmentsByUserId({ userId });
+  }, [open, userId, getUserEnrollmentsByUserId]);
 
   useEffect(() => {
     if (!open) reset();
@@ -261,23 +280,49 @@ const TournamentDetailDialog = ({
                 {tDetail('finishedHint')}
               </Typography>
             )}
-            <DialogActions sx={{ p: 0, gap: 1.5, flexDirection: { xs: 'column', sm: 'row' } }}>
-              <AppButton
-                variant="secondary"
-                fullWidth
-                loading={isJoining}
-                disabled={isFinished || !globalInstanceId}
-                startIcon={<GroupAddIcon sx={{ fontSize: '1rem' }} />}
-                onClick={handleJoin}
+            {alreadyJoined && !isFinished && (
+              <Stack
+                direction="row"
+                alignItems="center"
+                justifyContent="center"
+                gap={1}
                 sx={{
-                  fontSize: '0.6875rem',
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  fontWeight: 700,
+                  mb: 1.5,
+                  px: 2,
+                  py: 1.25,
+                  borderRadius: '10px',
+                  bgcolor: `${tokens.success}1A`,
+                  border: `1px solid ${tokens.success}33`,
                 }}
               >
-                {tDetail('joinCta')}
-              </AppButton>
+                <CheckCircleIcon sx={{ color: tokens.success, fontSize: '1.125rem' }} />
+                <Typography
+                  sx={{ fontSize: '0.8125rem', fontWeight: 600, color: tokens.onSurface }}
+                >
+                  {tDetail('alreadyJoinedHint')}
+                </Typography>
+              </Stack>
+            )}
+            <DialogActions sx={{ p: 0, gap: 1.5, flexDirection: { xs: 'column', sm: 'row' } }}>
+              {!alreadyJoined && (
+                <AppButton
+                  data-tour="join"
+                  variant="secondary"
+                  fullWidth
+                  loading={isJoining}
+                  disabled={isFinished || !globalInstanceId}
+                  startIcon={<GroupAddIcon sx={{ fontSize: '1rem' }} />}
+                  onClick={handleJoin}
+                  sx={{
+                    fontSize: '0.6875rem',
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    fontWeight: 700,
+                  }}
+                >
+                  {tDetail('joinCta')}
+                </AppButton>
+              )}
               {canCreateGroups && (
                 <AppButton
                   variant="primary"

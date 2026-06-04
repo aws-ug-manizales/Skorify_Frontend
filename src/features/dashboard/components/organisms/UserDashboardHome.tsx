@@ -1,10 +1,11 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
+import GlobalStyles from '@mui/material/GlobalStyles';
 import Grid from '@mui/material/Grid';
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
@@ -15,6 +16,7 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import { tokens, avatarPalette } from '@lib/theme/theme';
@@ -27,6 +29,85 @@ import JoinGroupDialog from '@features/groups/components/organisms/JoinGroupDial
 import { useGetAvailableTournaments } from '@features/tournaments/hooks/useGetAvailableTournaments';
 import TournamentDetailDialog from '@features/tournaments/components/organisms/TournamentDetailDialog';
 import type { TournamentDto } from '@lib/api/skorify';
+import { useDashboardTour } from '../../hooks/useDashboardTour';
+import { TOUR_LOGIN_FLAG } from '../../tourFlag';
+
+// Persisted once the user has seen the guided tour, so it never auto-runs again.
+const TOUR_SEEN_KEY = 'skorify.dashboardTourSeen';
+
+// Themes the driver.js guided-tour popover to match the app's color system.
+const TOUR_STYLES = {
+  '.driver-popover.skorify-tour': {
+    backgroundColor: tokens.surfaceContainerHigh,
+    color: tokens.onSurface,
+    borderRadius: '14px',
+    border: `1px solid ${tokens.outlineVariant}33`,
+    boxShadow: tokens.shadowMd,
+    padding: '18px',
+    maxWidth: 340,
+  },
+  '.driver-popover.skorify-tour .driver-popover-title': {
+    color: tokens.onSurface,
+    fontSize: '1.05rem',
+    fontWeight: 800,
+    letterSpacing: '-0.01em',
+  },
+  '.driver-popover.skorify-tour .driver-popover-description': {
+    color: tokens.onSurfaceVariant,
+    fontSize: '0.875rem',
+    lineHeight: 1.6,
+  },
+  '.driver-popover.skorify-tour .driver-popover-progress-text': {
+    color: tokens.onSurfaceVariant,
+    fontSize: '0.75rem',
+    fontWeight: 700,
+  },
+  '.driver-popover.skorify-tour .driver-popover-close-btn': {
+    color: tokens.onSurfaceVariant,
+  },
+  '.driver-popover.skorify-tour .driver-popover-close-btn:hover': {
+    color: tokens.onSurface,
+  },
+  '.driver-popover.skorify-tour .driver-popover-footer button': {
+    textShadow: 'none',
+    borderRadius: '8px',
+    padding: '6px 14px',
+    fontSize: '0.75rem',
+    fontWeight: 700,
+  },
+  '.driver-popover.skorify-tour .driver-popover-prev-btn': {
+    backgroundColor: 'transparent',
+    color: tokens.onSurfaceVariant,
+    border: `1px solid ${tokens.outlineVariant}55`,
+  },
+  '.driver-popover.skorify-tour .driver-popover-prev-btn:hover': {
+    backgroundColor: tokens.surfaceContainerHighest,
+    color: tokens.onSurface,
+  },
+  '.driver-popover.skorify-tour .driver-popover-next-btn': {
+    background: tokens.ctaGradient,
+    color: '#ffffff',
+    border: 'none',
+  },
+  '.driver-popover.skorify-tour .driver-popover-next-btn:hover': {
+    background: tokens.ctaGradient,
+    filter: 'brightness(1.08)',
+    color: '#ffffff',
+  },
+  // Arrow inherits the popover background per side.
+  '.driver-popover.skorify-tour .driver-popover-arrow-side-left': {
+    borderLeftColor: tokens.surfaceContainerHigh,
+  },
+  '.driver-popover.skorify-tour .driver-popover-arrow-side-right': {
+    borderRightColor: tokens.surfaceContainerHigh,
+  },
+  '.driver-popover.skorify-tour .driver-popover-arrow-side-top': {
+    borderTopColor: tokens.surfaceContainerHigh,
+  },
+  '.driver-popover.skorify-tour .driver-popover-arrow-side-bottom': {
+    borderBottomColor: tokens.surfaceContainerHigh,
+  },
+} as const;
 
 const numberFormatter = new Intl.NumberFormat('es-CO');
 
@@ -81,20 +162,54 @@ const UserDashboardHome = () => {
   const [joinDialogOpen, setJoinDialogOpen] = useState(false);
   const [tournamentDetailId, setTournamentDetailId] = useState<string | null>(null);
 
+  const { startTour } = useDashboardTour();
+  const firstTournamentId = activeTournaments[0]?.id ?? null;
+  const openFirstTournament = useCallback(
+    () => setTournamentDetailId(firstTournamentId),
+    [firstTournamentId],
+  );
+  const closeTournament = useCallback(() => setTournamentDetailId(null), []);
+
+  const handleStartTour = useCallback(() => {
+    startTour({
+      hasTournament: !!firstTournamentId,
+      openTournament: openFirstTournament,
+      closeTournament,
+    });
+  }, [startTour, firstTournamentId, openFirstTournament, closeTournament]);
+
+  // Run the tour only on the user's first login. The auth flow sets
+  // TOUR_LOGIN_FLAG; we consume it once tournaments have loaded (so the anchors
+  // exist) and persist TOUR_SEEN_KEY so it never auto-runs again.
+  const tourStarted = useRef(false);
+  useEffect(() => {
+    if (tournamentsLoading || tourStarted.current) return;
+    if (sessionStorage.getItem(TOUR_LOGIN_FLAG) !== '1') return;
+    sessionStorage.removeItem(TOUR_LOGIN_FLAG);
+    if (localStorage.getItem(TOUR_SEEN_KEY)) return;
+    tourStarted.current = true;
+    localStorage.setItem(TOUR_SEEN_KEY, '1');
+    handleStartTour();
+  }, [tournamentsLoading, handleStartTour]);
+
   return (
     <Box sx={{ p: { xs: 2.5, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
+      <GlobalStyles styles={TOUR_STYLES} />
       <WelcomeBanner
         displayName={displayName}
         streak={USER_STREAK}
         canCreateGroups={canCreateGroups}
         t={t}
         onJoinGroup={() => setJoinDialogOpen(true)}
+        onStartTour={handleStartTour}
       />
 
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, lg: 3 }}>
           <Stack spacing={3}>
-            <MyGroupsCard groups={groups} loading={groupsLoading} t={t} />
+            <Box data-tour="groups">
+              <MyGroupsCard groups={groups} loading={groupsLoading} t={t} />
+            </Box>
             <RankingCard t={t} />
           </Stack>
         </Grid>
@@ -169,7 +284,7 @@ const ActiveTournamentsSection = ({
   t,
   onSelectTournament,
 }: ActiveTournamentsSectionProps) => (
-  <Stack spacing={3}>
+  <Stack spacing={3} data-tour="tournaments">
     <Stack
       direction="row"
       alignItems="center"
@@ -238,11 +353,12 @@ const ActiveTournamentsSection = ({
       </AppCard>
     ) : (
       <Stack spacing={1.5}>
-        {tournaments.map((tournament) => (
+        {tournaments.map((tournament, index) => (
           <AppCard
             key={tournament.id}
             variant="interactive"
             onClick={() => onSelectTournament(tournament.id)}
+            data-tour={index === 0 ? 'tournament-card' : undefined}
           >
             <Stack direction="row" alignItems="center" spacing={2} sx={{ p: { xs: 2, md: 2.5 } }}>
               <Box
@@ -297,6 +413,7 @@ interface WelcomeBannerProps {
   canCreateGroups: boolean;
   t: ReturnType<typeof useTranslations<'userDashboard'>>;
   onJoinGroup: () => void;
+  onStartTour: () => void;
 }
 
 const WelcomeBanner = ({
@@ -305,6 +422,7 @@ const WelcomeBanner = ({
   canCreateGroups,
   t,
   onJoinGroup,
+  onStartTour,
 }: WelcomeBannerProps) => (
   <Box
     sx={{
@@ -425,6 +543,14 @@ const WelcomeBanner = ({
           size="large"
         >
           {t('joinGroup')}
+        </AppButton>
+        <AppButton
+          onClick={onStartTour}
+          variant="tertiary"
+          startIcon={<HelpOutlineIcon />}
+          size="large"
+        >
+          {t('tour.startCta')}
         </AppButton>
       </Stack>
     </Box>

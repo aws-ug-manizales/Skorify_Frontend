@@ -60,6 +60,19 @@ const DEFAULT_COGNITO_ERROR: CognitoErrorMapping = { messageKey: 'auth.errors.ge
 const mapCognitoErrorToKey = (error: unknown): CognitoErrorMapping => {
   const code =
     (error as { code?: string; name?: string })?.code ?? (error as { name?: string })?.name;
+  const message = (error as { message?: string })?.message ?? '';
+
+  // The PreSignUp Lambda rejects email sign-ups for addresses already linked
+  // to a Google account, surfaced by Cognito as a UserLambdaValidationException
+  // whose message carries the Lambda's text. Detect the Google case to point
+  // the user to the right flow; other Lambda validations fall back to a
+  // "email already taken" hint on the email field.
+  if (code === 'UserLambdaValidationException') {
+    if (/google/i.test(message)) {
+      return { messageKey: 'auth.errors.emailRegisteredWithGoogle', field: 'email' };
+    }
+    return { messageKey: 'auth.errors.emailTaken', field: 'email' };
+  }
 
   return (code && COGNITO_ERROR_MAP[code]) || DEFAULT_COGNITO_ERROR;
 };

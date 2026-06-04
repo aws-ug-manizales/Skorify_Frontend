@@ -1,9 +1,9 @@
 import { RequireAdmin } from '@features/auth';
-import { AdminComingSoon } from '@features/admin';
+import { AdminDashboard } from '@features/admin';
 
 const AdminPage = () => (
   <RequireAdmin>
-    <AdminComingSoon />
+    <AdminDashboard />
   </RequireAdmin>
 );
 

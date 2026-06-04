@@ -27,6 +27,7 @@ export interface Group {
   adminId: string;
   memberCount: number;
   createdAt: string;
+  tournamentId: string;
 }
 
 export interface GroupMember {
