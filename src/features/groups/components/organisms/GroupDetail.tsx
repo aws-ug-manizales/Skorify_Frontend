@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
@@ -42,11 +42,16 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
   const t = useTranslations('groups');
   const tCommon = useTranslations('common');
   const m = useTranslations('matches');
+  const p = useTranslations('predictions');
   const tResults = useTranslations('results');
   const locale = useLocale();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [activeTab, setActiveTab] = useState<'standings' | 'upcoming' | 'results'>('standings');
+  const [activeTab, setActiveTab] = useState<'standings' | 'upcoming' | 'results'>(() => {
+    const tab = searchParams.get('tab');
+    return tab === 'upcoming' || tab === 'results' ? tab : 'standings';
+  });
   const isDesktop = useMediaQuery('(min-width:900px)');
 
   // On mobile, hide the members list on the matches/results tabs — it only adds
@@ -64,11 +69,13 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
     data?.group.tournamentId,
   );
 
-  // Upcoming tab: upcoming matches of this group's tournament, with the user's
-  // predictions attached when available.
+  // Upcoming tab: every not-yet-finished match of this group's tournament, with
+  // the user's predictions attached when available. We fetch all statuses (large
+  // page size) and filter client-side so in-progress matches show too — they
+  // appear locked rather than being hidden.
   const { items: upcomingItems, loading: loadingUpcoming } = useMatchesList(
-    20,
-    'filterUpcoming',
+    200,
+    'filterAll',
     data?.group.tournamentId,
   );
 
@@ -97,10 +104,11 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
   }, [matchItems, predictionByMatch]);
 
   const upcomingMatches = useMemo(() => {
-    // Hide matches within the lock window (10 min before kickoff), mirroring the
-    // predictions view — those are no longer open for prediction.
+    // Show every match that hasn't finished (upcoming + in-progress/live).
+    // Matches within the lock window or already in progress still appear but
+    // are rendered non-predictable below, mirroring the predictions view.
     return [...upcomingItems]
-      .filter((match) => match.status === 'upcoming' && !isMatchLocked(match.kickoffAt))
+      .filter((match) => match.status !== 'finished')
       .sort((a, b) => new Date(a.kickoffAt).getTime() - new Date(b.kickoffAt).getTime())
       .map((match) => ({
         ...match,
@@ -252,35 +260,59 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
                   </Box>
                 ) : (
                   <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: '1fr' }}>
-                    {upcomingMatches.map((match) => (
-                      <Box
-                        key={match.id}
-                        role="button"
-                        tabIndex={0}
-                        onClick={() =>
-                          router.push(`/predictions?group=${groupId}&match=${match.id}`)
-                        }
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            router.push(`/predictions?group=${groupId}&match=${match.id}`);
-                          }
-                        }}
-                        sx={{ cursor: 'pointer', borderRadius: '8px', outline: 'none' }}
-                      >
+                    {upcomingMatches.map((match) => {
+                      // In-progress matches, or those within the 10-min lock
+                      // window, are shown but can't be predicted: skip the
+                      // click-through to the prediction drawer and dim the card.
+                      const locked = match.status === 'live' || isMatchLocked(match.kickoffAt);
+                      const card = (
                         <MatchCard
                           match={match}
                           tournamentLabel={data.group.name}
                           stageLabel={
                             match.stageKey === 'finals' ? m('stageFinals') : m('stageGroup')
                           }
-                          statusLabel={m('upcoming')}
+                          statusLabel={
+                            match.status === 'live'
+                              ? m('live')
+                              : locked
+                                ? p('closed')
+                                : m('upcoming')
+                          }
                           kickoffLabel={formatKickoff(match.kickoffAt, locale)}
                           vsLabel={m('vs')}
                           predictionLabel={m('predictionLabel')}
                         />
-                      </Box>
-                    ))}
+                      );
+
+                      if (locked) {
+                        return (
+                          <Box key={match.id} sx={{ opacity: 0.7 }}>
+                            {card}
+                          </Box>
+                        );
+                      }
+
+                      return (
+                        <Box
+                          key={match.id}
+                          role="button"
+                          tabIndex={0}
+                          onClick={() =>
+                            router.push(`/predictions?group=${groupId}&match=${match.id}`)
+                          }
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              router.push(`/predictions?group=${groupId}&match=${match.id}`);
+                            }
+                          }}
+                          sx={{ cursor: 'pointer', borderRadius: '8px', outline: 'none' }}
+                        >
+                          {card}
+                        </Box>
+                      );
+                    })}
                   </Box>
                 )}
               </Box>

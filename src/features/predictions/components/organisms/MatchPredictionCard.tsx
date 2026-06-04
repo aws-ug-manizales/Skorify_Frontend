@@ -5,7 +5,7 @@ import AppButton from '@shared/components/atoms/AppButton';
 import MatchCard from '@features/matches/components/molecules/MatchCard';
 import { formatKickoff } from '@features/matches/utils/formatKickoff';
 import type { Match } from '@features/matches';
-import useMatchCountdown from '../../hooks/useMatchCountdown';
+import useMatchCountdown, { isStatusClosedForPrediction } from '../../hooks/useMatchCountdown';
 import type { PredictionMatch } from '../../types/prediction';
 
 interface MatchPredictionCardProps {
@@ -28,7 +28,10 @@ const MatchPredictionCard = ({
   const t = useTranslations('predictions');
   const tMatches = useTranslations('matches');
   const locale = useLocale();
-  const { isLocked } = useMatchCountdown(match.date);
+  const { isLocked: timeLocked } = useMatchCountdown(match.date);
+  // A match is closed for prediction once it's within the lock window OR its
+  // status has moved to in_progress/finished — shown, but no longer predictable.
+  const isLocked = timeLocked || isStatusClosedForPrediction(match.status);
 
   const prediction =
     isSaved && initialHomeGoals !== undefined && initialAwayGoals !== undefined

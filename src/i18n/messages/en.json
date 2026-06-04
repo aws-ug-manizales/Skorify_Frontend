@@ -240,6 +240,7 @@
     "overwriteTitle": "Edit prediction",
     "overwriteMessage": "Do you want to overwrite your current prediction?",
     "editCancelledToast": "Edit cancelled. Your original prediction is unchanged.",
+    "noChangesToast": "You didn't change any value in your prediction.",
     "saveErrorToast": "Could not save your prediction. Please try again.",
     "savedMessages": [
       "Fastest in the west!",

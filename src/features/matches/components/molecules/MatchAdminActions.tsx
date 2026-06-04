@@ -37,6 +37,9 @@ interface MatchAdminActionsProps {
   tournamentId: string;
   // UI status of the match; "Calculate" is only allowed once it's closed.
   matchStatus: UiMatchStatus;
+  // Raw backend status, used to hide "Calculate" once the match is already
+  // calculated (the UI status can't distinguish 'finished' from 'calculated').
+  rawStatus?: MatchStatus;
   // Home/away teams (name + flag/shield) so the close dialog can show who is
   // playing, mirroring the match card.
   homeTeam?: MatchTeam;
@@ -75,6 +78,7 @@ const MatchAdminActions = ({
   matchId,
   tournamentId,
   matchStatus,
+  rawStatus,
   homeTeam,
   awayTeam,
   onChanged,
@@ -82,9 +86,11 @@ const MatchAdminActions = ({
   const t = useTranslations('matchesAdmin');
   const snackbar = useSnackbar();
 
+  // Already-calculated matches don't expose a calculate action at all.
+  const isCalculated = rawStatus === 'calculated';
   // Scores are only meaningful after the match is closed, so calculating
   // points is gated on the closed (finished) status.
-  const canCalculate = matchStatus === 'finished';
+  const canCalculate = (rawStatus ?? matchStatus) === 'finished';
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialog, setDialog] = useState<DialogKind>(null);
@@ -180,23 +186,6 @@ const MatchAdminActions = ({
     snackbar.success(t('actions.closeSuccess'));
     closeDialog();
     onChanged?.();
-
-    // Once the match is closed it has a final score, so recalculate points
-    // automatically across every instance of the tournament (the global group
-    // plus any user-created groups) without making the admin do it by hand.
-    const tournamentInstances = await getTournamentInstancesByTournamentId({ tournamentId });
-    if (tournamentInstances.length === 0) return;
-
-    const calculations = await Promise.all(
-      tournamentInstances.map((instance) =>
-        calculateMatchScore({ matchId, tournamentInstanceId: instance.id }),
-      ),
-    );
-
-    if (calculations.some(Boolean)) {
-      snackbar.success(t('actions.calculateSuccess'));
-      onChanged?.();
-    }
   };
 
   const handleCalculate = async () => {
@@ -231,10 +220,12 @@ const MatchAdminActions = ({
           <LockIcon sx={{ fontSize: '1.125rem', mr: 1 }} />
           {t('actions.closeAction')}
         </MenuItem>
-        <MenuItem onClick={openCalculate} disabled={!canCalculate}>
-          <CalculateIcon sx={{ fontSize: '1.125rem', mr: 1 }} />
-          {t('actions.calculateAction')}
-        </MenuItem>
+        {!isCalculated && (
+          <MenuItem onClick={openCalculate} disabled={!canCalculate}>
+            <CalculateIcon sx={{ fontSize: '1.125rem', mr: 1 }} />
+            {t('actions.calculateAction')}
+          </MenuItem>
+        )}
       </Menu>
 
       {/* Edit */}

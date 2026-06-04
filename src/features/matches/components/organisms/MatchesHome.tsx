@@ -152,12 +152,14 @@ const MatchesHome = () => {
               kickoffLabel={formatKickoff(m.kickoffAt, locale)}
               vsLabel={t('vs')}
               predictionLabel={t('predictionLabel')}
+              showPrediction={!isAdmin}
               actions={
                 isAdmin ? (
                   <MatchAdminActions
                     matchId={m.id}
                     tournamentId={tournamentId}
                     matchStatus={m.status}
+                    rawStatus={m.rawStatus}
                     homeTeam={m.homeTeam}
                     awayTeam={m.awayTeam}
                     onChanged={reload}

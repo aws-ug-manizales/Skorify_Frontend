@@ -1,3 +1,5 @@
+import type { MatchStatus as ApiMatchStatus } from '@lib/api/skorify';
+
 export type MatchStatus = 'upcoming' | 'live' | 'finished';
 
 export type MatchTeam = {
@@ -22,6 +24,9 @@ export type Match = {
   tournamentKey: string;
   stageKey: string;
   status: MatchStatus;
+  // Raw backend status (e.g. 'calculated'), preserved because the UI `status`
+  // above collapses 'finished' | 'calculated' | 'cancelled' into 'finished'.
+  rawStatus?: ApiMatchStatus;
   kickoffAt: string; // ISO
   homeTeamId: string;
   awayTeamId: string;

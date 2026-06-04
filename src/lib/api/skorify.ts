@@ -74,7 +74,13 @@ export interface GetUserBySubResult {
 
 // ──────────────────────────── Match ───────────────────────────
 
-export type MatchStatus = 'draft' | 'scheduled' | 'in_progress' | 'finished' | 'cancelled';
+export type MatchStatus =
+  | 'draft'
+  | 'scheduled'
+  | 'in_progress'
+  | 'finished'
+  | 'calculated'
+  | 'cancelled';
 export type MatchStage = 'group' | 'finals';
 
 export interface MatchDto {
