@@ -10,6 +10,7 @@ import type { RegisterFormInput } from '../lib/schemas';
 import { useAuthStore } from '../store/useAuthStore';
 import { useNotification, NotificationType } from '@shared/notifications';
 import { TOUR_LOGIN_FLAG } from '@features/dashboard/tourFlag';
+import { JOIN_CODE_PARAM, PENDING_JOIN_CODE_KEY } from '@features/groups/joinFlag';
 
 type Mode = 'login' | 'register' | 'confirm';
 type TransitionPhase = 'idle' | 'exiting' | 'entering';
@@ -106,6 +107,15 @@ export const useAuthGateway = () => {
   useEffect(() => {
     clearErrors();
   }, [mode, clearErrors]);
+
+  // Persist an invite code arriving on the `/auth?joinCode=` URL so the join
+  // flow survives the (possibly OAuth) login and the dashboard can resume it.
+  // Read from window.location to avoid needing a Suspense boundary.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const code = new URLSearchParams(window.location.search).get(JOIN_CODE_PARAM);
+    if (code) sessionStorage.setItem(PENDING_JOIN_CODE_KEY, code);
+  }, []);
 
   const transitionTo = useCallback(
     (next: Mode, dir: 'forward' | 'backward') => {

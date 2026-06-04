@@ -26,6 +26,7 @@ import { getInitials } from '@shared/utils/string';
 import { useAuthSession } from '@features/auth/hooks/useAuthSession';
 import { useUserGroups, type UserGroupSummary } from '@features/groups/hooks/useUserGroups';
 import JoinGroupDialog from '@features/groups/components/organisms/JoinGroupDialog';
+import { PENDING_JOIN_CODE_KEY } from '@features/groups/joinFlag';
 import { useGetAvailableTournaments } from '@features/tournaments/hooks/useGetAvailableTournaments';
 import TournamentDetailDialog from '@features/tournaments/components/organisms/TournamentDetailDialog';
 import type { TournamentDto } from '@lib/api/skorify';
@@ -159,8 +160,22 @@ const UserDashboardHome = () => {
         .slice(0, ACTIVE_TOURNAMENTS_LIMIT),
     [tournaments],
   );
-  const [joinDialogOpen, setJoinDialogOpen] = useState(false);
+  // Resume a join started before login: a guest who opened a `/join/<code>` link
+  // was redirected to auth with the code stashed in sessionStorage. Reading it in
+  // a lazy initializer (mount-only) opens the dialog prefilled without an effect,
+  // and we drop the first-login tour flag so the two don't fight over the screen.
+  const [join, setJoin] = useState<{ open: boolean; code: string }>(() => {
+    if (typeof window === 'undefined') return { open: false, code: '' };
+    const pending = sessionStorage.getItem(PENDING_JOIN_CODE_KEY);
+    if (!pending) return { open: false, code: '' };
+    sessionStorage.removeItem(PENDING_JOIN_CODE_KEY);
+    sessionStorage.removeItem(TOUR_LOGIN_FLAG);
+    return { open: true, code: pending };
+  });
   const [tournamentDetailId, setTournamentDetailId] = useState<string | null>(null);
+
+  const openJoinDialog = useCallback(() => setJoin({ open: true, code: '' }), []);
+  const closeJoinDialog = useCallback(() => setJoin({ open: false, code: '' }), []);
 
   const { startTour } = useDashboardTour();
   const firstTournamentId = activeTournaments[0]?.id ?? null;
@@ -200,7 +215,7 @@ const UserDashboardHome = () => {
         streak={USER_STREAK}
         canCreateGroups={canCreateGroups}
         t={t}
-        onJoinGroup={() => setJoinDialogOpen(true)}
+        onJoinGroup={openJoinDialog}
         onStartTour={handleStartTour}
       />
 
@@ -233,7 +248,7 @@ const UserDashboardHome = () => {
         </Grid>
       </Grid>
 
-      <JoinGroupDialog open={joinDialogOpen} onClose={() => setJoinDialogOpen(false)} />
+      <JoinGroupDialog open={join.open} onClose={closeJoinDialog} initialCode={join.code} />
 
       <TournamentDetailDialog
         open={tournamentDetailId !== null}
