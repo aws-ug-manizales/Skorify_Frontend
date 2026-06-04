@@ -381,8 +381,14 @@ export interface GetCurrentRankingParams {
 export interface RankingItemDto {
   userId: Id;
   userName: string;
-  position: number | null;
+  // Both positions are 1-based; the backend sends `-1` when a standing hasn't
+  // been calculated yet. `lastPosition` is the position before the latest score
+  // calculation, used to animate rank changes.
+  currentPosition: number;
+  lastPosition: number;
+  score: number;
   points: number;
+  maxStreak: number;
   streak: number;
 }
 

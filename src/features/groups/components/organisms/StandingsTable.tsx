@@ -11,6 +11,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import LeaderboardOutlinedIcon from '@mui/icons-material/LeaderboardOutlined';
+import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { useTranslations } from 'next-intl';
 import { tokens } from '@lib/theme/theme';
@@ -35,7 +36,8 @@ interface StandingsTableProps {
 const PRE_ROLL_MS = 700;
 const DELTA_VISIBLE_MS = 3200;
 
-const sortByPoints = (rows: StandingRow[]) => [...rows].sort((a, b) => b.points - a.points);
+const sortByRank = (rows: StandingRow[]) =>
+  [...rows].sort((a, b) => a.rank - b.rank || b.points - a.points);
 const idsKey = (rows: StandingRow[]) => rows.map((r) => r.userId).join('|');
 
 const StandingsTable = ({
@@ -48,9 +50,9 @@ const StandingsTable = ({
   const t = useTranslations('groups');
   const isDesktop = useMediaQuery('(min-width:900px)');
 
-  const sorted = useMemo(() => sortByPoints(standings), [standings]);
+  const sorted = useMemo(() => sortByRank(standings), [standings]);
   const prevSorted = useMemo(
-    () => (previousStandings ? sortByPoints(previousStandings) : null),
+    () => (previousStandings ? sortByRank(previousStandings) : null),
     [previousStandings],
   );
 
@@ -118,8 +120,29 @@ const StandingsTable = ({
     };
   }, [displayed]);
 
+  // Entrance: stagger the rows in on mount when there's no reorder to animate.
+  // The parent remounts this component (via `key`) when the ranking changes, so
+  // this replays on every fresh load / data change. useLayoutEffect sets the
+  // initial opacity before paint to avoid a flash of fully-visible rows.
+  useLayoutEffect(() => {
+    if (orderChanged) return;
+    sorted.forEach((row, i) => {
+      const el = rowRefs.current.get(row.userId);
+      if (!el) return;
+      animate(el, {
+        translateY: [10, 0],
+        opacity: [0, 1],
+        duration: 420,
+        delay: i * 45,
+        ease: 'outCubic',
+      });
+    });
+    // Mount-only entrance; deps intentionally empty.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const headerColsMobile = ['#', t('colPlayer'), t('colPoints')];
-  const headerColsDesktop = ['#', t('colPlayer'), t('colPoints'), t('colPredictedMatches')];
+  const headerColsDesktop = ['#', t('colPlayer'), t('colPoints'), t('colStreak')];
   const cols = isDesktop ? headerColsDesktop : headerColsMobile;
   const gridTemplate = isDesktop ? '40px 1fr 60px 80px' : '40px 1fr 52px';
 
@@ -296,17 +319,33 @@ const StandingsTable = ({
             </Typography>
 
             {isDesktop && (
-              <Typography
-                variant="body2"
+              <Box
                 sx={{
-                  color: tokens.onSurfaceVariant,
-                  textAlign: 'center',
-                  fontWeight: 500,
-                  fontSize: '0.78rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 0.25,
                 }}
               >
-                {row.predictedMatches}
-              </Typography>
+                <LocalFireDepartmentIcon
+                  sx={{
+                    fontSize: '0.95rem',
+                    color: row.streak > 0 ? tokens.error : tokens.onSurfaceVariant,
+                  }}
+                />
+                <Typography
+                  variant="body2"
+                  sx={{ color: tokens.onSurface, fontWeight: 700, fontSize: '0.8rem' }}
+                >
+                  {row.streak}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: tokens.onSurfaceVariant, fontWeight: 500, fontSize: '0.7rem' }}
+                >
+                  /{row.maxStreak}
+                </Typography>
+              </Box>
             )}
           </Box>
         );

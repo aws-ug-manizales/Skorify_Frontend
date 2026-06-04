@@ -23,6 +23,13 @@ type Props = {
   partialLabel: string;
   wrongLabel: string;
   noPredictionLabel: string;
+  /** Backend-awarded points for the user's prediction — the same value that
+   *  feeds the ranking (`earnedPoints`). When provided it's shown verbatim
+   *  instead of recomputing the score on the client. */
+  earnedPoints?: number;
+  /** Backend flag for an exact-score hit. Used together with `earnedPoints` to
+   *  derive the result label so it stays consistent with the ranking. */
+  hasExactResult?: boolean;
 };
 
 const FinishedMatchCard = ({
@@ -34,10 +41,23 @@ const FinishedMatchCard = ({
   partialLabel,
   wrongLabel,
   noPredictionLabel,
+  earnedPoints,
+  hasExactResult,
 }: Props) => {
-  const predictionResult: PredictionResult = match.score
-    ? evaluatePrediction(match.score, match.prediction)
-    : 'no-prediction';
+  // Prefer the backend's verdict (exact / earned points) so the label matches
+  // the ranking; only fall back to the client-side evaluation when we don't
+  // have the backend data for this prediction.
+  const predictionResult: PredictionResult = !match.prediction
+    ? 'no-prediction'
+    : earnedPoints !== undefined
+      ? hasExactResult
+        ? 'exact'
+        : earnedPoints > 0
+          ? 'partial'
+          : 'wrong'
+      : match.score
+        ? evaluatePrediction(match.score, match.prediction)
+        : 'no-prediction';
 
   const resultColor = getPredictionResultColor(predictionResult);
   const resultIcon = getPredictionResultIcon(predictionResult);
@@ -58,11 +78,14 @@ const FinishedMatchCard = ({
 
   const resultLabel = getSafeLabel(predictionResult);
 
-  // Calcular puntos obtenidos
+  // Puntos obtenidos: preferimos el `earnedPoints` del backend (el mismo valor
+  // que alimenta el ranking) y solo recalculamos en el cliente como respaldo
+  // cuando no lo tenemos disponible.
   const totalPoints =
-    match.score && match.prediction
+    earnedPoints ??
+    (match.score && match.prediction
       ? calculatePredictionPoints(match.score, match.prediction).totalPoints
-      : 0;
+      : 0);
 
   return (
     <Box
