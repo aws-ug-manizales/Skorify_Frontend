@@ -75,13 +75,15 @@ const fetchUserStanding = async (
   );
   if (!result.success) return null;
   const ranking = result.data.data ?? [];
-  // The ranking is ordered by points; when the backend doesn't set an explicit
-  // `position`, fall back to the array index — same rule the standings table uses.
-  const index = ranking.findIndex((item) => candidateIds.includes(item.userId));
-  if (index === -1) return null;
+  const item = ranking.find((entry) => candidateIds.includes(entry.userId));
+  if (!item) return null;
+  // Prefer the backend's `currentPosition`; when it's unset (`-1`), fall back to
+  // the user's index in the points-sorted ranking — same rule the standings use.
+  const byPoints = [...ranking].sort((a, b) => (b.points ?? 0) - (a.points ?? 0));
+  const fallbackPosition = byPoints.findIndex((entry) => entry.userId === item.userId) + 1;
   return {
-    position: ranking[index].position ?? index + 1,
-    points: ranking[index].points,
+    position: item.currentPosition > 0 ? item.currentPosition : fallbackPosition,
+    points: item.points,
   };
 };
 

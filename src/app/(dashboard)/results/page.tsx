@@ -62,6 +62,18 @@ export default function ResultsPage() {
     return map;
   }, [userPredictions]);
 
+  // Backend verdict per match (the same values that feed the ranking).
+  const verdictByMatch = useMemo(() => {
+    const map: Record<string, { earnedPoints: number; hasExactResult: boolean }> = {};
+    (userPredictions ?? []).forEach((prediction) => {
+      map[prediction.matchId] = {
+        earnedPoints: prediction.earnedPoints,
+        hasExactResult: prediction.hasExactResult,
+      };
+    });
+    return map;
+  }, [userPredictions]);
+
   const finishedMatches = useMemo(
     () =>
       [...items]
@@ -131,6 +143,8 @@ export default function ResultsPage() {
               partialLabel={t('partial')}
               wrongLabel={t('wrong')}
               noPredictionLabel={t('noPrediction')}
+              earnedPoints={verdictByMatch[match.id]?.earnedPoints}
+              hasExactResult={verdictByMatch[match.id]?.hasExactResult}
             />
           ))}
         </Box>

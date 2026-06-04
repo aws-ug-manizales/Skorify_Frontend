@@ -44,7 +44,10 @@ export interface StandingRow {
   userId: string;
   name: string;
   points: number;
-  predictedMatches: number;
+  /** Current consecutive-hit streak. */
+  streak: number;
+  /** Best streak reached in this tournament. */
+  maxStreak: number;
 }
 
 export interface PendingMatch {

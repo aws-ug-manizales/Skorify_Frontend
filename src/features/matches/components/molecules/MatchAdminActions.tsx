@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import Box from '@mui/material/Box';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -9,6 +9,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
@@ -17,6 +18,12 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
 import LockIcon from '@mui/icons-material/Lock';
 import CalculateIcon from '@mui/icons-material/Calculate';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { es as esLocale } from 'date-fns/locale/es';
+import { enUS as enLocale } from 'date-fns/locale/en-US';
 import AppButton from '@shared/components/atoms/AppButton';
 import useSnackbar from '@shared/hooks/useSnackbar';
 import { tokens } from '@lib/theme/theme';
@@ -62,18 +69,6 @@ const NO_SPINNER_SX = {
   },
 } as const;
 
-const isoToLocalInput = (iso: string): string => {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '';
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-};
-
-const localInputToIso = (value: string): string => {
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? '' : d.toISOString();
-};
-
 const MatchAdminActions = ({
   matchId,
   tournamentId,
@@ -84,6 +79,8 @@ const MatchAdminActions = ({
   onChanged,
 }: MatchAdminActionsProps) => {
   const t = useTranslations('matchesAdmin');
+  const locale = useLocale();
+  const adapterLocale = locale.startsWith('es') ? esLocale : enLocale;
   const snackbar = useSnackbar();
 
   // Already-calculated matches don't expose a calculate action at all.
@@ -98,7 +95,7 @@ const MatchAdminActions = ({
   // Edit state
   const [homeTeamId, setHomeTeamId] = useState('');
   const [awayTeamId, setAwayTeamId] = useState('');
-  const [kickOff, setKickOff] = useState('');
+  const [kickOff, setKickOff] = useState<Date | null>(null);
   const [status, setStatus] = useState<MatchStatus>('scheduled');
 
   // Close state
@@ -136,7 +133,7 @@ const MatchAdminActions = ({
     if (match) {
       setHomeTeamId(match.homeTeamId);
       setAwayTeamId(match.awayTeamId);
-      setKickOff(isoToLocalInput(match.kickOff));
+      setKickOff(match.kickOff ? new Date(match.kickOff) : null);
       setStatus(EDITABLE_STATUSES.includes(match.status) ? match.status : 'scheduled');
     }
   };
@@ -160,7 +157,7 @@ const MatchAdminActions = ({
       matchId,
       homeTeamId: homeTeamId.trim(),
       awayTeamId: awayTeamId.trim(),
-      date: localInputToIso(kickOff),
+      date: kickOff ? kickOff.toISOString() : '',
       status,
     });
     if (result) {
@@ -201,7 +198,7 @@ const MatchAdminActions = ({
   };
 
   return (
-    <>
+    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={adapterLocale}>
       <IconButton
         size="small"
         onClick={(e) => setAnchorEl(e.currentTarget)}
@@ -261,14 +258,29 @@ const MatchAdminActions = ({
                 </MenuItem>
               ))}
             </TextField>
-            <TextField
+            <DateTimePicker
               label={t('kickOffLabel')}
-              type="datetime-local"
               value={kickOff}
-              onChange={(e) => setKickOff(e.target.value)}
-              fullWidth
+              onChange={setKickOff}
+              ampm={false}
+              format="dd/MM/yyyy HH:mm"
               disabled={loadingMatch}
-              slotProps={{ inputLabel: { shrink: true } }}
+              slotProps={{
+                textField: {
+                  fullWidth: true,
+                  slotProps: {
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <CalendarMonthIcon
+                            sx={{ color: tokens.onSurfaceVariant, fontSize: '1.25rem' }}
+                          />
+                        </InputAdornment>
+                      ),
+                    },
+                  },
+                },
+              }}
             />
             <TextField
               label={t('actions.statusLabel')}
@@ -385,7 +397,7 @@ const MatchAdminActions = ({
           </Box>
         </DialogActions>
       </Dialog>
-    </>
+    </LocalizationProvider>
   );
 };
 

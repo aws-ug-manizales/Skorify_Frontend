@@ -61,6 +61,13 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
   const { data, isLoading, error, refetch } = useGroupDetail(groupId);
   const currentUserId = useCurrentUserId() ?? '';
 
+  // Remount the podium/table whenever the ranking changes so their mount-time
+  // rank-change animation replays on each refetch (they only animate on mount).
+  const standingsKey = useMemo(
+    () => (data?.standings ?? []).map((s) => `${s.userId}:${s.rank}:${s.points}`).join('|'),
+    [data?.standings],
+  );
+
   // Results tab: finished matches of this group's tournament, compared against
   // the user's predictions in this group (the group is the tournament instance).
   const { items: matchItems, loading: loadingResults } = useMatchesList(
@@ -89,6 +96,18 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
     const map: Record<string, { home: number; away: number }> = {};
     (userPredictions ?? []).forEach((prediction) => {
       map[prediction.matchId] = { home: prediction.homeScore, away: prediction.awayScore };
+    });
+    return map;
+  }, [userPredictions]);
+
+  // Backend verdict per match (the same values that feed the ranking).
+  const verdictByMatch = useMemo(() => {
+    const map: Record<string, { earnedPoints: number; hasExactResult: boolean }> = {};
+    (userPredictions ?? []).forEach((prediction) => {
+      map[prediction.matchId] = {
+        earnedPoints: prediction.earnedPoints,
+        hasExactResult: prediction.hasExactResult,
+      };
     });
     return map;
   }, [userPredictions]);
@@ -229,14 +248,16 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
             {activeTab === 'standings' && (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                 <TopPodium
+                  key={`podium-${standingsKey}`}
                   standings={data.standings}
-                  previousStandings={undefined}
+                  previousStandings={data.previousStandings}
                   currentUserId={currentUserId}
                   pointsLabel={t('pointsLabel')}
                 />
                 <StandingsTable
+                  key={`table-${standingsKey}`}
                   standings={data.standings}
-                  previousStandings={undefined}
+                  previousStandings={data.previousStandings}
                   currentUserId={currentUserId}
                   onRefresh={refetch}
                   isRefreshing={isLoading}
@@ -349,6 +370,8 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
                         noPredictionLabel={tResults('noPrediction', {
                           defaultValue: 'Sin predicción',
                         })}
+                        earnedPoints={verdictByMatch[match.id]?.earnedPoints}
+                        hasExactResult={verdictByMatch[match.id]?.hasExactResult}
                       />
                     ))}
                   </Box>
