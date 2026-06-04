@@ -1,14 +1,10 @@
 'use client';
 
-import Box from '@mui/material/Box';
-import Chip from '@mui/material/Chip';
-import Typography from '@mui/material/Typography';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import AppButton from '@shared/components/atoms/AppButton';
-import AppCard from '@shared/components/molecules/AppCard';
-import { tokens } from '@lib/theme/theme';
-import MatchCountdown from '../atoms/MatchCountdown';
-import TeamLabel from '../atoms/TeamLabel';
+import MatchCard from '@features/matches/components/molecules/MatchCard';
+import { formatKickoff } from '@features/matches/utils/formatKickoff';
+import type { Match } from '@features/matches';
 import useMatchCountdown from '../../hooks/useMatchCountdown';
 import type { PredictionMatch } from '../../types/prediction';
 
@@ -18,6 +14,7 @@ interface MatchPredictionCardProps {
   initialHomeGoals?: number;
   initialAwayGoals?: number;
   onOpenPrediction: (match: PredictionMatch) => void;
+  tournamentLabel?: string;
 }
 
 const MatchPredictionCard = ({
@@ -26,89 +23,60 @@ const MatchPredictionCard = ({
   initialHomeGoals,
   initialAwayGoals,
   onOpenPrediction,
+  tournamentLabel,
 }: MatchPredictionCardProps) => {
   const t = useTranslations('predictions');
+  const tMatches = useTranslations('matches');
+  const locale = useLocale();
   const { isLocked } = useMatchCountdown(match.date);
 
-  const scoreLabel =
+  const prediction =
     isSaved && initialHomeGoals !== undefined && initialAwayGoals !== undefined
-      ? `${initialHomeGoals} - ${initialAwayGoals}`
-      : t('scorePlaceholder');
+      ? { home: initialHomeGoals, away: initialAwayGoals }
+      : undefined;
+
+  // Map the prediction match onto the shape the shared MatchCard expects so the
+  // predictions list looks exactly like the matches list. The real match score
+  // isn't available here, so we keep the status as "upcoming" (VS view) and let
+  // the saved prediction render as the prediction badge.
+  const mappedMatch: Match = {
+    id: match.id,
+    tournamentKey: '',
+    stageKey: match.stageKey ?? 'group',
+    status: 'upcoming',
+    kickoffAt: match.date,
+    homeTeamId: '',
+    awayTeamId: '',
+    homeTeam: { name: match.homeTeam, image: match.homeTeamFlag, code: '' },
+    awayTeam: { name: match.awayTeam, image: match.awayTeamFlag, code: '' },
+    score: undefined,
+    prediction,
+  };
+
+  const stageLabel = match.stageKey === 'finals' ? tMatches('stageFinals') : tMatches('stageGroup');
 
   return (
-    <AppCard sx={{ p: 0, overflow: 'hidden', border: `1px solid ${tokens.outlineVariant}26` }}>
-      <Box
-        sx={{
-          px: 2,
-          py: 1.5,
-          textAlign: 'center',
-          borderBottom: `1px solid ${tokens.outlineVariant}26`,
-          bgcolor: `${tokens.surfaceContainerLowest}80`,
-        }}
-      >
-        <MatchCountdown kickOff={match.date} />
-      </Box>
-
-      <Box
-        sx={{
-          px: { xs: 2, md: 3 },
-          py: 3,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 2,
-        }}
-      >
-        <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 900,
-              letterSpacing: '0.18em',
-              color: isLocked && !isSaved ? `${tokens.onSurface}33` : tokens.onSurface,
-            }}
-          >
-            {scoreLabel}
-          </Typography>
-        </Box>
-
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)',
-            alignItems: 'center',
-            gap: { xs: 1, md: 2 },
-          }}
-        >
-          <TeamLabel name={match.homeTeam} flagUrl={match.homeTeamFlag} align="home" />
-
-          <Chip
-            label={isSaved ? t('predictionSaved') : t('make')}
-            size="small"
-            sx={{
-              bgcolor: tokens.surfaceContainerHigh,
-              color: tokens.onSurface,
-              fontWeight: 700,
-            }}
-          />
-
-          <TeamLabel name={match.awayTeam} flagUrl={match.awayTeamFlag} align="away" />
-        </Box>
-      </Box>
-
-      {!isLocked && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', px: 2, pb: 2.5, pt: 0 }}>
+    <MatchCard
+      match={mappedMatch}
+      tournamentLabel={tournamentLabel ?? ''}
+      stageLabel={stageLabel}
+      statusLabel={isLocked ? t('closed') : t('open')}
+      kickoffLabel={formatKickoff(match.date, locale)}
+      vsLabel={tMatches('vs')}
+      predictionLabel={tMatches('predictionLabel')}
+      footer={
+        !isLocked ? (
           <AppButton
             variant="primary"
             size="small"
             type="button"
             onClick={() => onOpenPrediction(match)}
-            sx={{ minWidth: 180 }}
           >
             {isSaved ? t('editCta') : t('predictCta')}
           </AppButton>
-        </Box>
-      )}
-    </AppCard>
+        ) : undefined
+      }
+    />
   );
 };
 

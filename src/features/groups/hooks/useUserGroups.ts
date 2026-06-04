@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { api } from '@lib/api';
 import {
   skorifyEndpoints,
+  type RankingItemDto,
   type SkorifyEnvelope,
   type TournamentInstanceDto,
   type UserEnrollmentDto,
@@ -52,15 +53,32 @@ const fetchMemberCount = async (tournamentInstanceId: string): Promise<number> =
   return result.success ? (result.data.data?.length ?? 0) : 0;
 };
 
+// The enrollment's `currentPosition` isn't kept up to date, so resolve the
+// real standing from the instance's current ranking instead.
+const fetchUserPosition = async (tournamentInstanceId: string, userId: string): Promise<number> => {
+  const result = await api.get<SkorifyEnvelope<RankingItemDto[]>>(
+    skorifyEndpoints.tournamentInstance.getCurrentRanking,
+    { tournamentInstanceId },
+  );
+  if (!result.success) return 0;
+  const ranking = result.data.data ?? [];
+  // The ranking is ordered by points; when the backend doesn't set an explicit
+  // `position`, fall back to the array index — same rule the standings table uses.
+  const index = ranking.findIndex((item) => item.userId === userId);
+  if (index === -1) return 0;
+  return ranking[index].position ?? index + 1;
+};
+
 const mapToSummary = (
   enrollment: UserEnrollmentDto,
   instance: TournamentInstanceDto | null,
   memberCount: number,
+  position: number,
 ): UserGroupSummary => ({
   id: enrollment.tournamentInstanceId,
   name: instance?.name ?? enrollment.tournamentInstanceId,
   memberCount,
-  rank: enrollment.currentPosition ?? 0,
+  rank: position || enrollment.currentPosition || 0,
   points: enrollment.currentScore,
 });
 
@@ -85,13 +103,14 @@ export const useUserGroups = () => {
     }
 
     const enrollments = enrollmentsResult.data.data ?? [];
-    const [instances, memberCounts] = await Promise.all([
+    const [instances, memberCounts, positions] = await Promise.all([
       Promise.all(enrollments.map((e) => fetchInstance(e.tournamentInstanceId))),
       Promise.all(enrollments.map((e) => fetchMemberCount(e.tournamentInstanceId))),
+      Promise.all(enrollments.map((e) => fetchUserPosition(e.tournamentInstanceId, userId))),
     ]);
 
     const groups = enrollments.map((enrollment, index) =>
-      mapToSummary(enrollment, instances[index], memberCounts[index]),
+      mapToSummary(enrollment, instances[index], memberCounts[index], positions[index]),
     );
 
     setState({ groups, isLoading: false, error: null });
@@ -103,7 +122,7 @@ export const useUserGroups = () => {
     didFetch.current = true;
     // setState inside refresh is deferred via `await Promise.resolve()`,
     // and didFetch guards against cascading re-runs.
-     
+
     void refresh();
   }, [hydrated, userId, refresh]);
 

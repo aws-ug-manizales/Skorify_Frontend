@@ -64,7 +64,7 @@ const DashboardNavbar = ({ username = 'Usuario' }: Props) => {
         {/* Brand — left */}
         <Box
           component="img"
-          src="/skorify-logo-2.svg"
+          src="/isologotipo.svg"
           alt={tCommon('appName')}
           sx={{
             height: 130,

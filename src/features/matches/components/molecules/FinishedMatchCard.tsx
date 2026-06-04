@@ -83,47 +83,56 @@ const FinishedMatchCard = ({
         },
       }}
     >
-      {/* Badge de estado finalizado */}
+      {/* Encabezado del partido + badge de estado finalizado.
+          El badge va en el flujo (no absoluto) para que en móvil el nombre
+          del torneo no se sobremonte con él. */}
       <Box
         sx={{
-          position: 'absolute',
-          top: 12,
-          right: 12,
           display: 'flex',
-          alignItems: 'center',
-          gap: 0.5,
-          bgcolor: `${tokens.success}1A`,
-          color: tokens.success,
-          px: 1.5,
-          py: 0.5,
-          borderRadius: '4px',
-          fontSize: '0.625rem',
-          fontWeight: 700,
-          textTransform: 'uppercase',
-          letterSpacing: '0.08em',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          gap: 1,
         }}
       >
-        <CheckCircleIcon sx={{ fontSize: '0.75rem' }} />
-        Finalizado
-      </Box>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography
+            sx={{
+              fontSize: '0.625rem',
+              color: tokens.onSurfaceVariant,
+              textTransform: 'uppercase',
+              letterSpacing: '0.12em',
+              fontWeight: 700,
+              mb: 0.5,
+            }}
+          >
+            {tournamentLabel} • {stageLabel}
+          </Typography>
+          <Typography sx={{ color: tokens.onSurfaceVariant, fontSize: '0.75rem' }}>
+            {kickoffLabel}
+          </Typography>
+        </Box>
 
-      {/* Encabezado del partido */}
-      <Box>
-        <Typography
+        <Box
           sx={{
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 0.5,
+            bgcolor: `${tokens.success}1A`,
+            color: tokens.success,
+            px: 1.5,
+            py: 0.5,
+            borderRadius: '4px',
             fontSize: '0.625rem',
-            color: tokens.onSurfaceVariant,
-            textTransform: 'uppercase',
-            letterSpacing: '0.12em',
             fontWeight: 700,
-            mb: 0.5,
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            whiteSpace: 'nowrap',
           }}
         >
-          {tournamentLabel} • {stageLabel}
-        </Typography>
-        <Typography sx={{ color: tokens.onSurfaceVariant, fontSize: '0.75rem' }}>
-          {kickoffLabel}
-        </Typography>
+          <CheckCircleIcon sx={{ fontSize: '0.75rem' }} />
+          Finalizado
+        </Box>
       </Box>
 
       {/* Equipos y marcador */}

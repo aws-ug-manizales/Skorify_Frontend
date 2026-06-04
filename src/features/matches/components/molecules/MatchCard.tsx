@@ -10,7 +10,6 @@ import type { Match, MatchStatus } from '../../types';
 import TeamBlock from '../atoms/TeamBlock';
 import ScoreOrVs from '../atoms/ScoreOrVs';
 import MatchStatusChip from '../atoms/MatchStatusChip';
-import AppButton from '@shared/components/atoms/AppButton';
 import { useTranslations } from 'next-intl';
 import {
   evaluatePrediction,
@@ -32,11 +31,10 @@ type Props = {
   statusLabel: string;
   kickoffLabel: string;
   vsLabel: string;
-  addPredictionLabel: string;
-  editPredictionLabel: string;
   predictionLabel: string;
-  onAddPrediction?: (match: Match) => void;
-  onEditPrediction?: (match: Match) => void;
+  actions?: React.ReactNode;
+  /** Optional content rendered at the bottom of the card (e.g. a predict button). */
+  footer?: React.ReactNode;
 };
 
 const MatchCard = ({
@@ -46,11 +44,9 @@ const MatchCard = ({
   statusLabel,
   kickoffLabel,
   vsLabel,
-  addPredictionLabel,
-  editPredictionLabel,
   predictionLabel,
-  onAddPrediction,
-  onEditPrediction,
+  actions,
+  footer,
 }: Props) => {
   const tResults = useTranslations('results');
   const meta = STATUS_META[match.status];
@@ -88,11 +84,16 @@ const MatchCard = ({
         }}
       />
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <Box
+        sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}
+      >
         <Box sx={{ bgcolor: tokens.surfaceContainerHigh, p: 1, borderRadius: '8px' }}>
           <StatusIcon sx={{ color: meta.color, fontSize: '1.25rem', display: 'block' }} />
         </Box>
-        <MatchStatusChip status={match.status} label={statusLabel} />
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <MatchStatusChip status={match.status} label={statusLabel} />
+          {actions}
+        </Box>
       </Box>
 
       <Box>
@@ -318,26 +319,9 @@ const MatchCard = ({
         ) : (
           <Box />
         )}
-
-        <Box
-          sx={{
-            display: 'flex',
-            gap: 1,
-            flexWrap: 'wrap',
-            justifyContent: { xs: 'stretch', sm: 'flex-end' },
-          }}
-        >
-          {match.status === 'upcoming' && (
-            <AppButton
-              variant="primary"
-              onClick={() => (hasPrediction ? onEditPrediction?.(match) : onAddPrediction?.(match))}
-              sx={{ flex: { xs: 1, sm: 'unset' } }}
-            >
-              {hasPrediction ? editPredictionLabel : addPredictionLabel}
-            </AppButton>
-          )}
-        </Box>
       </Box>
+
+      {footer && <Box sx={{ mt: 'auto', pt: 0.5 }}>{footer}</Box>}
     </Box>
   );
 };

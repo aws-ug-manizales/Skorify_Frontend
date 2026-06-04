@@ -104,23 +104,19 @@ const AuthGateway = () => {
             maxWidth: 640,
           }}
         >
-          <Typography
-            component="span"
+          <Box
+            component="img"
+            src="/isologotipo.svg"
+            alt="Skorify"
             sx={{
-              display: 'inline-block',
+              display: 'block',
+              mx: { xs: 'auto', md: 0 },
               mb: { xs: 1.5, md: 3 },
-              fontSize: { xs: '2rem', md: '3.25rem' },
-              fontWeight: 900,
-              fontStyle: 'italic',
-              letterSpacing: '-0.05em',
-              background: tokens.ctaGradient,
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
+              height: { xs: 160, md: 280 },
+              width: 'auto',
+              userSelect: 'none',
             }}
-          >
-            Skorify
-          </Typography>
+          />
 
           <Typography
             sx={{
@@ -130,6 +126,7 @@ const AuthGateway = () => {
               lineHeight: 1.02,
               letterSpacing: '-0.03em',
               color: tokens.onSurface,
+              textShadow: '0 2px 4px rgba(0, 0, 0, 0.85), 0 6px 20px rgba(0, 0, 0, 0.7)',
               mb: 3,
             }}
           >

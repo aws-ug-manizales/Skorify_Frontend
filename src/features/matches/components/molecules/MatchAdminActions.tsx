@@ -27,12 +27,20 @@ import { useGetMatchById } from '../../hooks/useGetMatchById';
 import { useGetTournamentInstancesByTournamentId } from '@features/tournaments';
 import { useGetTeamsByQuery } from '@features/teams';
 import type { MatchStatus, TournamentInstanceDto } from '@lib/api/skorify';
+import type { MatchStatus as UiMatchStatus, MatchTeam } from '../../types';
+import TeamBlock from '../atoms/TeamBlock';
 
 type DialogKind = 'edit' | 'close' | 'calculate' | null;
 
 interface MatchAdminActionsProps {
   matchId: string;
   tournamentId: string;
+  // UI status of the match; "Calculate" is only allowed once it's closed.
+  matchStatus: UiMatchStatus;
+  // Home/away teams (name + flag/shield) so the close dialog can show who is
+  // playing, mirroring the match card.
+  homeTeam?: MatchTeam;
+  awayTeam?: MatchTeam;
   onChanged?: () => void;
 }
 
@@ -41,6 +49,15 @@ interface MatchAdminActionsProps {
 // accepts `draft | scheduled | in_progress | finished`, so `cancelled` is
 // not a valid edit target either.
 const EDITABLE_STATUSES: MatchStatus[] = ['draft', 'scheduled', 'in_progress'];
+
+// Numeric input without the native spinner arrows.
+const NO_SPINNER_SX = {
+  '& input[type=number]': { MozAppearance: 'textfield' },
+  '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
+    WebkitAppearance: 'none',
+    margin: 0,
+  },
+} as const;
 
 const isoToLocalInput = (iso: string): string => {
   const d = new Date(iso);
@@ -54,9 +71,20 @@ const localInputToIso = (value: string): string => {
   return Number.isNaN(d.getTime()) ? '' : d.toISOString();
 };
 
-const MatchAdminActions = ({ matchId, tournamentId, onChanged }: MatchAdminActionsProps) => {
+const MatchAdminActions = ({
+  matchId,
+  tournamentId,
+  matchStatus,
+  homeTeam,
+  awayTeam,
+  onChanged,
+}: MatchAdminActionsProps) => {
   const t = useTranslations('matchesAdmin');
   const snackbar = useSnackbar();
+
+  // Scores are only meaningful after the match is closed, so calculating
+  // points is gated on the closed (finished) status.
+  const canCalculate = matchStatus === 'finished';
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialog, setDialog] = useState<DialogKind>(null);
@@ -144,12 +172,30 @@ const MatchAdminActions = ({ matchId, tournamentId, onChanged }: MatchAdminActio
       homeScore: homeScore.trim() === '' ? undefined : Number(homeScore),
       awayScore: awayScore.trim() === '' ? undefined : Number(awayScore),
     });
-    if (result) {
-      snackbar.success(t('actions.closeSuccess'));
-      closeDialog();
-      onChanged?.();
-    } else {
+    if (!result) {
       snackbar.error(t('actions.actionError'));
+      return;
+    }
+
+    snackbar.success(t('actions.closeSuccess'));
+    closeDialog();
+    onChanged?.();
+
+    // Once the match is closed it has a final score, so recalculate points
+    // automatically across every instance of the tournament (the global group
+    // plus any user-created groups) without making the admin do it by hand.
+    const tournamentInstances = await getTournamentInstancesByTournamentId({ tournamentId });
+    if (tournamentInstances.length === 0) return;
+
+    const calculations = await Promise.all(
+      tournamentInstances.map((instance) =>
+        calculateMatchScore({ matchId, tournamentInstanceId: instance.id }),
+      ),
+    );
+
+    if (calculations.some(Boolean)) {
+      snackbar.success(t('actions.calculateSuccess'));
+      onChanged?.();
     }
   };
 
@@ -185,7 +231,7 @@ const MatchAdminActions = ({ matchId, tournamentId, onChanged }: MatchAdminActio
           <LockIcon sx={{ fontSize: '1.125rem', mr: 1 }} />
           {t('actions.closeAction')}
         </MenuItem>
-        <MenuItem onClick={openCalculate}>
+        <MenuItem onClick={openCalculate} disabled={!canCalculate}>
           <CalculateIcon sx={{ fontSize: '1.125rem', mr: 1 }} />
           {t('actions.calculateAction')}
         </MenuItem>
@@ -266,23 +312,40 @@ const MatchAdminActions = ({ matchId, tournamentId, onChanged }: MatchAdminActio
           <DialogContentText sx={{ mb: 2, fontSize: '0.875rem' }}>
             {t('actions.closeDescription')}
           </DialogContentText>
-          <Stack direction="row" spacing={2}>
-            <TextField
-              label={t('actions.homeScoreLabel')}
-              type="number"
-              value={homeScore}
-              onChange={(e) => setHomeScore(e.target.value)}
-              fullWidth
-              slotProps={{ htmlInput: { min: 0 } }}
-            />
-            <TextField
-              label={t('actions.awayScoreLabel')}
-              type="number"
-              value={awayScore}
-              onChange={(e) => setAwayScore(e.target.value)}
-              fullWidth
-              slotProps={{ htmlInput: { min: 0 } }}
-            />
+          <Stack direction="row" spacing={2} alignItems="flex-start">
+            <Stack spacing={1.25} sx={{ flex: 1, minWidth: 0 }}>
+              {homeTeam && (
+                <TeamBlock name={homeTeam.name} code={homeTeam.code} image={homeTeam.image} />
+              )}
+              <TextField
+                label={t('actions.homeScoreLabel')}
+                type="number"
+                value={homeScore}
+                onChange={(e) => setHomeScore(e.target.value)}
+                fullWidth
+                slotProps={{ htmlInput: { min: 0, inputMode: 'numeric' } }}
+                sx={NO_SPINNER_SX}
+              />
+            </Stack>
+            <Stack spacing={1.25} alignItems="flex-end" sx={{ flex: 1, minWidth: 0 }}>
+              {awayTeam && (
+                <TeamBlock
+                  name={awayTeam.name}
+                  code={awayTeam.code}
+                  image={awayTeam.image}
+                  align="right"
+                />
+              )}
+              <TextField
+                label={t('actions.awayScoreLabel')}
+                type="number"
+                value={awayScore}
+                onChange={(e) => setAwayScore(e.target.value)}
+                fullWidth
+                slotProps={{ htmlInput: { min: 0, inputMode: 'numeric' } }}
+                sx={NO_SPINNER_SX}
+              />
+            </Stack>
           </Stack>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>

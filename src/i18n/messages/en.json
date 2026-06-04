@@ -24,12 +24,20 @@
     "playerAriaLabel": "Player kicking a ball into the goal",
     "goalAriaLabel": "Football goal"
   },
+  "admin": {
+    "title": "Admin Panel",
+    "subtitle": "Manage users, matches, groups and tournaments",
+    "workingMessage": "Under construction: admins will be able to manage Skorify's content and community here.",
+    "statsUsersTotal": "Total users",
+    "statsUsersActive": "Active users",
+    "statsTournamentsActive": "Tournaments in progress",
+    "statsTournamentsActiveHint": "of {total} total"
+  },
   "nav": {
     "home": "Home",
     "predictions": "Predictions",
     "matches": "Matches",
     "matchesList": "Matches",
-    "loadResults": "Load results",
     "results": "Results",
     "admin": "Admin",
     "users": "Users",
@@ -145,6 +153,7 @@
       "passwordResetRequired": "You must reset your password before continuing",
       "formInvalid": "Fix the form errors",
       "emailTaken": "This email is already registered",
+      "emailRegisteredWithGoogle": "An account with this email already exists. Please sign in with Google.",
       "emailMustBeUnique": "Email must be unique",
       "invalidCredentials": "Incorrect email or password",
       "userNotConfirmed": "Confirm your account to sign in",
@@ -211,6 +220,7 @@
     "closesIn": "Closes in",
     "matchStartsIn": "Match starts in",
     "closed": "Closed",
+    "open": "Open",
     "predictCta": "Predict",
     "editCta": "Edit",
     "saveCta": "Save",
@@ -221,12 +231,8 @@
     "noMatches": "No matches found.",
     "matchesCount": "{count, plural, =0 {no matches} =1 {1 pending match} other {# pending matches}}",
     "clearSearchAriaLabel": "Clear search",
-    "openTab": "Open",
-    "closedTab": "Closed",
     "openPanelTitle": "Open matches",
-    "closedPanelTitle": "Closed matches",
     "noOpenMatches": "No matches available to predict.",
-    "noClosedMatches": "No closed matches yet.",
     "predictionSaved": "Prediction saved",
     "modalConfirmMessage": "Your prediction has been recorded. You can edit it until the match closes.",
     "undoPrediction": "Undo",
@@ -471,7 +477,8 @@
       "finishedHint": "This tournament has ended.",
       "joinSuccess": "You joined the tournament.",
       "joinAlready": "You are already enrolled in this tournament.",
-      "joinError": "Could not complete the enrollment. Please try again."
+      "joinError": "Could not complete the enrollment. Please try again.",
+      "alreadyJoinedHint": "You're already in this tournament's general group."
     }
   },
   "groups": {
@@ -653,6 +660,20 @@
     "defaultUser": "predictor",
     "createGroup": "Create group",
     "joinGroup": "Join a group",
+    "tour": {
+      "startCta": "View tutorial",
+      "next": "Next",
+      "prev": "Back",
+      "done": "Got it",
+      "tournamentsTitle": "Available tournaments",
+      "tournamentsDesc": "Here you find the active tournaments you can take part in.",
+      "openTitle": "Open a tournament",
+      "openDesc": "Click a tournament to see its details.",
+      "joinTitle": "Join the tournament",
+      "joinDesc": "Tapping \"Join\" enrolls you automatically into the tournament's groups.",
+      "groupsTitle": "Your groups",
+      "groupsDesc": "And here, on the side, you'll see the groups you belong to."
+    },
     "myGroupsTitle": "My groups",
     "myGroupsEmpty": "You haven't joined any group yet. Create one or join with a code.",
     "groupRank": "Rank #{rank} · {members} members",

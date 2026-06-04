@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
@@ -28,22 +28,7 @@ import TopPodium from '../molecules/TopPodium';
 import { useMatchesList } from '@features/matches/hooks/useMatchesList';
 import FinishedMatchCard from '@features/matches/components/molecules/FinishedMatchCard';
 import { formatKickoff } from '@features/matches/utils/formatKickoff';
-
-const getTournamentLabel = (key: string, t: (key: string) => string) => {
-  try {
-    return t(key);
-  } catch {
-    return key;
-  }
-};
-
-const getStageLabel = (key: string, t: (key: string) => string) => {
-  try {
-    return t(key);
-  } catch {
-    return key;
-  }
-};
+import { useGetPredictionsByUser } from '@features/predictions/hooks/useGetPredictionsByUser';
 
 interface GroupDetailProps {
   groupId: string;
@@ -61,13 +46,37 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
   const { data, isLoading, error, refetch } = useGroupDetail(groupId);
   const currentUserId = useCurrentUserId() ?? '';
 
-  const { items: matchItems, loading: loadingResults } = useMatchesList(20, 'filterFinished');
+  // Results tab: finished matches of this group's tournament, compared against
+  // the user's predictions in this group (the group is the tournament instance).
+  const { items: matchItems, loading: loadingResults } = useMatchesList(
+    20,
+    'filterFinished',
+    data?.group.tournamentId,
+  );
+
+  const { getPredictionsByUser, data: userPredictions } = useGetPredictionsByUser();
+  useEffect(() => {
+    if (!currentUserId) return;
+    void getPredictionsByUser({ userId: currentUserId, tournamentInstanceId: groupId });
+  }, [currentUserId, groupId, getPredictionsByUser]);
+
+  const predictionByMatch = useMemo(() => {
+    const map: Record<string, { home: number; away: number }> = {};
+    (userPredictions ?? []).forEach((prediction) => {
+      map[prediction.matchId] = { home: prediction.homeScore, away: prediction.awayScore };
+    });
+    return map;
+  }, [userPredictions]);
 
   const finishedMatches = useMemo(() => {
     return [...matchItems]
       .filter((match) => match.status === 'finished')
-      .sort((a, b) => new Date(b.kickoffAt).getTime() - new Date(a.kickoffAt).getTime());
-  }, [matchItems]);
+      .sort((a, b) => new Date(b.kickoffAt).getTime() - new Date(a.kickoffAt).getTime())
+      .map((match) => ({
+        ...match,
+        prediction: predictionByMatch[match.id] ?? match.prediction,
+      }));
+  }, [matchItems, predictionByMatch]);
 
   const [shareOpen, setShareOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(() => {
@@ -136,12 +145,7 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
   return (
     <Box sx={{ p: { xs: 2, md: 3 } }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-        <GroupHeader
-          group={data.group}
-          isAdmin={isAdmin}
-          onShare={() => setShareOpen(true)}
-          onLeave={() => setLeaveOpen(true)}
-        />
+        <GroupHeader group={data.group} isAdmin={isAdmin} onShare={() => setShareOpen(true)} />
 
         <Box
           sx={{
@@ -151,10 +155,13 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
             alignItems: 'stretch',
           }}
         >
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0 }}>
             <Tabs
               value={activeTab}
               onChange={(_e, val) => setActiveTab(val)}
+              variant="scrollable"
+              scrollButtons="auto"
+              allowScrollButtonsMobile
               sx={{
                 borderBottom: `1px solid ${tokens.outlineVariant}26`,
                 '& .MuiTabs-indicator': {
@@ -218,8 +225,10 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
                       <FinishedMatchCard
                         key={match.id}
                         match={match}
-                        tournamentLabel={getTournamentLabel(match.tournamentKey, m)}
-                        stageLabel={getStageLabel(match.stageKey, m)}
+                        tournamentLabel={data.group.name}
+                        stageLabel={
+                          match.stageKey === 'finals' ? m('stageFinals') : m('stageGroup')
+                        }
                         kickoffLabel={formatKickoff(match.kickoffAt, locale)}
                         exactLabel={tResults('exact', { defaultValue: 'Acierto exacto' })}
                         partialLabel={tResults('partial', { defaultValue: 'Acierto parcial' })}

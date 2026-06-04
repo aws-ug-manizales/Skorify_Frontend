@@ -27,14 +27,17 @@
   "admin": {
     "title": "Panel de Administración",
     "subtitle": "Gestiona usuarios, partidos, grupos y torneos",
-    "workingMessage": "En construcción: aquí los administradores podrán gestionar el contenido y la comunidad de Skorify."
+    "workingMessage": "En construcción: aquí los administradores podrán gestionar el contenido y la comunidad de Skorify.",
+    "statsUsersTotal": "Usuarios totales",
+    "statsUsersActive": "Usuarios activos",
+    "statsTournamentsActive": "Torneos en curso",
+    "statsTournamentsActiveHint": "de {total} en total"
   },
   "nav": {
     "home": "Inicio",
     "predictions": "Predicciones",
     "matches": "Partidos",
     "matchesList": "Partidos",
-    "loadResults": "Cargar resultados",
     "results": "Resultados",
     "admin": "Administrador",
     "users": "Usuarios",
@@ -150,6 +153,7 @@
       "passwordResetRequired": "Debes restablecer tu contraseña antes de continuar",
       "formInvalid": "Corrige los errores del formulario",
       "emailTaken": "Este correo ya está registrado",
+      "emailRegisteredWithGoogle": "Ya existe una cuenta con este correo. Inicia sesión con Google.",
       "emailMustBeUnique": "El correo debe ser único",
       "invalidCredentials": "Correo o contraseña incorrectos",
       "userNotConfirmed": "Confirma tu cuenta para poder iniciar sesión",
@@ -216,6 +220,7 @@
     "closesIn": "Cierra en",
     "matchStartsIn": "El partido empieza en",
     "closed": "Cerrado",
+    "open": "Abierto",
     "predictCta": "Predecir",
     "editCta": "Editar",
     "saveCta": "Guardar",
@@ -226,12 +231,8 @@
     "noMatches": "No hay partidos que coincidan con tu búsqueda.",
     "matchesCount": "{count, plural, =0 {sin partidos} =1 {1 partido pendiente} other {# partidos pendientes}}",
     "clearSearchAriaLabel": "Limpiar búsqueda",
-    "openTab": "Abiertos",
-    "closedTab": "Cerrados",
     "openPanelTitle": "Partidos abiertos",
-    "closedPanelTitle": "Partidos cerrados",
     "noOpenMatches": "No hay partidos abiertos para predecir.",
-    "noClosedMatches": "No hay partidos cerrados aún.",
     "predictionSaved": "Predicción guardada",
     "modalConfirmMessage": "Tu predicción quedó registrada. Puedes editarla hasta que el partido cierre.",
     "undoPrediction": "Deshacer",
@@ -251,7 +252,7 @@
     "scoreRules": {
       "pointsFormat": "+{score, plural, one {1 pt} other {# pts}}",
       "winnerTitle": "Ganador",
-      "winnerDescription": "Acertar qué equipo gana el partido.",
+      "winnerDescription": "Acertar el ganador o si es empate.",
       "lopsidedTitle": "Marcador abultado",
       "lopsidedDescription": "Sumas un punto extra si aciertas el marcador exacto en partidos de 4 goles o más.",
       "eachHitTitle": "Goles por equipo",
@@ -476,7 +477,8 @@
       "finishedHint": "Este torneo ya finalizó.",
       "joinSuccess": "Te uniste al torneo.",
       "joinAlready": "Ya estás inscrito en este torneo.",
-      "joinError": "No se pudo completar la inscripción. Intenta de nuevo."
+      "joinError": "No se pudo completar la inscripción. Intenta de nuevo.",
+      "alreadyJoinedHint": "Ya te encuentras en el grupo general de este torneo."
     }
   },
   "groups": {
@@ -658,6 +660,20 @@
     "defaultUser": "predictor",
     "createGroup": "Crear grupo",
     "joinGroup": "Unirme a un grupo",
+    "tour": {
+      "startCta": "Ver tutorial",
+      "next": "Siguiente",
+      "prev": "Anterior",
+      "done": "Entendido",
+      "tournamentsTitle": "Torneos disponibles",
+      "tournamentsDesc": "Aquí encuentras los torneos activos en los que puedes participar.",
+      "openTitle": "Abre un torneo",
+      "openDesc": "Haz clic en un torneo para ver su detalle.",
+      "joinTitle": "Únete al torneo",
+      "joinDesc": "Al pulsar \"Unirme\" entras automáticamente a los grupos del torneo.",
+      "groupsTitle": "Tus grupos",
+      "groupsDesc": "Y aquí, al lado, verás los grupos a los que perteneces."
+    },
     "myGroupsTitle": "Mis grupos",
     "myGroupsEmpty": "Aún no estás en ningún grupo. Crea uno o únete con un código.",
     "groupRank": "Posición #{rank} · {members} miembros",

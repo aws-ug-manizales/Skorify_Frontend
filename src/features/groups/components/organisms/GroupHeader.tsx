@@ -5,7 +5,6 @@ import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
 import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined';
 import IosShareIcon from '@mui/icons-material/IosShare';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { useTranslations } from 'next-intl';
 import { tokens } from '@lib/theme/theme';
 import AppButton from '@shared/components/atoms/AppButton';
@@ -15,10 +14,9 @@ interface GroupHeaderProps {
   group: Group;
   isAdmin: boolean;
   onShare: () => void;
-  onLeave: () => void;
 }
 
-const GroupHeader = ({ group, isAdmin, onShare, onLeave }: GroupHeaderProps) => {
+const GroupHeader = ({ group, isAdmin, onShare }: GroupHeaderProps) => {
   const t = useTranslations('groups');
   return (
     <Box
@@ -156,19 +154,6 @@ const GroupHeader = ({ group, isAdmin, onShare, onLeave }: GroupHeaderProps) => 
               {t('shareButton')}
             </AppButton>
           )}
-          <AppButton
-            variant="secondary"
-            startIcon={<ExitToAppIcon />}
-            onClick={onLeave}
-            size="small"
-            sx={{
-              color: tokens.error,
-              borderColor: tokens.error,
-              '&:hover': { bgcolor: `${tokens.error}14` },
-            }}
-          >
-            {t('leaveButton')}
-          </AppButton>
         </Box>
       </Box>
     </Box>

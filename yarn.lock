@@ -1814,6 +1814,11 @@ dom-helpers@^5.0.1:
     "@babel/runtime" "^7.8.7"
     csstype "^3.0.2"
 
+driver.js@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/driver.js/-/driver.js-1.4.0.tgz#02886248cd82f5475b6bd5eb9743502f88879038"
+  integrity sha512-Gm64jm6PmcU+si21sQhBrTAM1JvUrR0QhNmjkprNLxohOBzul9+pNHXgQaT9lW84gwg9GMLB3NZGuGolsz5uew==
+
 dunder-proto@^1.0.0, dunder-proto@^1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/dunder-proto/-/dunder-proto-1.0.1.tgz"

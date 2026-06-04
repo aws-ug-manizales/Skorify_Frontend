@@ -25,7 +25,8 @@ const toMatch = ({ match, homeTeam, awayTeam }: MatchWithTeamsDto): Match => ({
   id: match.id,
   tournamentKey: match.tournamentId,
   stageKey: match.stage ?? 'group',
-  status: mapStatus(match.status),
+  // This endpoint exposes the status as `_status`; fall back to it.
+  status: mapStatus(match._status ?? match.status),
   kickoffAt: match.kickOff,
   homeTeamId: match.homeTeamId,
   awayTeamId: match.awayTeamId,

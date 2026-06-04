@@ -1,3 +1,5 @@
+import type { MatchStage } from '@lib/api/skorify';
+
 export interface PredictionMatch {
   id: string;
   homeTeam: string;
@@ -6,6 +8,8 @@ export interface PredictionMatch {
   awayTeamFlag: string;
   date: string;
   isUserPredicted: boolean;
+  /** Group/finals stage, shown like the matches card. */
+  stageKey?: MatchStage;
 }
 
 export interface PredictionDraft {

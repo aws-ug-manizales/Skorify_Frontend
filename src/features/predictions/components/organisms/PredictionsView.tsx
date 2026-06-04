@@ -5,14 +5,12 @@ import { useForm, useWatch } from 'react-hook-form';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
-import Paper from '@mui/material/Paper';
 import Select from '@mui/material/Select';
 import Skeleton from '@mui/material/Skeleton';
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
 import Typography from '@mui/material/Typography';
 import { useLocale, useTranslations } from 'next-intl';
 import PageHeader from '@shared/components/molecules/PageHeader';
+import Confetti from '@shared/components/organisms/Confetti';
 import { tokens } from '@lib/theme/theme';
 import {
   useNotification,
@@ -36,8 +34,6 @@ import { useEditPrediction } from '../../hooks/useEditPrediction';
 import { useGetPredictionsByUser } from '../../hooks/useGetPredictionsByUser';
 import type { PredictionMatch } from '../../types/prediction';
 
-type PanelKey = 'open' | 'closed';
-
 const FILTER_DEFAULTS: PredictionsToolbarValues = { search: '', week: '' };
 
 const inWeekRange = (matchDate: Date, weekNum: string): boolean => {
@@ -51,14 +47,6 @@ const inWeekRange = (matchDate: Date, weekNum: string): boolean => {
   weekEnd.setDate(weekStart.getDate() + 7);
   return matchDate >= weekStart && matchDate < weekEnd;
 };
-
-const PANEL_PAPER_SX = {
-  p: { xs: 2, md: 3 },
-  bgcolor: tokens.surfaceContainerLow,
-  borderRadius: 2,
-  border: `1px solid ${tokens.outlineVariant}26`,
-  boxShadow: 'none',
-} as const;
 
 const PredictionsView = () => {
   const t = useTranslations('predictions');
@@ -131,8 +119,11 @@ const PredictionsView = () => {
       awayTeamFlag: awayTeam?.shieldUrl ?? '',
       date: match.kickOff,
       isUserPredicted: match.id in savedPredictions,
+      stageKey: match.stage,
     }));
   }, [backendMatches, savedPredictions]);
+
+  const tournamentLabel = instanceNames[tournamentInstanceId] ?? '';
 
   const savedMessages = useMemo(() => t.raw('savedMessages') as string[], [t]);
 
@@ -143,7 +134,7 @@ const PredictionsView = () => {
   const filterValues = useWatch({ control });
 
   const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<PanelKey>('open');
+  const [celebrate, setCelebrate] = useState(false);
 
   const filteredMatches = useMemo(() => {
     const search = (filterValues.search ?? '').trim().toLowerCase();
@@ -158,15 +149,11 @@ const PredictionsView = () => {
     });
   }, [filterValues.search, filterValues.week, matches]);
 
-  const { openMatches, closedMatches } = useMemo(() => {
+  // Only matches still open for prediction are shown; closed (locked) matches
+  // are excluded from the predictions view entirely.
+  const openMatches = useMemo(() => {
     const reference = new Date();
-    const open: PredictionMatch[] = [];
-    const closed: PredictionMatch[] = [];
-    filteredMatches.forEach((match) => {
-      if (isMatchLocked(match.date, reference)) closed.push(match);
-      else open.push(match);
-    });
-    return { openMatches: open, closedMatches: closed };
+    return filteredMatches.filter((match) => !isMatchLocked(match.date, reference));
   }, [filteredMatches]);
 
   const hasActiveFilters = !!(filterValues.search || filterValues.week);
@@ -219,6 +206,7 @@ const PredictionsView = () => {
         }
 
         refreshPredictions();
+        setCelebrate(true);
         const message = savedMessages[Math.floor(Math.random() * savedMessages.length)];
         notify({
           type: NotificationType.TOAST,
@@ -332,17 +320,7 @@ const PredictionsView = () => {
       savedPredictions={savedPredictions}
       onOpenPrediction={handleOpenPrediction}
       showHeader={showHeader}
-    />
-  );
-
-  const renderClosedPanel = (showHeader: boolean) => (
-    <MatchesPanel
-      matches={closedMatches}
-      title={t('closedPanelTitle')}
-      emptyMessage={t('noClosedMatches')}
-      savedPredictions={savedPredictions}
-      onOpenPrediction={handleOpenPrediction}
-      showHeader={showHeader}
+      tournamentLabel={tournamentLabel}
     />
   );
 
@@ -354,7 +332,7 @@ const PredictionsView = () => {
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
       <PageHeader
         title={t('pageTitle')}
-        subtitle={t('matchesCount', { count: filteredMatches.length })}
+        subtitle={t('matchesCount', { count: openMatches.length })}
       />
 
       <Box sx={{ mb: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -403,46 +381,7 @@ const PredictionsView = () => {
           <Skeleton variant="rounded" height={120} />
         </Box>
       ) : (
-        <>
-          <Box sx={{ display: { xs: 'block', lg: 'none' } }}>
-            <Tabs
-              value={activeTab}
-              onChange={(_event, value: PanelKey) => setActiveTab(value)}
-              variant="fullWidth"
-              sx={{
-                mb: 2,
-                borderBottom: `1px solid ${tokens.outlineVariant}26`,
-                '& .MuiTab-root': {
-                  textTransform: 'uppercase',
-                  fontWeight: 700,
-                  fontSize: '0.75rem',
-                },
-              }}
-            >
-              <Tab value="open" label={`${t('openTab')} (${openMatches.length})`} />
-              <Tab value="closed" label={`${t('closedTab')} (${closedMatches.length})`} />
-            </Tabs>
-
-            <Box role="tabpanel" hidden={activeTab !== 'open'}>
-              {activeTab === 'open' && renderOpenPanel(false)}
-            </Box>
-            <Box role="tabpanel" hidden={activeTab !== 'closed'}>
-              {activeTab === 'closed' && renderClosedPanel(false)}
-            </Box>
-          </Box>
-
-          <Box
-            sx={{
-              display: { xs: 'none', lg: 'grid' },
-              gridTemplateColumns: '1fr 1fr',
-              gap: 3,
-              alignItems: 'start',
-            }}
-          >
-            <Paper sx={PANEL_PAPER_SX}>{renderOpenPanel(true)}</Paper>
-            <Paper sx={PANEL_PAPER_SX}>{renderClosedPanel(true)}</Paper>
-          </Box>
-        </>
+        renderOpenPanel(true)
       )}
 
       <PredictionDrawer
@@ -452,6 +391,8 @@ const PredictionsView = () => {
         onClose={handleCloseDrawer}
         onSave={handleSave}
       />
+
+      <Confetti active={celebrate} onComplete={() => setCelebrate(false)} />
     </Box>
   );
 };
