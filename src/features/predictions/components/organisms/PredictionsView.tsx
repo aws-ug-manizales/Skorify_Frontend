@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useForm, useWatch } from 'react-hook-form';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
@@ -55,13 +56,22 @@ const PredictionsView = () => {
 
   const userId = useCurrentUserId();
 
+  // Deep-link support: /predictions?group=<instanceId>&match=<matchId> selects
+  // the right tournament instance and auto-opens that match's prediction modal.
+  const searchParams = useSearchParams();
+  const groupParam = searchParams.get('group');
+  const matchParam = searchParams.get('match');
+
   const {
     getUserEnrollmentsByUserId,
     data: enrollments,
     isLoading: enrollmentsLoading,
   } = useGetUserEnrollmentsByUserId();
   const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(null);
-  const tournamentInstanceId = selectedInstanceId ?? enrollments[0]?.tournamentInstanceId ?? '';
+  // A manual dropdown selection wins; otherwise fall back to the deep-linked
+  // instance (?group=) and finally the first enrollment.
+  const tournamentInstanceId =
+    selectedInstanceId ?? groupParam ?? enrollments[0]?.tournamentInstanceId ?? '';
 
   useEffect(() => {
     if (!userId) return;
@@ -134,7 +144,19 @@ const PredictionsView = () => {
   const filterValues = useWatch({ control });
 
   const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
+  const [deepLinkConsumed, setDeepLinkConsumed] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
+
+  // The match whose prediction drawer is open. Derived rather than synced via an
+  // effect: a manual selection wins; otherwise the deep-linked match (?match=)
+  // opens once it has loaded and is still open, until the user dismisses it.
+  const effectiveMatchId = useMemo(() => {
+    if (selectedMatchId) return selectedMatchId;
+    if (deepLinkConsumed || !matchParam) return null;
+    const target = matches.find((match) => match.id === matchParam);
+    if (!target || isMatchLocked(target.date)) return null;
+    return matchParam;
+  }, [selectedMatchId, deepLinkConsumed, matchParam, matches]);
 
   const filteredMatches = useMemo(() => {
     const search = (filterValues.search ?? '').trim().toLowerCase();
@@ -280,9 +302,9 @@ const PredictionsView = () => {
   );
 
   const selectedMatch = useMemo(() => {
-    if (!selectedMatchId) return null;
-    return matches.find((match) => match.id === selectedMatchId) ?? null;
-  }, [matches, selectedMatchId]);
+    if (!effectiveMatchId) return null;
+    return matches.find((match) => match.id === effectiveMatchId) ?? null;
+  }, [matches, effectiveMatchId]);
 
   const selectedDrawerMatch = useMemo<PredictionDrawerMatch | null>(() => {
     if (!selectedMatch) return null;
@@ -297,11 +319,11 @@ const PredictionsView = () => {
   }, [selectedMatch]);
 
   const selectedDrawerScore = useMemo(() => {
-    if (!selectedMatchId) return undefined;
-    const saved = savedPredictions[selectedMatchId];
+    if (!effectiveMatchId) return undefined;
+    const saved = savedPredictions[effectiveMatchId];
     if (!saved) return undefined;
     return { homeGoals: saved.homeGoals, awayGoals: saved.awayGoals };
-  }, [savedPredictions, selectedMatchId]);
+  }, [savedPredictions, effectiveMatchId]);
 
   const handleOpenPrediction = useCallback((match: PredictionMatch) => {
     if (isMatchLocked(match.date)) return;
@@ -310,6 +332,7 @@ const PredictionsView = () => {
 
   const handleCloseDrawer = useCallback(() => {
     setSelectedMatchId(null);
+    setDeepLinkConsumed(true);
   }, []);
 
   const renderOpenPanel = (showHeader: boolean) => (

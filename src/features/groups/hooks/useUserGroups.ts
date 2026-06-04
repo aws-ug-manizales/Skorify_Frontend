@@ -53,33 +53,44 @@ const fetchMemberCount = async (tournamentInstanceId: string): Promise<number> =
   return result.success ? (result.data.data?.length ?? 0) : 0;
 };
 
-// The enrollment's `currentPosition` isn't kept up to date, so resolve the
-// real standing from the instance's current ranking instead.
-const fetchUserPosition = async (tournamentInstanceId: string, userId: string): Promise<number> => {
+interface UserStanding {
+  position: number;
+  points: number;
+}
+
+// The enrollment's `currentPosition`/`currentScore` aren't kept up to date, so
+// resolve the real standing from the instance's current ranking instead.
+const fetchUserStanding = async (
+  tournamentInstanceId: string,
+  userId: string,
+): Promise<UserStanding | null> => {
   const result = await api.get<SkorifyEnvelope<RankingItemDto[]>>(
     skorifyEndpoints.tournamentInstance.getCurrentRanking,
     { tournamentInstanceId },
   );
-  if (!result.success) return 0;
+  if (!result.success) return null;
   const ranking = result.data.data ?? [];
   // The ranking is ordered by points; when the backend doesn't set an explicit
   // `position`, fall back to the array index — same rule the standings table uses.
   const index = ranking.findIndex((item) => item.userId === userId);
-  if (index === -1) return 0;
-  return ranking[index].position ?? index + 1;
+  if (index === -1) return null;
+  return {
+    position: ranking[index].position ?? index + 1,
+    points: ranking[index].points,
+  };
 };
 
 const mapToSummary = (
   enrollment: UserEnrollmentDto,
   instance: TournamentInstanceDto | null,
   memberCount: number,
-  position: number,
+  standing: UserStanding | null,
 ): UserGroupSummary => ({
   id: enrollment.tournamentInstanceId,
   name: instance?.name ?? enrollment.tournamentInstanceId,
   memberCount,
-  rank: position || enrollment.currentPosition || 0,
-  points: enrollment.currentScore,
+  rank: standing?.position || enrollment.currentPosition || 0,
+  points: standing?.points ?? enrollment.currentScore,
 });
 
 export const useUserGroups = () => {
@@ -103,14 +114,14 @@ export const useUserGroups = () => {
     }
 
     const enrollments = enrollmentsResult.data.data ?? [];
-    const [instances, memberCounts, positions] = await Promise.all([
+    const [instances, memberCounts, standings] = await Promise.all([
       Promise.all(enrollments.map((e) => fetchInstance(e.tournamentInstanceId))),
       Promise.all(enrollments.map((e) => fetchMemberCount(e.tournamentInstanceId))),
-      Promise.all(enrollments.map((e) => fetchUserPosition(e.tournamentInstanceId, userId))),
+      Promise.all(enrollments.map((e) => fetchUserStanding(e.tournamentInstanceId, userId))),
     ]);
 
     const groups = enrollments.map((enrollment, index) =>
-      mapToSummary(enrollment, instances[index], memberCounts[index], positions[index]),
+      mapToSummary(enrollment, instances[index], memberCounts[index], standings[index]),
     );
 
     setState({ groups, isLoading: false, error: null });
