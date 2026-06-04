@@ -11,17 +11,25 @@ import { env } from '@lib/env';
 import { loginSchema, registerSchema } from '../../lib/schemas';
 import type { AuthGatewayPort, AuthGatewayResult } from '../AuthGatewayPort';
 import type {
+<<<<<<< HEAD
   AuthRole,
+=======
+>>>>>>> origin/develop
   AuthSession,
   AuthUser,
   ConfirmSignUpPayload,
   CredentialsPayload,
   RegisterPayload,
 } from '../../types/auth';
+<<<<<<< HEAD
 import { ADMIN_ROLE, GENERAL_ROLE } from '../../types/auth';
 
 const resolveRoles = (cognitoGroups: string[]): AuthRole[] =>
   cognitoGroups.includes(ADMIN_ROLE) ? [ADMIN_ROLE] : [GENERAL_ROLE];
+=======
+import { resolveRoles } from '../../lib/resolveRoles';
+import { fetchDomainUserId } from '@features/auth/services/fetchDomainUserId';
+>>>>>>> origin/develop
 
 const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
@@ -63,6 +71,22 @@ const DEFAULT_COGNITO_ERROR: CognitoErrorMapping = { messageKey: 'auth.errors.ge
 const mapCognitoErrorToKey = (error: unknown): CognitoErrorMapping => {
   const code =
     (error as { code?: string; name?: string })?.code ?? (error as { name?: string })?.name;
+<<<<<<< HEAD
+=======
+  const message = (error as { message?: string })?.message ?? '';
+
+  // The PreSignUp Lambda rejects email sign-ups for addresses already linked
+  // to a Google account, surfaced by Cognito as a UserLambdaValidationException
+  // whose message carries the Lambda's text. Detect the Google case to point
+  // the user to the right flow; other Lambda validations fall back to a
+  // "email already taken" hint on the email field.
+  if (code === 'UserLambdaValidationException') {
+    if (/google/i.test(message)) {
+      return { messageKey: 'auth.errors.emailRegisteredWithGoogle', field: 'email' };
+    }
+    return { messageKey: 'auth.errors.emailTaken', field: 'email' };
+  }
+>>>>>>> origin/develop
 
   return (code && COGNITO_ERROR_MAP[code]) || DEFAULT_COGNITO_ERROR;
 };
@@ -100,6 +124,10 @@ const sessionFromCognito = (
     refreshToken,
     expiresAt,
     createdAt: new Date().toISOString(),
+<<<<<<< HEAD
+=======
+    sub,
+>>>>>>> origin/develop
     user: {
       id: sub,
       email,
@@ -202,11 +230,28 @@ export class CognitoAuthGateway implements AuthGatewayPort {
     return new Promise<AuthGatewayResult>((resolve) => {
       cognitoUser.authenticateUser(authDetails, {
         onSuccess: (cognitoSession) => {
+<<<<<<< HEAD
           resolve({
             ok: true,
             messageKey: 'auth.success.loggedIn',
             session: sessionFromCognito(cognitoSession, { email }),
           });
+=======
+          const session = sessionFromCognito(cognitoSession, { email });
+          // Resolve the domain user ID up front so consumers (groups,
+          // enrollments, predictions) query the backend with the correct
+          // id immediately after login — not just after a session restore.
+          // Mirrors `restoreSession` and the Google OAuth exchange.
+          void fetchDomainUserId(session.user.id, session.idToken ?? session.token).then(
+            (domainUserId) => {
+              resolve({
+                ok: true,
+                messageKey: 'auth.success.loggedIn',
+                session: { ...session, domainUserId },
+              });
+            },
+          );
+>>>>>>> origin/develop
         },
         onFailure: (err) => {
           const mapped = mapCognitoErrorToKey(err);
@@ -281,7 +326,17 @@ export class CognitoAuthGateway implements AuthGatewayPort {
     }
   }
 
+<<<<<<< HEAD
   async restoreSession(): Promise<AuthSession | null> {
+=======
+  /**
+   * Validates the Cognito session locally (getSession silently refreshes the
+   * id/access token when only those expired). Returns the session WITHOUT the
+   * domain user ID — it does not hit `get-user-by-sub`, so it is safe to call
+   * repeatedly (e.g. from the session-expiry watcher).
+   */
+  async getValidSession(): Promise<AuthSession | null> {
+>>>>>>> origin/develop
     const currentUser = this.userPool.getCurrentUser();
     if (!currentUser) {
       return null;
@@ -296,4 +351,16 @@ export class CognitoAuthGateway implements AuthGatewayPort {
       });
     });
   }
+<<<<<<< HEAD
+=======
+
+  async restoreSession(): Promise<AuthSession | null> {
+    const session = await this.getValidSession();
+    if (!session) {
+      return null;
+    }
+    const domainUserId = await fetchDomainUserId(session.user.id, session.idToken ?? session.token);
+    return { ...session, domainUserId };
+  }
+>>>>>>> origin/develop
 }

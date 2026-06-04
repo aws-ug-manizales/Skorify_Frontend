@@ -18,4 +18,8 @@ export const authService: AuthGatewayPort = {
   loginWithGoogle: () => getGateway().loginWithGoogle(),
   logout: () => getGateway().logout(),
   restoreSession: () => getGateway().restoreSession(),
+<<<<<<< HEAD
+=======
+  getValidSession: () => getGateway().getValidSession(),
+>>>>>>> origin/develop
 };

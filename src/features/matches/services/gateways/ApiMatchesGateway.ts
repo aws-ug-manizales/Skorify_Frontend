@@ -1,4 +1,5 @@
 import { api } from '@lib/api';
+<<<<<<< HEAD
 import { skorifyEndpoints, type MatchDto, type SkorifyEnvelope } from '@lib/api/skorify';
 import type { Match, MatchStatus } from '../../types';
 import type { ListMatchesParams, MatchesGateway, PaginatedResult } from '../MatchesGateway';
@@ -29,6 +30,45 @@ const toMatch = (dto: MatchDto): Match => ({
   score:
     typeof dto.homeScore === 'number' && typeof dto.awayScore === 'number'
       ? { home: dto.homeScore, away: dto.awayScore }
+=======
+import {
+  skorifyEndpoints,
+  type MatchDto,
+  type MatchWithTeamsDto,
+  type SkorifyEnvelope,
+  type TeamDto,
+} from '@lib/api/skorify';
+import type { Match, MatchStatus, MatchTeam } from '../../types';
+import type { ListMatchesParams, MatchesGateway, PaginatedResult } from '../MatchesGateway';
+
+const mapStatus = (status: MatchDto['status']): MatchStatus => {
+  if (status === 'in_progress') return 'live';
+  if (status === 'finished' || status === 'calculated' || status === 'cancelled') return 'finished';
+  return 'upcoming';
+};
+
+const toTeam = (team: TeamDto | undefined, fallbackId: string): MatchTeam => ({
+  name: team?.name ?? fallbackId,
+  code: team?.code,
+  image: team?.shieldUrl ?? undefined,
+});
+
+const toMatch = ({ match, homeTeam, awayTeam }: MatchWithTeamsDto): Match => ({
+  id: match.id,
+  tournamentKey: match.tournamentId,
+  stageKey: match.stage ?? 'group',
+  // This endpoint exposes the status as `_status`; fall back to it.
+  status: mapStatus(match._status ?? match.status),
+  rawStatus: match._status ?? match.status,
+  kickoffAt: match.kickOff,
+  homeTeamId: match.homeTeamId,
+  awayTeamId: match.awayTeamId,
+  homeTeam: toTeam(homeTeam, match.homeTeamId),
+  awayTeam: toTeam(awayTeam, match.awayTeamId),
+  score:
+    typeof match.homeScore === 'number' && typeof match.awayScore === 'number'
+      ? { home: match.homeScore, away: match.awayScore }
+>>>>>>> origin/develop
       : undefined,
 });
 
@@ -70,7 +110,11 @@ export class ApiMatchesGateway implements MatchesGateway {
       return { items: [], total: 0, page, pageSize };
     }
 
+<<<<<<< HEAD
     const res = await api.get<SkorifyEnvelope<MatchDto[]>>(
+=======
+    const res = await api.get<SkorifyEnvelope<MatchWithTeamsDto[]>>(
+>>>>>>> origin/develop
       skorifyEndpoints.match.getByTournamentId,
       { tournamentId: params.tournamentId },
     );

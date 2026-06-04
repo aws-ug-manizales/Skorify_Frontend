@@ -17,12 +17,23 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { es as esLocale } from 'date-fns/locale/es';
 import { enUS as enLocale } from 'date-fns/locale/en-US';
+<<<<<<< HEAD
 import FormField from '@shared/components/atoms/FormField';
 import AppButton from '@shared/components/atoms/AppButton';
+=======
+import { startOfDay } from 'date-fns';
+import FormField from '@shared/components/atoms/FormField';
+import AppButton from '@shared/components/atoms/AppButton';
+import { useApiErrorMessage } from '@lib/api';
+>>>>>>> origin/develop
 import useSnackbar from '@shared/hooks/useSnackbar';
 import { tokens } from '@lib/theme/theme';
 import { getInitials } from '@shared/utils/string';
 import type { MatchType } from '@lib/api/skorify';
+<<<<<<< HEAD
+=======
+import { useCurrentUserId } from '@features/auth/hooks/useCurrentUserId';
+>>>>>>> origin/develop
 import useCreateTournament from '../../hooks/useCreateTournament';
 
 interface CreateTournamentFormValues {
@@ -41,7 +52,13 @@ const CreateTournamentForm = ({ onCreated }: CreateTournamentFormProps) => {
   const locale = useLocale();
   const adapterLocale = locale.startsWith('es') ? esLocale : enLocale;
   const snackbar = useSnackbar();
+<<<<<<< HEAD
   const { createTournament, isLoading, error } = useCreateTournament();
+=======
+  const userId = useCurrentUserId();
+  const { createTournament, isLoading, error } = useCreateTournament();
+  const formatApiError = useApiErrorMessage();
+>>>>>>> origin/develop
 
   const { control, handleSubmit } = useForm<CreateTournamentFormValues>({
     defaultValues: { name: '', matchType: '', startDate: null, endDate: null },
@@ -49,6 +66,10 @@ const CreateTournamentForm = ({ onCreated }: CreateTournamentFormProps) => {
 
   const nameValue = useWatch({ control, name: 'name' });
   const startDateValue = useWatch({ control, name: 'startDate' });
+<<<<<<< HEAD
+=======
+  const today = startOfDay(new Date());
+>>>>>>> origin/develop
 
   const matchTypeOptions = [
     { value: 'single_match_per_round', label: t('matchTypeSingle') },
@@ -58,12 +79,24 @@ const CreateTournamentForm = ({ onCreated }: CreateTournamentFormProps) => {
   const onSubmit = async (values: CreateTournamentFormValues) => {
     if (!values.matchType || !values.startDate || !values.endDate) return;
 
+<<<<<<< HEAD
+=======
+    if (!userId) {
+      snackbar.error(t('createError'));
+      return;
+    }
+
+>>>>>>> origin/develop
     const name = values.name.trim();
     const tournament = await createTournament({
       name,
       matchType: values.matchType,
       startDate: values.startDate.toISOString(),
       endDate: values.endDate.toISOString(),
+<<<<<<< HEAD
+=======
+      userId,
+>>>>>>> origin/develop
     });
 
     if (tournament) {
@@ -224,12 +257,23 @@ const CreateTournamentForm = ({ onCreated }: CreateTournamentFormProps) => {
             <Controller
               control={control}
               name="startDate"
+<<<<<<< HEAD
               rules={{ required: t('startDateRequired') }}
+=======
+              rules={{
+                required: t('startDateRequired'),
+                validate: (value) => !value || startOfDay(value) >= today || t('startDateInPast'),
+              }}
+>>>>>>> origin/develop
               render={({ field, fieldState }) => (
                 <DatePicker
                   value={field.value}
                   onChange={field.onChange}
                   inputRef={field.ref}
+<<<<<<< HEAD
+=======
+                  minDate={today}
+>>>>>>> origin/develop
                   slotProps={{
                     textField: {
                       fullWidth: true,
@@ -262,14 +306,25 @@ const CreateTournamentForm = ({ onCreated }: CreateTournamentFormProps) => {
               rules={{
                 required: t('endDateRequired'),
                 validate: (value) =>
+<<<<<<< HEAD
                   !startDateValue || !value || value > startDateValue || t('endDateBeforeStart'),
+=======
+                  !startDateValue ||
+                  !value ||
+                  startOfDay(value) >= startOfDay(startDateValue) ||
+                  t('endDateBeforeStart'),
+>>>>>>> origin/develop
               }}
               render={({ field, fieldState }) => (
                 <DatePicker
                   value={field.value}
                   onChange={field.onChange}
                   inputRef={field.ref}
+<<<<<<< HEAD
                   minDate={startDateValue ?? undefined}
+=======
+                  minDate={startDateValue ?? today}
+>>>>>>> origin/develop
                   slotProps={{
                     textField: {
                       fullWidth: true,
@@ -311,7 +366,11 @@ const CreateTournamentForm = ({ onCreated }: CreateTournamentFormProps) => {
 
         {error && (
           <Alert severity="error" sx={{ mt: 2, borderRadius: '10px' }}>
+<<<<<<< HEAD
             {error.message}
+=======
+            {formatApiError(error)}
+>>>>>>> origin/develop
           </Alert>
         )}
 

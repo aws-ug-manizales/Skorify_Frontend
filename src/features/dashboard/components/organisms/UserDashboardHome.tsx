@@ -1,10 +1,18 @@
 'use client';
 
+<<<<<<< HEAD
 import { useMemo, useState } from 'react';
+=======
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+>>>>>>> origin/develop
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
+<<<<<<< HEAD
+=======
+import GlobalStyles from '@mui/material/GlobalStyles';
+>>>>>>> origin/develop
 import Grid from '@mui/material/Grid';
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
@@ -15,6 +23,10 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
+<<<<<<< HEAD
+=======
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+>>>>>>> origin/develop
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import { tokens, avatarPalette } from '@lib/theme/theme';
@@ -24,8 +36,94 @@ import { getInitials } from '@shared/utils/string';
 import { useAuthSession } from '@features/auth/hooks/useAuthSession';
 import { useUserGroups, type UserGroupSummary } from '@features/groups/hooks/useUserGroups';
 import JoinGroupDialog from '@features/groups/components/organisms/JoinGroupDialog';
+<<<<<<< HEAD
 import { useGetAvailableTournaments } from '@features/tournaments/hooks/useGetAvailableTournaments';
 import type { TournamentDto } from '@lib/api/skorify';
+=======
+import { PENDING_JOIN_CODE_KEY } from '@features/groups/joinFlag';
+import { useGetAvailableTournaments } from '@features/tournaments/hooks/useGetAvailableTournaments';
+import TournamentDetailDialog from '@features/tournaments/components/organisms/TournamentDetailDialog';
+import type { TournamentDto } from '@lib/api/skorify';
+import { useDashboardTour } from '../../hooks/useDashboardTour';
+import { TOUR_LOGIN_FLAG } from '../../tourFlag';
+
+// Persisted once the user has seen the guided tour, so it never auto-runs again.
+const TOUR_SEEN_KEY = 'skorify.dashboardTourSeen';
+
+// Themes the driver.js guided-tour popover to match the app's color system.
+const TOUR_STYLES = {
+  '.driver-popover.skorify-tour': {
+    backgroundColor: tokens.surfaceContainerHigh,
+    color: tokens.onSurface,
+    borderRadius: '14px',
+    border: `1px solid ${tokens.outlineVariant}33`,
+    boxShadow: tokens.shadowMd,
+    padding: '18px',
+    maxWidth: 340,
+  },
+  '.driver-popover.skorify-tour .driver-popover-title': {
+    color: tokens.onSurface,
+    fontSize: '1.05rem',
+    fontWeight: 800,
+    letterSpacing: '-0.01em',
+  },
+  '.driver-popover.skorify-tour .driver-popover-description': {
+    color: tokens.onSurfaceVariant,
+    fontSize: '0.875rem',
+    lineHeight: 1.6,
+  },
+  '.driver-popover.skorify-tour .driver-popover-progress-text': {
+    color: tokens.onSurfaceVariant,
+    fontSize: '0.75rem',
+    fontWeight: 700,
+  },
+  '.driver-popover.skorify-tour .driver-popover-close-btn': {
+    color: tokens.onSurfaceVariant,
+  },
+  '.driver-popover.skorify-tour .driver-popover-close-btn:hover': {
+    color: tokens.onSurface,
+  },
+  '.driver-popover.skorify-tour .driver-popover-footer button': {
+    textShadow: 'none',
+    borderRadius: '8px',
+    padding: '6px 14px',
+    fontSize: '0.75rem',
+    fontWeight: 700,
+  },
+  '.driver-popover.skorify-tour .driver-popover-prev-btn': {
+    backgroundColor: 'transparent',
+    color: tokens.onSurfaceVariant,
+    border: `1px solid ${tokens.outlineVariant}55`,
+  },
+  '.driver-popover.skorify-tour .driver-popover-prev-btn:hover': {
+    backgroundColor: tokens.surfaceContainerHighest,
+    color: tokens.onSurface,
+  },
+  '.driver-popover.skorify-tour .driver-popover-next-btn': {
+    background: tokens.ctaGradient,
+    color: '#ffffff',
+    border: 'none',
+  },
+  '.driver-popover.skorify-tour .driver-popover-next-btn:hover': {
+    background: tokens.ctaGradient,
+    filter: 'brightness(1.08)',
+    color: '#ffffff',
+  },
+  // Arrow inherits the popover background per side.
+  '.driver-popover.skorify-tour .driver-popover-arrow-side-left': {
+    borderLeftColor: tokens.surfaceContainerHigh,
+  },
+  '.driver-popover.skorify-tour .driver-popover-arrow-side-right': {
+    borderRightColor: tokens.surfaceContainerHigh,
+  },
+  '.driver-popover.skorify-tour .driver-popover-arrow-side-top': {
+    borderTopColor: tokens.surfaceContainerHigh,
+  },
+  '.driver-popover.skorify-tour .driver-popover-arrow-side-bottom': {
+    borderBottomColor: tokens.surfaceContainerHigh,
+  },
+} as const;
+>>>>>>> origin/develop
 
 const numberFormatter = new Intl.NumberFormat('es-CO');
 
@@ -59,8 +157,13 @@ const ACTIVE_TOURNAMENTS_LIMIT = 5;
 const UserDashboardHome = () => {
   const t = useTranslations('userDashboard');
   const locale = useLocale();
+<<<<<<< HEAD
   const { session } = useAuthSession();
   const { groups, isLoading: groupsLoading } = useUserGroups();
+=======
+  const { session, canCreateGroups } = useAuthSession();
+  const { groups, isLoading: groupsLoading, refresh: refreshGroups } = useUserGroups();
+>>>>>>> origin/develop
   const { data: tournaments, isLoading: tournamentsLoading } = useGetAvailableTournaments();
 
   const displayName = session?.user.displayName ?? t('defaultUser');
@@ -69,14 +172,22 @@ const UserDashboardHome = () => {
       tournaments
         .filter(
           (tournament) =>
+<<<<<<< HEAD
             !!tournament.start_date &&
             !!tournament.end_date &&
             !Number.isNaN(new Date(tournament.start_date).getTime()) &&
             !Number.isNaN(new Date(tournament.end_date).getTime()),
+=======
+            !!tournament.startDate &&
+            !!tournament.endDate &&
+            !Number.isNaN(new Date(tournament.startDate).getTime()) &&
+            !Number.isNaN(new Date(tournament.endDate).getTime()),
+>>>>>>> origin/develop
         )
         .slice(0, ACTIVE_TOURNAMENTS_LIMIT),
     [tournaments],
   );
+<<<<<<< HEAD
   const [joinDialogOpen, setJoinDialogOpen] = useState(false);
 
   return (
@@ -86,12 +197,77 @@ const UserDashboardHome = () => {
         streak={USER_STREAK}
         t={t}
         onJoinGroup={() => setJoinDialogOpen(true)}
+=======
+  // Resume a join started before login: a guest who opened a `/join/<code>` link
+  // was redirected to auth with the code stashed in sessionStorage. Reading it in
+  // a lazy initializer (mount-only) opens the dialog prefilled without an effect,
+  // and we drop the first-login tour flag so the two don't fight over the screen.
+  const [join, setJoin] = useState<{ open: boolean; code: string }>(() => {
+    if (typeof window === 'undefined') return { open: false, code: '' };
+    const pending = sessionStorage.getItem(PENDING_JOIN_CODE_KEY);
+    if (!pending) return { open: false, code: '' };
+    sessionStorage.removeItem(PENDING_JOIN_CODE_KEY);
+    sessionStorage.removeItem(TOUR_LOGIN_FLAG);
+    return { open: true, code: pending };
+  });
+  const [tournamentDetailId, setTournamentDetailId] = useState<string | null>(null);
+
+  const openJoinDialog = useCallback(() => setJoin({ open: true, code: '' }), []);
+  const closeJoinDialog = useCallback(() => setJoin({ open: false, code: '' }), []);
+
+  const { startTour } = useDashboardTour();
+  const firstTournamentId = activeTournaments[0]?.id ?? null;
+  const openFirstTournament = useCallback(
+    () => setTournamentDetailId(firstTournamentId),
+    [firstTournamentId],
+  );
+  const closeTournament = useCallback(() => setTournamentDetailId(null), []);
+
+  const handleStartTour = useCallback(() => {
+    startTour({
+      hasTournament: !!firstTournamentId,
+      openTournament: openFirstTournament,
+      closeTournament,
+    });
+  }, [startTour, firstTournamentId, openFirstTournament, closeTournament]);
+
+  // Run the tour only on the user's first login. The auth flow sets
+  // TOUR_LOGIN_FLAG; we consume it once tournaments have loaded (so the anchors
+  // exist) and persist TOUR_SEEN_KEY so it never auto-runs again.
+  const tourStarted = useRef(false);
+  useEffect(() => {
+    if (tournamentsLoading || tourStarted.current) return;
+    if (sessionStorage.getItem(TOUR_LOGIN_FLAG) !== '1') return;
+    sessionStorage.removeItem(TOUR_LOGIN_FLAG);
+    if (localStorage.getItem(TOUR_SEEN_KEY)) return;
+    tourStarted.current = true;
+    localStorage.setItem(TOUR_SEEN_KEY, '1');
+    handleStartTour();
+  }, [tournamentsLoading, handleStartTour]);
+
+  return (
+    <Box sx={{ p: { xs: 2.5, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
+      <GlobalStyles styles={TOUR_STYLES} />
+      <WelcomeBanner
+        displayName={displayName}
+        streak={USER_STREAK}
+        canCreateGroups={canCreateGroups}
+        t={t}
+        onJoinGroup={openJoinDialog}
+        onStartTour={handleStartTour}
+>>>>>>> origin/develop
       />
 
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, lg: 3 }}>
           <Stack spacing={3}>
+<<<<<<< HEAD
             <MyGroupsCard groups={groups} loading={groupsLoading} t={t} />
+=======
+            <Box data-tour="groups">
+              <MyGroupsCard groups={groups} loading={groupsLoading} t={t} />
+            </Box>
+>>>>>>> origin/develop
             <RankingCard t={t} />
           </Stack>
         </Grid>
@@ -102,6 +278,10 @@ const UserDashboardHome = () => {
             loading={tournamentsLoading}
             locale={locale}
             t={t}
+<<<<<<< HEAD
+=======
+            onSelectTournament={setTournamentDetailId}
+>>>>>>> origin/develop
           />
         </Grid>
 
@@ -114,7 +294,21 @@ const UserDashboardHome = () => {
         </Grid>
       </Grid>
 
+<<<<<<< HEAD
       <JoinGroupDialog open={joinDialogOpen} onClose={() => setJoinDialogOpen(false)} />
+=======
+      <JoinGroupDialog open={join.open} onClose={closeJoinDialog} initialCode={join.code} />
+
+      <TournamentDetailDialog
+        open={tournamentDetailId !== null}
+        onClose={() => setTournamentDetailId(null)}
+        tournamentId={tournamentDetailId}
+        globalInstanceId={
+          tournaments.find((tournament) => tournament.id === tournamentDetailId)?.globalInstanceId
+        }
+        onJoined={refreshGroups}
+      />
+>>>>>>> origin/develop
     </Box>
   );
 };
@@ -126,6 +320,10 @@ interface ActiveTournamentsSectionProps {
   loading: boolean;
   locale: string;
   t: ReturnType<typeof useTranslations<'userDashboard'>>;
+<<<<<<< HEAD
+=======
+  onSelectTournament: (id: string) => void;
+>>>>>>> origin/develop
 }
 
 const formatDateSafe = (
@@ -152,8 +350,14 @@ const ActiveTournamentsSection = ({
   loading,
   locale,
   t,
+<<<<<<< HEAD
 }: ActiveTournamentsSectionProps) => (
   <Stack spacing={3}>
+=======
+  onSelectTournament,
+}: ActiveTournamentsSectionProps) => (
+  <Stack spacing={3} data-tour="tournaments">
+>>>>>>> origin/develop
     <Stack
       direction="row"
       alignItems="center"
@@ -195,6 +399,7 @@ const ActiveTournamentsSection = ({
           }}
         />
       </Stack>
+<<<<<<< HEAD
       <AppButton
         component={Link}
         href="/tournaments"
@@ -203,6 +408,8 @@ const ActiveTournamentsSection = ({
       >
         {t('viewAllTournaments')}
       </AppButton>
+=======
+>>>>>>> origin/develop
     </Stack>
 
     {loading ? (
@@ -222,8 +429,18 @@ const ActiveTournamentsSection = ({
       </AppCard>
     ) : (
       <Stack spacing={1.5}>
+<<<<<<< HEAD
         {tournaments.map((tournament) => (
           <AppCard key={tournament.id} variant="interactive" href={`/tournaments/${tournament.id}`}>
+=======
+        {tournaments.map((tournament, index) => (
+          <AppCard
+            key={tournament.id}
+            variant="interactive"
+            onClick={() => onSelectTournament(tournament.id)}
+            data-tour={index === 0 ? 'tournament-card' : undefined}
+          >
+>>>>>>> origin/develop
             <Stack direction="row" alignItems="center" spacing={2} sx={{ p: { xs: 2, md: 2.5 } }}>
               <Box
                 sx={{
@@ -259,7 +476,11 @@ const ActiveTournamentsSection = ({
                     fontVariantNumeric: 'tabular-nums',
                   }}
                 >
+<<<<<<< HEAD
                   {formatDateRange(tournament.start_date, tournament.end_date, locale)}
+=======
+                  {formatDateRange(tournament.startDate, tournament.endDate, locale)}
+>>>>>>> origin/develop
                 </Typography>
               </Box>
               <ChevronRightIcon sx={{ color: tokens.onSurfaceVariant, fontSize: 20 }} />
@@ -274,11 +495,28 @@ const ActiveTournamentsSection = ({
 interface WelcomeBannerProps {
   displayName: string;
   streak: number;
+<<<<<<< HEAD
   t: ReturnType<typeof useTranslations<'userDashboard'>>;
   onJoinGroup: () => void;
 }
 
 const WelcomeBanner = ({ displayName, streak, t, onJoinGroup }: WelcomeBannerProps) => (
+=======
+  canCreateGroups: boolean;
+  t: ReturnType<typeof useTranslations<'userDashboard'>>;
+  onJoinGroup: () => void;
+  onStartTour: () => void;
+}
+
+const WelcomeBanner = ({
+  displayName,
+  streak,
+  canCreateGroups,
+  t,
+  onJoinGroup,
+  onStartTour,
+}: WelcomeBannerProps) => (
+>>>>>>> origin/develop
   <Box
     sx={{
       position: 'relative',
@@ -381,6 +619,7 @@ const WelcomeBanner = ({ displayName, streak, t, onJoinGroup }: WelcomeBannerPro
       </Typography>
 
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mt: 3.5 }}>
+<<<<<<< HEAD
         <AppButton
           component={Link}
           href="/groups?create=1"
@@ -389,6 +628,18 @@ const WelcomeBanner = ({ displayName, streak, t, onJoinGroup }: WelcomeBannerPro
         >
           {t('createGroup')}
         </AppButton>
+=======
+        {canCreateGroups && (
+          <AppButton
+            component={Link}
+            href="/groups?create=1"
+            startIcon={<AddCircleOutlineIcon />}
+            size="large"
+          >
+            {t('createGroup')}
+          </AppButton>
+        )}
+>>>>>>> origin/develop
         <AppButton
           onClick={onJoinGroup}
           variant="secondary"
@@ -397,6 +648,17 @@ const WelcomeBanner = ({ displayName, streak, t, onJoinGroup }: WelcomeBannerPro
         >
           {t('joinGroup')}
         </AppButton>
+<<<<<<< HEAD
+=======
+        <AppButton
+          onClick={onStartTour}
+          variant="tertiary"
+          startIcon={<HelpOutlineIcon />}
+          size="large"
+        >
+          {t('tour.startCta')}
+        </AppButton>
+>>>>>>> origin/develop
       </Stack>
     </Box>
   </Box>

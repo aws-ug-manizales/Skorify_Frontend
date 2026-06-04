@@ -1,7 +1,14 @@
 export type AuthProvider = 'email' | 'google';
+<<<<<<< HEAD
 export type AuthRole = 'admin' | 'general';
 
 export const ADMIN_ROLE: AuthRole = 'admin';
+=======
+export type AuthRole = 'admin' | 'manager' | 'general';
+
+export const ADMIN_ROLE: AuthRole = 'admin';
+export const MANAGER_ROLE: AuthRole = 'manager';
+>>>>>>> origin/develop
 export const GENERAL_ROLE: AuthRole = 'general';
 
 export interface AuthUser {
@@ -19,6 +26,11 @@ export interface AuthSession {
   accessToken?: string;
   refreshToken?: string;
   user: AuthUser;
+<<<<<<< HEAD
+=======
+  sub: string;
+  domainUserId?: string;
+>>>>>>> origin/develop
   createdAt: string;
   expiresAt?: string;
 }

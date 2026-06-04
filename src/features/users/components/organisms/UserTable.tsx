@@ -18,11 +18,18 @@ import type { User } from '@features/users/types/user';
 
 type Props = {
   users: User[];
+<<<<<<< HEAD
   locale: string;
   onToggleStatus: (userId: string) => void;
 };
 
 const UserTable = ({ users, locale, onToggleStatus }: Props) => {
+=======
+  onToggleStatus: (userId: string) => void;
+};
+
+const UserTable = ({ users, onToggleStatus }: Props) => {
+>>>>>>> origin/develop
   const t = useTranslations('users');
 
   return (
@@ -56,24 +63,30 @@ const UserTable = ({ users, locale, onToggleStatus }: Props) => {
               align="center"
               sx={{ color: tokens.onSurfaceVariant, fontWeight: 700, fontSize: '0.75rem' }}
             >
+<<<<<<< HEAD
               {t('table.predictions')}
             </TableCell>
             <TableCell
               align="center"
               sx={{ color: tokens.onSurfaceVariant, fontWeight: 700, fontSize: '0.75rem' }}
             >
+=======
+>>>>>>> origin/develop
               {t('table.groups')}
             </TableCell>
             <TableCell
               align="center"
               sx={{ color: tokens.onSurfaceVariant, fontWeight: 700, fontSize: '0.75rem' }}
             >
+<<<<<<< HEAD
               {t('table.accuracy')}
             </TableCell>
             <TableCell
               align="center"
               sx={{ color: tokens.onSurfaceVariant, fontWeight: 700, fontSize: '0.75rem' }}
             >
+=======
+>>>>>>> origin/develop
               {t('table.actions')}
             </TableCell>
           </TableRow>
@@ -105,24 +118,35 @@ const UserTable = ({ users, locale, onToggleStatus }: Props) => {
               </TableCell>
               <TableCell align="center">
                 <Typography sx={{ color: tokens.onSurface, fontWeight: 600 }}>
+<<<<<<< HEAD
                   {user.predictions.toLocaleString(locale)}
                 </Typography>
               </TableCell>
               <TableCell align="center">
                 <Typography sx={{ color: tokens.onSurface, fontWeight: 600 }}>
+=======
+>>>>>>> origin/develop
                   {user.groups}
                 </Typography>
               </TableCell>
               <TableCell align="center">
+<<<<<<< HEAD
                 <Typography sx={{ color: tokens.tertiary, fontWeight: 600 }}>
                   {user.accuracyRate}%
                 </Typography>
               </TableCell>
               <TableCell align="center">
+=======
+>>>>>>> origin/develop
                 <AppButton
                   variant={user.status === 'active' ? 'secondary' : 'primary'}
                   size="small"
                   onClick={() => onToggleStatus(user.id)}
+<<<<<<< HEAD
+=======
+                  disabled={user.status === 'suspended'}
+                  title={user.status === 'suspended' ? t('reactivateUnavailable') : undefined}
+>>>>>>> origin/develop
                   sx={{
                     fontSize: '0.6875rem',
                     letterSpacing: '0.05em',

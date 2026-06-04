@@ -1,10 +1,15 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+<<<<<<< HEAD
+=======
+import { useRouter, useSearchParams } from 'next/navigation';
+>>>>>>> origin/develop
 import { useForm, useWatch } from 'react-hook-form';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
+<<<<<<< HEAD
 import Paper from '@mui/material/Paper';
 import Select from '@mui/material/Select';
 import Skeleton from '@mui/material/Skeleton';
@@ -13,6 +18,14 @@ import Tabs from '@mui/material/Tabs';
 import Typography from '@mui/material/Typography';
 import { useLocale, useTranslations } from 'next-intl';
 import PageHeader from '@shared/components/molecules/PageHeader';
+=======
+import Select from '@mui/material/Select';
+import Skeleton from '@mui/material/Skeleton';
+import Typography from '@mui/material/Typography';
+import { useLocale, useTranslations } from 'next-intl';
+import PageHeader from '@shared/components/molecules/PageHeader';
+import Confetti from '@shared/components/organisms/Confetti';
+>>>>>>> origin/develop
 import { tokens } from '@lib/theme/theme';
 import {
   useNotification,
@@ -24,6 +37,7 @@ import {
 import { getWorldCupWeekOptions2026 } from '@shared/components/organisms/MatchList/weekOptions';
 import { useCurrentUserId } from '@features/auth/hooks/useCurrentUserId';
 import { useGetUserEnrollmentsByUserId } from '@features/groups/hooks/useGetUserEnrollmentsByUserId';
+<<<<<<< HEAD
 import { useGetMatchesByTournamentId } from '@features/matches/hooks/useGetMatchesByTournamentId';
 import { useTeamsLookup } from '@features/teams';
 import type { MatchDto, PredictionDto } from '@lib/api/skorify';
@@ -31,13 +45,25 @@ import PredictionsToolbar, { type PredictionsToolbarValues } from '../molecules/
 import MatchesPanel, { type MatchesPanelSavedPrediction } from './MatchesPanel';
 import PredictionDrawer, { type PredictionDrawerMatch } from './PredictionDrawer';
 import { isMatchLocked } from '../../hooks/useMatchCountdown';
+=======
+import { useTournamentInstanceNames } from '@features/tournaments/hooks/useTournamentInstanceNames';
+import { useGetMatchesByTournamentId } from '@features/matches/hooks/useGetMatchesByTournamentId';
+import type { MatchStatus, PredictionDto } from '@lib/api/skorify';
+import PredictionsToolbar, { type PredictionsToolbarValues } from '../molecules/PredictionsToolbar';
+import MatchesPanel, { type MatchesPanelSavedPrediction } from './MatchesPanel';
+import PredictionDrawer, { type PredictionDrawerMatch } from './PredictionDrawer';
+import { isMatchLocked, isStatusClosedForPrediction } from '../../hooks/useMatchCountdown';
+>>>>>>> origin/develop
 import { useMakePrediction } from '../../hooks/useMakePrediction';
 import { useEditPrediction } from '../../hooks/useEditPrediction';
 import { useGetPredictionsByUser } from '../../hooks/useGetPredictionsByUser';
 import type { PredictionMatch } from '../../types/prediction';
 
+<<<<<<< HEAD
 type PanelKey = 'open' | 'closed';
 
+=======
+>>>>>>> origin/develop
 const FILTER_DEFAULTS: PredictionsToolbarValues = { search: '', week: '' };
 
 const inWeekRange = (matchDate: Date, weekNum: string): boolean => {
@@ -52,6 +78,7 @@ const inWeekRange = (matchDate: Date, weekNum: string): boolean => {
   return matchDate >= weekStart && matchDate < weekEnd;
 };
 
+<<<<<<< HEAD
 const PANEL_PAPER_SX = {
   p: { xs: 2, md: 3 },
   bgcolor: tokens.surfaceContainerLow,
@@ -60,6 +87,8 @@ const PANEL_PAPER_SX = {
   boxShadow: 'none',
 } as const;
 
+=======
+>>>>>>> origin/develop
 const PredictionsView = () => {
   const t = useTranslations('predictions');
   const locale = useLocale();
@@ -67,19 +96,43 @@ const PredictionsView = () => {
 
   const userId = useCurrentUserId();
 
+<<<<<<< HEAD
+=======
+  // Deep-link support: /predictions?group=<instanceId>&match=<matchId> selects
+  // the right tournament instance and auto-opens that match's prediction modal.
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const groupParam = searchParams.get('group');
+  const matchParam = searchParams.get('match');
+
+>>>>>>> origin/develop
   const {
     getUserEnrollmentsByUserId,
     data: enrollments,
     isLoading: enrollmentsLoading,
   } = useGetUserEnrollmentsByUserId();
   const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(null);
+<<<<<<< HEAD
   const tournamentInstanceId = selectedInstanceId ?? enrollments[0]?.tournamentInstanceId ?? '';
+=======
+  // A manual dropdown selection wins; otherwise fall back to the deep-linked
+  // instance (?group=) and finally the first enrollment.
+  const tournamentInstanceId =
+    selectedInstanceId ?? groupParam ?? enrollments[0]?.tournamentInstanceId ?? '';
+>>>>>>> origin/develop
 
   useEffect(() => {
     if (!userId) return;
     void getUserEnrollmentsByUserId({ userId });
   }, [userId, getUserEnrollmentsByUserId]);
 
+<<<<<<< HEAD
+=======
+  const instanceNames = useTournamentInstanceNames(
+    useMemo(() => enrollments.map((e) => e.tournamentInstanceId), [enrollments]),
+  );
+
+>>>>>>> origin/develop
   const activeEnrollment = useMemo(
     () => enrollments.find((e) => e.tournamentInstanceId === tournamentInstanceId) ?? null,
     [enrollments, tournamentInstanceId],
@@ -105,6 +158,7 @@ const PredictionsView = () => {
     refreshPredictions();
   }, [refreshPredictions]);
 
+<<<<<<< HEAD
   const teamIds = useMemo(() => {
     const ids = new Set<string>();
     backendMatches.forEach((dto) => {
@@ -115,6 +169,8 @@ const PredictionsView = () => {
   }, [backendMatches]);
   const { teams: teamsLookup } = useTeamsLookup(teamIds);
 
+=======
+>>>>>>> origin/develop
   const { savedPredictions, predictionIdByMatch } = useMemo(() => {
     const saved: Record<string, MatchesPanelSavedPrediction> = {};
     const ids: Record<string, string> = {};
@@ -129,6 +185,7 @@ const PredictionsView = () => {
   }, [userPredictions]);
 
   const matches = useMemo<PredictionMatch[]>(() => {
+<<<<<<< HEAD
     return backendMatches.map((dto: MatchDto) => {
       const home = teamsLookup[dto.homeTeamId];
       const away = teamsLookup[dto.awayTeamId];
@@ -143,6 +200,24 @@ const PredictionsView = () => {
       };
     });
   }, [backendMatches, teamsLookup, savedPredictions]);
+=======
+    return backendMatches.map(({ match, homeTeam, awayTeam }) => ({
+      id: match.id,
+      homeTeam: homeTeam?.name ?? match.homeTeamId,
+      awayTeam: awayTeam?.name ?? match.awayTeamId,
+      homeTeamFlag: homeTeam?.shieldUrl ?? '',
+      awayTeamFlag: awayTeam?.shieldUrl ?? '',
+      date: match.kickOff,
+      isUserPredicted: match.id in savedPredictions,
+      stageKey: match.stage,
+      // `get-matches-by-tournament-id` serializes the status as `_status`;
+      // fall back to it, mirroring ApiMatchesGateway.
+      status: match._status ?? match.status,
+    }));
+  }, [backendMatches, savedPredictions]);
+
+  const tournamentLabel = instanceNames[tournamentInstanceId] ?? '';
+>>>>>>> origin/develop
 
   const savedMessages = useMemo(() => t.raw('savedMessages') as string[], [t]);
 
@@ -153,7 +228,24 @@ const PredictionsView = () => {
   const filterValues = useWatch({ control });
 
   const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
+<<<<<<< HEAD
   const [activeTab, setActiveTab] = useState<PanelKey>('open');
+=======
+  const [deepLinkConsumed, setDeepLinkConsumed] = useState(false);
+  const [celebrate, setCelebrate] = useState(false);
+
+  // The match whose prediction drawer is open. Derived rather than synced via an
+  // effect: a manual selection wins; otherwise the deep-linked match (?match=)
+  // opens once it has loaded and is still open, until the user dismisses it.
+  const effectiveMatchId = useMemo(() => {
+    if (selectedMatchId) return selectedMatchId;
+    if (deepLinkConsumed || !matchParam) return null;
+    const target = matches.find((match) => match.id === matchParam);
+    if (!target || isMatchLocked(target.date)) return null;
+    if (isStatusClosedForPrediction(target.status)) return null;
+    return matchParam;
+  }, [selectedMatchId, deepLinkConsumed, matchParam, matches]);
+>>>>>>> origin/develop
 
   const filteredMatches = useMemo(() => {
     const search = (filterValues.search ?? '').trim().toLowerCase();
@@ -168,6 +260,7 @@ const PredictionsView = () => {
     });
   }, [filterValues.search, filterValues.week, matches]);
 
+<<<<<<< HEAD
   const { openMatches, closedMatches } = useMemo(() => {
     const reference = new Date();
     const open: PredictionMatch[] = [];
@@ -177,6 +270,17 @@ const PredictionsView = () => {
       else open.push(match);
     });
     return { openMatches: open, closedMatches: closed };
+=======
+  // Every match that hasn't finished yet is shown, ordered by kickoff (nearest
+  // first). Matches within the lock window or already in progress still appear
+  // but render as "closed" (no predict button) — only finished/calculated/
+  // cancelled matches drop out of the predictions view.
+  const visibleMatches = useMemo(() => {
+    const finishedStatuses: MatchStatus[] = ['finished', 'calculated', 'cancelled'];
+    return filteredMatches
+      .filter((match) => !match.status || !finishedStatuses.includes(match.status))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+>>>>>>> origin/develop
   }, [filteredMatches]);
 
   const hasActiveFilters = !!(filterValues.search || filterValues.week);
@@ -229,6 +333,10 @@ const PredictionsView = () => {
         }
 
         refreshPredictions();
+<<<<<<< HEAD
+=======
+        setCelebrate(true);
+>>>>>>> origin/develop
         const message = savedMessages[Math.floor(Math.random() * savedMessages.length)];
         notify({
           type: NotificationType.TOAST,
@@ -241,6 +349,15 @@ const PredictionsView = () => {
           },
         });
         onSuccess?.();
+<<<<<<< HEAD
+=======
+
+        // If we arrived here from a group's upcoming-matches deep link and just
+        // predicted that match, return to the group's upcoming-matches tab.
+        if (groupParam && matchId === matchParam) {
+          router.push(`/groups/${groupParam}?tab=upcoming`);
+        }
+>>>>>>> origin/develop
       };
 
       if (!existingId) {
@@ -254,7 +371,25 @@ const PredictionsView = () => {
         existing.homeGoals === values.homeGoals &&
         existing.awayGoals === values.awayGoals
       ) {
+<<<<<<< HEAD
         onSuccess?.();
+=======
+        // Nothing changed: let the user know and, if we came from a group's
+        // upcoming-matches deep link, return them to that tab anyway.
+        notify({
+          type: NotificationType.TOAST,
+          messageKey: 'predictions.noChangesToast',
+          severity: ToastSeverity.INFO,
+          position: {
+            vertical: NotificationVertical.TOP,
+            horizontal: NotificationHorizontal.RIGHT,
+          },
+        });
+        onSuccess?.();
+        if (groupParam && matchId === matchParam) {
+          router.push(`/groups/${groupParam}?tab=upcoming`);
+        }
+>>>>>>> origin/develop
         return true;
       }
 
@@ -298,13 +433,25 @@ const PredictionsView = () => {
       notify,
       refreshPredictions,
       savedMessages,
+<<<<<<< HEAD
+=======
+      groupParam,
+      matchParam,
+      router,
+>>>>>>> origin/develop
     ],
   );
 
   const selectedMatch = useMemo(() => {
+<<<<<<< HEAD
     if (!selectedMatchId) return null;
     return matches.find((match) => match.id === selectedMatchId) ?? null;
   }, [matches, selectedMatchId]);
+=======
+    if (!effectiveMatchId) return null;
+    return matches.find((match) => match.id === effectiveMatchId) ?? null;
+  }, [matches, effectiveMatchId]);
+>>>>>>> origin/develop
 
   const selectedDrawerMatch = useMemo<PredictionDrawerMatch | null>(() => {
     if (!selectedMatch) return null;
@@ -319,6 +466,7 @@ const PredictionsView = () => {
   }, [selectedMatch]);
 
   const selectedDrawerScore = useMemo(() => {
+<<<<<<< HEAD
     if (!selectedMatchId) return undefined;
     const saved = savedPredictions[selectedMatchId];
     if (!saved) return undefined;
@@ -327,21 +475,40 @@ const PredictionsView = () => {
 
   const handleOpenPrediction = useCallback((match: PredictionMatch) => {
     if (isMatchLocked(match.date)) return;
+=======
+    if (!effectiveMatchId) return undefined;
+    const saved = savedPredictions[effectiveMatchId];
+    if (!saved) return undefined;
+    return { homeGoals: saved.homeGoals, awayGoals: saved.awayGoals };
+  }, [savedPredictions, effectiveMatchId]);
+
+  const handleOpenPrediction = useCallback((match: PredictionMatch) => {
+    if (isMatchLocked(match.date) || isStatusClosedForPrediction(match.status)) return;
+>>>>>>> origin/develop
     setSelectedMatchId(match.id);
   }, []);
 
   const handleCloseDrawer = useCallback(() => {
     setSelectedMatchId(null);
+<<<<<<< HEAD
+=======
+    setDeepLinkConsumed(true);
+>>>>>>> origin/develop
   }, []);
 
   const renderOpenPanel = (showHeader: boolean) => (
     <MatchesPanel
+<<<<<<< HEAD
       matches={openMatches}
+=======
+      matches={visibleMatches}
+>>>>>>> origin/develop
       title={t('openPanelTitle')}
       emptyMessage={t('noOpenMatches')}
       savedPredictions={savedPredictions}
       onOpenPrediction={handleOpenPrediction}
       showHeader={showHeader}
+<<<<<<< HEAD
     />
   );
 
@@ -353,6 +520,9 @@ const PredictionsView = () => {
       savedPredictions={savedPredictions}
       onOpenPrediction={handleOpenPrediction}
       showHeader={showHeader}
+=======
+      tournamentLabel={tournamentLabel}
+>>>>>>> origin/develop
     />
   );
 
@@ -364,7 +534,11 @@ const PredictionsView = () => {
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
       <PageHeader
         title={t('pageTitle')}
+<<<<<<< HEAD
         subtitle={t('matchesCount', { count: filteredMatches.length })}
+=======
+        subtitle={t('matchesCount', { count: visibleMatches.length })}
+>>>>>>> origin/develop
       />
 
       <Box sx={{ mb: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -387,7 +561,11 @@ const PredictionsView = () => {
           </MenuItem>
           {enrollments.map((enrollment) => (
             <MenuItem key={enrollment.id} value={enrollment.tournamentInstanceId}>
+<<<<<<< HEAD
               {enrollment.tournamentInstanceId}
+=======
+              {instanceNames[enrollment.tournamentInstanceId] ?? enrollment.tournamentInstanceId}
+>>>>>>> origin/develop
             </MenuItem>
           ))}
         </Select>
@@ -413,6 +591,7 @@ const PredictionsView = () => {
           <Skeleton variant="rounded" height={120} />
         </Box>
       ) : (
+<<<<<<< HEAD
         <>
           <Box sx={{ display: { xs: 'block', lg: 'none' } }}>
             <Tabs
@@ -453,6 +632,9 @@ const PredictionsView = () => {
             <Paper sx={PANEL_PAPER_SX}>{renderClosedPanel(true)}</Paper>
           </Box>
         </>
+=======
+        renderOpenPanel(true)
+>>>>>>> origin/develop
       )}
 
       <PredictionDrawer
@@ -462,6 +644,11 @@ const PredictionsView = () => {
         onClose={handleCloseDrawer}
         onSave={handleSave}
       />
+<<<<<<< HEAD
+=======
+
+      <Confetti active={celebrate} onComplete={() => setCelebrate(false)} />
+>>>>>>> origin/develop
     </Box>
   );
 };

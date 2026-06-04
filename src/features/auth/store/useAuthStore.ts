@@ -3,6 +3,10 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { authService } from '../services/authService';
+<<<<<<< HEAD
+=======
+import { refreshOAuthSession } from '../lib/oauth';
+>>>>>>> origin/develop
 import type { AuthGatewayResult } from '../services/AuthGatewayPort';
 import type {
   AuthSession,
@@ -22,9 +26,20 @@ type AuthState = {
   resendConfirmationCode: (email: string) => Promise<AuthGatewayResult>;
   loginWithGoogle: () => Promise<AuthGatewayResult>;
   restoreSession: () => Promise<void>;
+<<<<<<< HEAD
   logout: () => Promise<void>;
 };
 
+=======
+  validateSession: () => Promise<boolean>;
+  logout: () => Promise<void>;
+};
+
+// Treat an OAuth session that expires within this window as already expired so
+// it gets proactively refreshed rather than failing mid-request.
+const EXPIRY_SKEW_MS = 30_000;
+
+>>>>>>> origin/develop
 const persistToken = (token: string | null) => {
   if (typeof window === 'undefined') return;
   if (token) {
@@ -36,7 +51,11 @@ const persistToken = (token: string | null) => {
 
 export const useAuthStore = create<AuthState>()(
   persist(
+<<<<<<< HEAD
     (set) => ({
+=======
+    (set, get) => ({
+>>>>>>> origin/develop
       hydrated: false,
       session: null,
       setHydrated: (value) => set({ hydrated: value }),
@@ -86,6 +105,70 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
+<<<<<<< HEAD
+=======
+      // Re-validates against Cognito (getSession refreshes silently when only the
+      // id/access token expired). Returns false and clears the session when the
+      // refresh token is gone — i.e. the session is truly expired.
+      //
+      // Avoids hitting `get-user-by-sub` on every call: it only resolves the
+      // domain user ID (the expensive backend call) when we don't already have
+      // it. Once resolved it is carried over, so repeated validations from the
+      // session-expiry watcher stay purely local to Cognito.
+      validateSession: async () => {
+        const current = get().session;
+        if (!current) {
+          return false;
+        }
+
+        // Social / Hosted-UI sessions (e.g. Google) are NOT stored in the
+        // amazon-cognito-identity-js user pool, so `getCurrentUser()` can't see
+        // them and `getValidSession()` would always return null — wrongly
+        // logging the user out right after login. Validate these locally by the
+        // token's expiry and refresh through the OAuth token endpoint instead.
+        if (current.user.provider !== 'email') {
+          const expiresAtMs = current.expiresAt ? new Date(current.expiresAt).getTime() : 0;
+          if (expiresAtMs - Date.now() > EXPIRY_SKEW_MS) {
+            return true;
+          }
+
+          const refreshed = current.refreshToken
+            ? await refreshOAuthSession(current.refreshToken)
+            : null;
+          if (refreshed) {
+            const next = {
+              ...refreshed,
+              domainUserId: current.domainUserId ?? refreshed.domainUserId,
+            };
+            set({ session: next });
+            persistToken(next.token);
+            return true;
+          }
+
+          set({ session: null });
+          persistToken(null);
+          return false;
+        }
+
+        const previousDomainUserId = current.domainUserId;
+        const session = previousDomainUserId
+          ? await authService.getValidSession()
+          : await authService.restoreSession();
+
+        if (session) {
+          const next = previousDomainUserId
+            ? { ...session, domainUserId: previousDomainUserId }
+            : session;
+          set({ session: next });
+          persistToken(next.token);
+          return true;
+        }
+        set({ session: null });
+        persistToken(null);
+        return false;
+      },
+
+>>>>>>> origin/develop
       logout: async () => {
         await authService.logout();
         set({ session: null });

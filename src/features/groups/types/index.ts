@@ -27,6 +27,10 @@ export interface Group {
   adminId: string;
   memberCount: number;
   createdAt: string;
+<<<<<<< HEAD
+=======
+  tournamentId: string;
+>>>>>>> origin/develop
 }
 
 export interface GroupMember {
@@ -43,7 +47,14 @@ export interface StandingRow {
   userId: string;
   name: string;
   points: number;
+<<<<<<< HEAD
   predictedMatches: number;
+=======
+  /** Current consecutive-hit streak. */
+  streak: number;
+  /** Best streak reached in this tournament. */
+  maxStreak: number;
+>>>>>>> origin/develop
 }
 
 export interface PendingMatch {

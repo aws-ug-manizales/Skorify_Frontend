@@ -27,14 +27,25 @@
   "admin": {
     "title": "Panel de Administración",
     "subtitle": "Gestiona usuarios, partidos, grupos y torneos",
+<<<<<<< HEAD
     "workingMessage": "En construcción: aquí los administradores podrán gestionar el contenido y la comunidad de Skorify."
+=======
+    "workingMessage": "En construcción: aquí los administradores podrán gestionar el contenido y la comunidad de Skorify.",
+    "statsUsersTotal": "Usuarios totales",
+    "statsUsersActive": "Usuarios activos",
+    "statsTournamentsActive": "Torneos en curso",
+    "statsTournamentsActiveHint": "de {total} en total"
+>>>>>>> origin/develop
   },
   "nav": {
     "home": "Inicio",
     "predictions": "Predicciones",
     "matches": "Partidos",
     "matchesList": "Partidos",
+<<<<<<< HEAD
     "loadResults": "Cargar resultados",
+=======
+>>>>>>> origin/develop
     "results": "Resultados",
     "admin": "Administrador",
     "users": "Usuarios",
@@ -63,8 +74,14 @@
     "modifierGoalCount": "Goles anotados"
   },
   "profile": {
+<<<<<<< HEAD
     "title": "Tu perfil",
     "subtitle": "Tu carrera Skorify",
+=======
+    "eyebrow": "Perfil",
+    "title": "Tu perfil",
+    "subtitle": "Gestiona tu identidad y revisa los datos de tu cuenta Skorify.",
+>>>>>>> origin/develop
     "totalPointsLabel": "Puntaje total",
     "editProfile": "Editar perfil",
     "editPersonalData": "Editar datos personales",
@@ -72,6 +89,26 @@
     "handleLabel": "Apodo",
     "emailLabel": "Correo electrónico",
     "saveChanges": "Guardar cambios",
+<<<<<<< HEAD
+=======
+    "identityTitle": "Identidad",
+    "identitySubtitle": "Así te verán los demás en Skorify.",
+    "displayNameLabel": "Nombre para mostrar",
+    "displayNameHint": "Es el nombre que aparece en tus predicciones y rankings.",
+    "photoComingSoonTitle": "¡Muy pronto! ✨",
+    "photoComingSoonBody": "Estamos preparando nuevas funciones para que personalices tu foto de perfil y hagas tu experiencia aún más tuya. ¡Mantente atento! ⚽",
+    "saving": "Guardando…",
+    "saved": "Perfil actualizado",
+    "saveError": "No se pudo actualizar el perfil",
+    "accountTitle": "Cuenta",
+    "accountSubtitle": "Información asociada a tu acceso.",
+    "signInMethodLabel": "Método de acceso",
+    "providerEmail": "Correo y contraseña",
+    "providerGoogle": "Google",
+    "memberSinceLabel": "Miembro desde",
+    "emailVerified": "Verificado",
+    "emailUnverified": "Sin verificar",
+>>>>>>> origin/develop
     "stats": {
       "title": "Estadísticas",
       "exact": "Exactos",
@@ -87,14 +124,23 @@
       "rank": "Puesto #{rank}",
       "members": "{count, plural, one {# miembro} other {# miembros}}",
       "emptyTitle": "Aún no estás en ningún grupo",
+<<<<<<< HEAD
       "emptySubtitle": "Crea uno y empieza a competir con tus amigos.",
       "emptyCta": "Crear mi primer grupo",
+=======
+      "emptySubtitle": "Únete a un grupo para empezar a competir con tus amigos.",
+>>>>>>> origin/develop
       "viewAll": "Ver todos"
     }
   },
   "auth": {
     "title": "Accede a Skorify",
     "subtitle": "Regístrate o inicia sesión.",
+<<<<<<< HEAD
+=======
+    "heroTitle": "El pulso de la <hl>arena</hl> te espera",
+    "heroSubtitle": "Únete a la plataforma definitiva de predicciones deportivas. Domina el tablero, desafía a tus grupos y vive cada partido con máxima intensidad.",
+>>>>>>> origin/develop
     "login": "Iniciar sesión",
     "logout": "Cerrar sesión",
     "register": "Registrarse",
@@ -118,6 +164,14 @@
     "passwordMismatch": "Las contraseñas no coinciden",
     "nicknameLabel": "Nombre de usuario",
     "nicknamePlaceholder": "ej. golazo_24",
+<<<<<<< HEAD
+=======
+    "sessionExpired": {
+      "title": "Tu sesión expiró",
+      "message": "Por seguridad, tu sesión se cerró por inactividad. Vuelve a iniciar sesión para continuar. Te redirigiremos al inicio de sesión en unos segundos.",
+      "cta": "Ir al inicio de sesión"
+    },
+>>>>>>> origin/develop
     "errors": {
       "invalidEmail": "Correo electrónico inválido",
       "passwordMin": "La contraseña debe tener al menos 8 caracteres",
@@ -126,6 +180,10 @@
       "passwordResetRequired": "Debes restablecer tu contraseña antes de continuar",
       "formInvalid": "Corrige los errores del formulario",
       "emailTaken": "Este correo ya está registrado",
+<<<<<<< HEAD
+=======
+      "emailRegisteredWithGoogle": "Ya existe una cuenta con este correo. Inicia sesión con Google.",
+>>>>>>> origin/develop
       "emailMustBeUnique": "El correo debe ser único",
       "invalidCredentials": "Correo o contraseña incorrectos",
       "userNotConfirmed": "Confirma tu cuenta para poder iniciar sesión",
@@ -150,6 +208,14 @@
       "loggedIn": "Inicio de sesión exitoso",
       "googleLoggedIn": "Sesión iniciada con Google"
     },
+<<<<<<< HEAD
+=======
+    "registeredModal": {
+      "title": "¡Cuenta creada!",
+      "message": "Tu cuenta se creó correctamente. Ya puedes iniciar sesión con tus credenciales.",
+      "cta": "Ir a iniciar sesión"
+    },
+>>>>>>> origin/develop
     "confirm": {
       "title": "Confirma tu cuenta",
       "description": "Te enviamos un código a {email}. Ingrésalo para activar tu cuenta.",
@@ -171,8 +237,13 @@
   "predictions": {
     "title": "Mis predicciones",
     "pageTitle": "Próximos partidos",
+<<<<<<< HEAD
     "instanceSelectLabel": "Instancia de torneo",
     "instanceSelectPlaceholder": "Selecciona una instancia",
+=======
+    "instanceSelectLabel": "Tus grupos",
+    "instanceSelectPlaceholder": "Selecciona un grupo",
+>>>>>>> origin/develop
     "noEnrollments": "Aún no estás inscrito en ningún torneo. Únete a un grupo para empezar a predecir.",
     "make": "Hacer predicción",
     "home": "Local",
@@ -187,6 +258,10 @@
     "closesIn": "Cierra en",
     "matchStartsIn": "El partido empieza en",
     "closed": "Cerrado",
+<<<<<<< HEAD
+=======
+    "open": "Abierto",
+>>>>>>> origin/develop
     "predictCta": "Predecir",
     "editCta": "Editar",
     "saveCta": "Guardar",
@@ -197,12 +272,17 @@
     "noMatches": "No hay partidos que coincidan con tu búsqueda.",
     "matchesCount": "{count, plural, =0 {sin partidos} =1 {1 partido pendiente} other {# partidos pendientes}}",
     "clearSearchAriaLabel": "Limpiar búsqueda",
+<<<<<<< HEAD
     "openTab": "Abiertos",
     "closedTab": "Cerrados",
     "openPanelTitle": "Partidos abiertos",
     "closedPanelTitle": "Partidos cerrados",
     "noOpenMatches": "No hay partidos abiertos para predecir.",
     "noClosedMatches": "No hay partidos cerrados aún.",
+=======
+    "openPanelTitle": "Partidos abiertos",
+    "noOpenMatches": "No hay partidos abiertos para predecir.",
+>>>>>>> origin/develop
     "predictionSaved": "Predicción guardada",
     "modalConfirmMessage": "Tu predicción quedó registrada. Puedes editarla hasta que el partido cierre.",
     "undoPrediction": "Deshacer",
@@ -210,6 +290,10 @@
     "overwriteTitle": "Editar predicción",
     "overwriteMessage": "¿Deseas sobreescribir tu predicción actual?",
     "editCancelledToast": "Edición cancelada. Tu predicción original no fue modificada.",
+<<<<<<< HEAD
+=======
+    "noChangesToast": "No cambiaste ningún valor de tu predicción.",
+>>>>>>> origin/develop
     "saveErrorToast": "No se pudo guardar tu predicción. Intenta de nuevo.",
     "savedMessages": [
       "¡El más veloz del oeste!",
@@ -222,7 +306,11 @@
     "scoreRules": {
       "pointsFormat": "+{score, plural, one {1 pt} other {# pts}}",
       "winnerTitle": "Ganador",
+<<<<<<< HEAD
       "winnerDescription": "Acertar qué equipo gana el partido.",
+=======
+      "winnerDescription": "Acertar el ganador o si es empate.",
+>>>>>>> origin/develop
       "lopsidedTitle": "Marcador abultado",
       "lopsidedDescription": "Sumas un punto extra si aciertas el marcador exacto en partidos de 4 goles o más.",
       "eachHitTitle": "Goles por equipo",
@@ -257,9 +345,16 @@
     "tournamentPlaceholder": "Selecciona un torneo",
     "tournamentRequired": "Selecciona un torneo",
     "noTournaments": "No hay torneos disponibles. Crea uno primero.",
+<<<<<<< HEAD
     "homeTeamLabel": "Equipo local (ID)",
     "awayTeamLabel": "Equipo visitante (ID)",
     "teamIdPlaceholder": "Ej. team-colombia",
+=======
+    "homeTeamLabel": "Equipo local",
+    "awayTeamLabel": "Equipo visitante",
+    "teamIdPlaceholder": "Busca un equipo",
+    "noTeams": "No hay equipos disponibles.",
+>>>>>>> origin/develop
     "homeTeamRequired": "El equipo local es requerido",
     "awayTeamRequired": "El equipo visitante es requerido",
     "kickOffLabel": "Fecha y hora de inicio",
@@ -269,7 +364,44 @@
     "venuePlaceholder": "Ej. Estadio El Campín",
     "submit": "Crear partido",
     "successTitle": "Partido creado",
+<<<<<<< HEAD
     "successMessage": "El partido se registró correctamente en el backend."
+=======
+    "successMessage": "El partido se registró correctamente en el backend.",
+    "actions": {
+      "menuLabel": "Acciones del partido",
+      "editAction": "Editar partido",
+      "closeAction": "Cerrar partido",
+      "calculateAction": "Calcular puntaje",
+      "bulkCloseAction": "Cerrar partidos",
+      "selectTournamentPrompt": "Selecciona un torneo para ver sus partidos.",
+      "editTitle": "Editar partido",
+      "closeTitle": "Cerrar partido",
+      "closeDescription": "Cierra el partido para apuestas. Opcionalmente registra el marcador final.",
+      "calculateTitle": "Calcular puntaje",
+      "calculateDescription": "Recalcula los puntos de las predicciones para una instancia de torneo.",
+      "bulkCloseTitle": "Cerrar varios partidos",
+      "bulkCloseDescription": "Selecciona los partidos que deseas cerrar.",
+      "bulkCloseEmpty": "No hay partidos pendientes por cerrar.",
+      "statusLabel": "Estado",
+      "status_draft": "Borrador",
+      "status_scheduled": "Programado",
+      "status_in_progress": "En curso",
+      "homeScoreLabel": "Goles local",
+      "awayScoreLabel": "Goles visitante",
+      "instanceLabel": "Instancia de torneo",
+      "noInstances": "No hay instancias para este torneo.",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "confirmClose": "Cerrar",
+      "confirmCalculate": "Calcular",
+      "editSuccess": "Partido actualizado correctamente.",
+      "closeSuccess": "Partido cerrado correctamente.",
+      "calculateSuccess": "Puntaje calculado correctamente.",
+      "bulkCloseSuccess": "{count} partido(s) cerrado(s).",
+      "actionError": "No se pudo completar la acción. Intenta de nuevo."
+    }
+>>>>>>> origin/develop
   },
   "matches": {
     "title": "Partidos",
@@ -292,6 +424,11 @@
     "live": "En vivo",
     "finished": "Finalizados",
     "worldcup": "Copa del Mundo FIFA 2026",
+<<<<<<< HEAD
+=======
+    "stageGroup": "Fase de grupos",
+    "stageFinals": "Finales",
+>>>>>>> origin/develop
     "groupStage": "Fase de grupos",
     "roundOf16": "Octavos de final",
     "resultForm": {
@@ -353,6 +490,10 @@
     "join": "Unirse",
     "view": "Ver torneo",
     "viewDetail": "Ver detalle",
+<<<<<<< HEAD
+=======
+    "viewMatches": "Ver partidos",
+>>>>>>> origin/develop
     "participants": "participantes",
     "endsIn": "Termina en",
     "startsIn": "Inicia en",
@@ -386,6 +527,10 @@
     "startDateLabel": "Fecha de inicio",
     "endDateLabel": "Fecha de finalización",
     "startDateRequired": "La fecha de inicio es requerida",
+<<<<<<< HEAD
+=======
+    "startDateInPast": "La fecha de inicio no puede ser anterior al día actual",
+>>>>>>> origin/develop
     "endDateRequired": "La fecha de finalización es requerida",
     "endDateBeforeStart": "La fecha de finalización debe ser posterior a la fecha de inicio",
     "adminInfoBefore": "Solo los",
@@ -406,7 +551,15 @@
       "tokenLabel": "Token",
       "joinCta": "Unirme",
       "createGroupCta": "Crear grupo",
+<<<<<<< HEAD
       "finishedHint": "Este torneo ya finalizó."
+=======
+      "finishedHint": "Este torneo ya finalizó.",
+      "joinSuccess": "Te uniste al torneo.",
+      "joinAlready": "Ya estás inscrito en este torneo.",
+      "joinError": "No se pudo completar la inscripción. Intenta de nuevo.",
+      "alreadyJoinedHint": "Ya te encuentras en el grupo general de este torneo."
+>>>>>>> origin/develop
     }
   },
   "groups": {
@@ -467,6 +620,12 @@
     "linkCopied": "¡Link copiado!",
     "shareWhatsApp": "Compartir por WhatsApp",
     "standingsTitle": "Tabla de Posiciones",
+<<<<<<< HEAD
+=======
+    "upcomingMatchesTitle": "Próximos partidos",
+    "upcomingMatchesEmpty": "No hay próximos partidos.",
+    "upcomingMatchesLoading": "Cargando próximos partidos...",
+>>>>>>> origin/develop
     "predictionsCardTitle": "Próximos partidos",
     "predictionsCardSubtitle": "Haz tus predicciones y suma puntos",
     "predictionsCardCta": "Ir a predicciones",
@@ -487,6 +646,10 @@
     "colPoints": "Pts",
     "standingsRefresh": "Actualizar clasificación",
     "colPredictedMatches": "Predichos",
+<<<<<<< HEAD
+=======
+    "colStreak": "Racha",
+>>>>>>> origin/develop
     "colWon": "V",
     "colDrawn": "E",
     "colLost": "D",
@@ -540,6 +703,11 @@
   },
   "userProfile": {
     "backToGroups": "Volver a grupos",
+<<<<<<< HEAD
+=======
+    "unavailableTitle": "Perfil no disponible",
+    "unavailableSubtitle": "Aún no podemos mostrar la información de este perfil.",
+>>>>>>> origin/develop
     "publicProfileLabel": "Perfil público",
     "memberSince": "Miembro desde {date}",
     "totalPoints": "Puntos",
@@ -555,12 +723,17 @@
   },
   "dashboard": {
     "title": "Panel de Control",
+<<<<<<< HEAD
     "liveStatus": "Motor en línea • Latencia 14ms",
+=======
+    "liveStatus": "Motor en línea",
+>>>>>>> origin/develop
     "lastUpdate": "Última actualización",
     "totalUsers": "Usuarios totales",
     "activePredictions": "Predicciones activas",
     "matchesToday": "Partidos hoy",
     "recentEvents": "Eventos recientes",
+<<<<<<< HEAD
     "viewAll": "Ver todos los eventos",
     "analyticsTitle": "Analítica de tráfico",
     "analyticsSubtitle": "Actividad en las últimas 24 horas",
@@ -576,6 +749,14 @@
     "event2Time": "Hace 5 horas",
     "event3Text": "Predicciones cerradas - La Liga J28",
     "event3Time": "Ayer",
+=======
+    "analyticsTitle": "Analítica de tráfico",
+    "analyticsSubtitle": "Actividad en las últimas 24 horas",
+    "badgeRealtime": "Tiempo real",
+    "badgeLive": "En vivo",
+    "noData": "Sin datos disponibles",
+    "noEvents": "Sin eventos recientes",
+>>>>>>> origin/develop
     "quickActions": "Acciones rápidas",
     "actions": {
       "users": "Usuarios",
@@ -595,6 +776,23 @@
     "defaultUser": "predictor",
     "createGroup": "Crear grupo",
     "joinGroup": "Unirme a un grupo",
+<<<<<<< HEAD
+=======
+    "tour": {
+      "startCta": "Ver tutorial",
+      "next": "Siguiente",
+      "prev": "Anterior",
+      "done": "Entendido",
+      "tournamentsTitle": "Torneos disponibles",
+      "tournamentsDesc": "Aquí encuentras los torneos activos en los que puedes participar.",
+      "openTitle": "Abre un torneo",
+      "openDesc": "Haz clic en un torneo para ver su detalle.",
+      "joinTitle": "Únete al torneo",
+      "joinDesc": "Al pulsar \"Unirme\" entras automáticamente a los grupos del torneo.",
+      "groupsTitle": "Tus grupos",
+      "groupsDesc": "Y aquí, al lado, verás los grupos a los que perteneces."
+    },
+>>>>>>> origin/develop
     "myGroupsTitle": "Mis grupos",
     "myGroupsEmpty": "Aún no estás en ningún grupo. Crea uno o únete con un código.",
     "groupRank": "Posición #{rank} · {members} miembros",
@@ -752,6 +950,16 @@
     "accuracy": "tasa de aciertos",
     "suspendUser": "Suspender",
     "activateUser": "Activar",
+<<<<<<< HEAD
+=======
+    "reactivateUnavailable": "La reactivación no está disponible todavía",
+    "confirmSuspendTitle": "Suspender usuario",
+    "confirmSuspendMessage": "Esto suspenderá a {name} mediante borrado lógico. No se puede revertir desde el panel. ¿Continuar?",
+    "confirmSuspendCta": "Suspender",
+    "cancel": "Cancelar",
+    "suspendSuccess": "Usuario suspendido",
+    "suspendError": "No se pudo suspender el usuario",
+>>>>>>> origin/develop
     "table": {
       "name": "Nombre",
       "email": "Correo",

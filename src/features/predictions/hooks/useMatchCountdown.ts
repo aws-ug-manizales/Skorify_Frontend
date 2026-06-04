@@ -1,6 +1,10 @@
 'use client';
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+<<<<<<< HEAD
+=======
+import type { MatchStatus } from '@lib/api/skorify';
+>>>>>>> origin/develop
 
 export const LOCK_THRESHOLD_MS = 600_000; // 10 min
 
@@ -10,6 +14,18 @@ export const LOCK_THRESHOLD_MS = 600_000; // 10 min
  */
 export const isMatchLocked = (kickOff: string, reference: Date = new Date()): boolean =>
   new Date(kickOff).getTime() - reference.getTime() <= LOCK_THRESHOLD_MS;
+<<<<<<< HEAD
+=======
+
+// Statuses past the open-for-prediction window. `draft`/`scheduled` stay open
+// (subject to the time lock); from kickoff onward (in_progress) and beyond a
+// match is shown but can no longer be predicted.
+const CLOSED_FOR_PREDICTION: MatchStatus[] = ['in_progress', 'finished', 'calculated', 'cancelled'];
+
+/** True when the match status alone closes it for prediction. */
+export const isStatusClosedForPrediction = (status?: MatchStatus): boolean =>
+  !!status && CLOSED_FOR_PREDICTION.includes(status);
+>>>>>>> origin/develop
 const MS_PER_SECOND = 1000;
 const MS_PER_MINUTE = 60 * MS_PER_SECOND;
 const MS_PER_HOUR = 60 * MS_PER_MINUTE;

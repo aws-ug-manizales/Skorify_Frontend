@@ -54,9 +54,39 @@ export interface RegisterUserPayload {
   email: string;
 }
 
+<<<<<<< HEAD
 // ──────────────────────────── Match ───────────────────────────
 
 export type MatchStatus = 'draft' | 'scheduled' | 'in_progress' | 'finished' | 'cancelled';
+=======
+export interface GetUserBySubPayload {
+  sub: string;
+}
+
+export interface GetUserBySubResult {
+  id: Id;
+  name: string;
+  is_active: boolean;
+  notification_token: string | null;
+  email: string;
+  sub: string;
+  image: string | null;
+  role: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+// ──────────────────────────── Match ───────────────────────────
+
+export type MatchStatus =
+  | 'draft'
+  | 'scheduled'
+  | 'in_progress'
+  | 'finished'
+  | 'calculated'
+  | 'cancelled';
+>>>>>>> origin/develop
 export type MatchStage = 'group' | 'finals';
 
 export interface MatchDto {
@@ -68,6 +98,12 @@ export interface MatchDto {
   homeScore?: number;
   awayScore?: number;
   status: MatchStatus;
+<<<<<<< HEAD
+=======
+  // `get-matches-by-tournament-id` serializes the status as `_status`
+  // (a private entity field), so consumers must fall back to it.
+  _status?: MatchStatus;
+>>>>>>> origin/develop
   stage?: MatchStage;
   venue?: string | null;
   createdAt: string;
@@ -100,6 +136,18 @@ export interface GetMatchesByTournamentIdParams {
   tournamentId: Id;
 }
 
+<<<<<<< HEAD
+=======
+// get-matches-by-tournament-id now returns each match joined with its resolved
+// home/away team (name + shield), so the frontend no longer resolves team
+// names separately.
+export interface MatchWithTeamsDto {
+  match: MatchDto;
+  homeTeam: TeamDto;
+  awayTeam: TeamDto;
+}
+
+>>>>>>> origin/develop
 export interface CalculateMatchScorePayload {
   matchId: Id;
   tournamentInstanceId: Id;
@@ -225,6 +273,10 @@ export interface SimulatePredictionResult {
 export interface TeamDto {
   id: Id;
   name: string;
+<<<<<<< HEAD
+=======
+  code?: string;
+>>>>>>> origin/develop
   shieldUrl?: string;
   createdAt: string;
 }
@@ -258,6 +310,7 @@ export type MatchType = 'single_match_per_round' | 'home_and_away_per_round';
 export interface TournamentDto {
   id: Id;
   name: string;
+<<<<<<< HEAD
   start_date: string | null;
   end_date: string | null;
   match_type: MatchType | null;
@@ -265,6 +318,18 @@ export interface TournamentDto {
   created_at: string;
   updated_at: string | null;
   deleted_at: string | null;
+=======
+  startDate: string | null;
+  endDate: string | null;
+  matchType: MatchType | null;
+  token: string;
+  createdAt: string;
+  updatedAt: string | null;
+  deletedAt: string | null;
+  // Id of the auto-created "Global" tournament instance. Present on the
+  // get-available-tournaments response; used to enroll a user directly.
+  globalInstanceId?: string | null;
+>>>>>>> origin/develop
 }
 
 export interface CreateTournamentPayload {
@@ -272,6 +337,12 @@ export interface CreateTournamentPayload {
   matchType: MatchType;
   startDate: string;
   endDate: string;
+<<<<<<< HEAD
+=======
+  // Owner of the tournament; the backend validates this user exists and uses it
+  // as the owner of the auto-created global tournament instance.
+  userId: Id;
+>>>>>>> origin/develop
 }
 
 export interface GetTournamentByIdParams {
@@ -338,8 +409,19 @@ export interface GetCurrentRankingParams {
 export interface RankingItemDto {
   userId: Id;
   userName: string;
+<<<<<<< HEAD
   position: number | null;
   points: number;
+=======
+  // Both positions are 1-based; the backend sends `-1` when a standing hasn't
+  // been calculated yet. `lastPosition` is the position before the latest score
+  // calculation, used to animate rank changes.
+  currentPosition: number;
+  lastPosition: number;
+  score: number;
+  points: number;
+  maxStreak: number;
+>>>>>>> origin/develop
   streak: number;
 }
 
@@ -404,6 +486,11 @@ export const skorifyEndpoints = {
   user: {
     create: '/user/create-user',
     getById: '/user/get-user-by-id',
+<<<<<<< HEAD
+=======
+    getBySub: '/user/get-user-by-sub',
+    getAvailable: '/user/get-available-users',
+>>>>>>> origin/develop
     registerNotificationToken: '/user/register-notification-token',
     delete: '/user/delete-user',
     register: '/user/register-user',

@@ -13,6 +13,10 @@ const mapInstanceToGroup = (instance: TournamentInstanceDto): Group => ({
   adminId: instance.ownerId,
   memberCount: 1,
   createdAt: instance.createdAt,
+<<<<<<< HEAD
+=======
+  tournamentId: instance.tournamentId,
+>>>>>>> origin/develop
 });
 
 interface CreateGroupInput extends CreateGroupPayload {

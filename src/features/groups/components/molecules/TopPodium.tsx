@@ -23,7 +23,12 @@ interface TopPodiumProps {
   pointsLabel: string;
 }
 
+<<<<<<< HEAD
 const sortTop3 = (rows: StandingRow[]) => [...rows].sort((a, b) => b.points - a.points).slice(0, 3);
+=======
+const sortTop3 = (rows: StandingRow[]) =>
+  [...rows].sort((a, b) => a.rank - b.rank || b.points - a.points).slice(0, 3);
+>>>>>>> origin/develop
 const idsKey = (rows: StandingRow[]) => rows.map((r) => r.userId).join('|');
 
 type Step = {
@@ -188,7 +193,11 @@ const TopPodium = ({
     // FLIP requires measuring DOM after layout, then driving spark visuals from
     // the measured coordinates — setState here is the synchronization with the
     // external (DOM) system.
+<<<<<<< HEAD
     // eslint-disable-next-line react-hooks/set-state-in-effect
+=======
+     
+>>>>>>> origin/develop
     setSparks(newSparks);
     prevPositions.current.clear();
 
@@ -212,6 +221,39 @@ const TopPodium = ({
     };
   }, [displayed]);
 
+<<<<<<< HEAD
+=======
+  // Entrance: when there's no reorder to animate, pop the podium steps in on
+  // mount (replays on each fresh load / data change via the parent's `key`).
+  // useLayoutEffect sets the initial state before paint to avoid a flash.
+  useLayoutEffect(() => {
+    if (orderChanged) return;
+    displayed.forEach((row, i) => {
+      const el = stepRefs.current.get(row.userId);
+      if (!el) return;
+      animate(el, {
+        scale: [0.6, 1],
+        opacity: [0, 1],
+        translateY: [16, 0],
+        duration: 600,
+        delay: i * 90,
+        ease: 'outBack(1.6)',
+      });
+    });
+    if (fireRef.current) {
+      animate(fireRef.current, {
+        scale: [0, 1.4, 1],
+        rotate: [-20, 10, 0],
+        duration: 700,
+        delay: displayed.length * 90,
+        ease: 'outElastic(1, 0.5)',
+      });
+    }
+    // Mount-only entrance; deps intentionally empty.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+>>>>>>> origin/develop
   const order = useMemo(() => buildOrder(displayed), [displayed]);
   if (order.length === 0) return null;
 

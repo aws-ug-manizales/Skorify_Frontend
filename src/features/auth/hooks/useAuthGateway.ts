@@ -8,6 +8,12 @@ import { useTranslations } from 'next-intl';
 import { loginSchema, registerFormSchema } from '../lib/schemas';
 import type { RegisterFormInput } from '../lib/schemas';
 import { useAuthStore } from '../store/useAuthStore';
+<<<<<<< HEAD
+=======
+import { useNotification, NotificationType } from '@shared/notifications';
+import { TOUR_LOGIN_FLAG } from '@features/dashboard/tourFlag';
+import { JOIN_CODE_PARAM, PENDING_JOIN_CODE_KEY } from '@features/groups/joinFlag';
+>>>>>>> origin/develop
 
 type Mode = 'login' | 'register' | 'confirm';
 type TransitionPhase = 'idle' | 'exiting' | 'entering';
@@ -46,6 +52,10 @@ export const useAuthGateway = () => {
   const router = useRouter();
   const t = useTranslations('auth');
   const tRoot = useTranslations();
+<<<<<<< HEAD
+=======
+  const { show: notify } = useNotification();
+>>>>>>> origin/develop
 
   const [mode, setMode] = useState<Mode>('login');
   const [pendingMode, setPendingMode] = useState<Mode | null>(null);
@@ -104,6 +114,18 @@ export const useAuthGateway = () => {
     clearErrors();
   }, [mode, clearErrors]);
 
+<<<<<<< HEAD
+=======
+  // Persist an invite code arriving on the `/auth?joinCode=` URL so the join
+  // flow survives the (possibly OAuth) login and the dashboard can resume it.
+  // Read from window.location to avoid needing a Suspense boundary.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const code = new URLSearchParams(window.location.search).get(JOIN_CODE_PARAM);
+    if (code) sessionStorage.setItem(PENDING_JOIN_CODE_KEY, code);
+  }, []);
+
+>>>>>>> origin/develop
   const transitionTo = useCallback(
     (next: Mode, dir: 'forward' | 'backward') => {
       if (next === mode || isTransitioning) return;
@@ -179,18 +201,47 @@ export const useAuthGateway = () => {
         return;
       }
 
+<<<<<<< HEAD
+=======
+      if (mode === 'register') {
+        reset();
+        notify({
+          type: NotificationType.MODAL,
+          titleKey: 'auth.registeredModal.title',
+          messageKey: 'auth.registeredModal.message',
+          actions: [
+            {
+              labelKey: 'auth.registeredModal.cta',
+              onClick: () => {
+                transitionTo('login', 'backward');
+              },
+            },
+          ],
+        });
+        return;
+      }
+
+>>>>>>> origin/develop
       if (result.session) {
         setNotice({
           type: 'success',
           text: translateKey(result.messageKey, t('sessionCreated')),
         });
         reset();
+<<<<<<< HEAD
+=======
+        sessionStorage.setItem(TOUR_LOGIN_FLAG, '1');
+>>>>>>> origin/develop
         router.replace('/home');
       }
     },
     [
       loginWithEmail,
       mode,
+<<<<<<< HEAD
+=======
+      notify,
+>>>>>>> origin/develop
       registerWithEmail,
       reset,
       router,

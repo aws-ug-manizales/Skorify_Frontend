@@ -1,5 +1,6 @@
 'use client';
 
+<<<<<<< HEAD
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
@@ -10,6 +11,14 @@ import { tokens } from '@lib/theme/theme';
 import MatchCountdown from '../atoms/MatchCountdown';
 import TeamLabel from '../atoms/TeamLabel';
 import useMatchCountdown from '../../hooks/useMatchCountdown';
+=======
+import { useLocale, useTranslations } from 'next-intl';
+import AppButton from '@shared/components/atoms/AppButton';
+import MatchCard from '@features/matches/components/molecules/MatchCard';
+import { formatKickoff } from '@features/matches/utils/formatKickoff';
+import type { Match } from '@features/matches';
+import useMatchCountdown, { isStatusClosedForPrediction } from '../../hooks/useMatchCountdown';
+>>>>>>> origin/develop
 import type { PredictionMatch } from '../../types/prediction';
 
 interface MatchPredictionCardProps {
@@ -18,6 +27,10 @@ interface MatchPredictionCardProps {
   initialHomeGoals?: number;
   initialAwayGoals?: number;
   onOpenPrediction: (match: PredictionMatch) => void;
+<<<<<<< HEAD
+=======
+  tournamentLabel?: string;
+>>>>>>> origin/develop
 }
 
 const MatchPredictionCard = ({
@@ -26,6 +39,7 @@ const MatchPredictionCard = ({
   initialHomeGoals,
   initialAwayGoals,
   onOpenPrediction,
+<<<<<<< HEAD
 }: MatchPredictionCardProps) => {
   const t = useTranslations('predictions');
   const { isLocked } = useMatchCountdown(match.date);
@@ -97,11 +111,60 @@ const MatchPredictionCard = ({
 
       {!isLocked && (
         <Box sx={{ display: 'flex', justifyContent: 'center', px: 2, pb: 2.5, pt: 0 }}>
+=======
+  tournamentLabel,
+}: MatchPredictionCardProps) => {
+  const t = useTranslations('predictions');
+  const tMatches = useTranslations('matches');
+  const locale = useLocale();
+  const { isLocked: timeLocked } = useMatchCountdown(match.date);
+  // A match is closed for prediction once it's within the lock window OR its
+  // status has moved to in_progress/finished — shown, but no longer predictable.
+  const isLocked = timeLocked || isStatusClosedForPrediction(match.status);
+
+  const prediction =
+    isSaved && initialHomeGoals !== undefined && initialAwayGoals !== undefined
+      ? { home: initialHomeGoals, away: initialAwayGoals }
+      : undefined;
+
+  // Map the prediction match onto the shape the shared MatchCard expects so the
+  // predictions list looks exactly like the matches list. The real match score
+  // isn't available here, so we keep the status as "upcoming" (VS view) and let
+  // the saved prediction render as the prediction badge.
+  const mappedMatch: Match = {
+    id: match.id,
+    tournamentKey: '',
+    stageKey: match.stageKey ?? 'group',
+    status: 'upcoming',
+    kickoffAt: match.date,
+    homeTeamId: '',
+    awayTeamId: '',
+    homeTeam: { name: match.homeTeam, image: match.homeTeamFlag, code: '' },
+    awayTeam: { name: match.awayTeam, image: match.awayTeamFlag, code: '' },
+    score: undefined,
+    prediction,
+  };
+
+  const stageLabel = match.stageKey === 'finals' ? tMatches('stageFinals') : tMatches('stageGroup');
+
+  return (
+    <MatchCard
+      match={mappedMatch}
+      tournamentLabel={tournamentLabel ?? ''}
+      stageLabel={stageLabel}
+      statusLabel={isLocked ? t('closed') : t('open')}
+      kickoffLabel={formatKickoff(match.date, locale)}
+      vsLabel={tMatches('vs')}
+      predictionLabel={tMatches('predictionLabel')}
+      footer={
+        !isLocked ? (
+>>>>>>> origin/develop
           <AppButton
             variant="primary"
             size="small"
             type="button"
             onClick={() => onOpenPrediction(match)}
+<<<<<<< HEAD
             sx={{ minWidth: 180 }}
           >
             {isSaved ? t('editCta') : t('predictCta')}
@@ -109,6 +172,14 @@ const MatchPredictionCard = ({
         </Box>
       )}
     </AppCard>
+=======
+          >
+            {isSaved ? t('editCta') : t('predictCta')}
+          </AppButton>
+        ) : undefined
+      }
+    />
+>>>>>>> origin/develop
   );
 };
 

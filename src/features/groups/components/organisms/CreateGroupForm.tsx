@@ -18,6 +18,10 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import FormField, { type FormFieldOption } from '@shared/components/atoms/FormField';
 import AppButton from '@shared/components/atoms/AppButton';
 import { tokens } from '@lib/theme/theme';
+<<<<<<< HEAD
+=======
+import { useApiErrorMessage } from '@lib/api';
+>>>>>>> origin/develop
 import { useGetAvailableTournaments } from '@features/tournaments/hooks/useGetAvailableTournaments';
 import useCreateGroup from '../../hooks/useCreateGroup';
 import type { CreateGroupFormValues } from '../../types';
@@ -28,6 +32,10 @@ const CreateGroupForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { createGroup, isLoading, error } = useCreateGroup();
+<<<<<<< HEAD
+=======
+  const formatApiError = useApiErrorMessage();
+>>>>>>> origin/develop
   const { data: tournaments, isLoading: tournamentsLoading } = useGetAvailableTournaments();
 
   // Lazy init: read tournamentId from the URL on first mount only. Subsequent
@@ -257,7 +265,11 @@ const CreateGroupForm = () => {
       {/* Error */}
       {error && (
         <Alert severity="error" sx={{ mt: 2, borderRadius: '10px' }}>
+<<<<<<< HEAD
           {error.message}
+=======
+          {formatApiError(error)}
+>>>>>>> origin/develop
         </Alert>
       )}
 

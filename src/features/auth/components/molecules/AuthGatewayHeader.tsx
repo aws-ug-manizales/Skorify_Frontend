@@ -19,8 +19,16 @@ const AuthGatewayHeader = ({ title, subtitle }: AuthGatewayHeaderProps) => (
         fontSize: '1.5rem',
         fontWeight: 900,
         letterSpacing: '-0.04em',
+<<<<<<< HEAD
         color: tokens.primary,
         textTransform: 'uppercase',
+=======
+        textTransform: 'uppercase',
+        background: tokens.ctaGradient,
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        backgroundClip: 'text',
+>>>>>>> origin/develop
       }}
     >
       {title}

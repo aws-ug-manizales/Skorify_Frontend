@@ -1,6 +1,9 @@
 'use client';
 
+<<<<<<< HEAD
 import Link from 'next/link';
+=======
+>>>>>>> origin/develop
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
@@ -8,11 +11,17 @@ import Dialog from '@mui/material/Dialog';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
+<<<<<<< HEAD
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import { useTranslations } from 'next-intl';
 import { tokens } from '@lib/theme/theme';
 import AppButton from '@shared/components/atoms/AppButton';
+=======
+import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
+import { useTranslations } from 'next-intl';
+import { tokens } from '@lib/theme/theme';
+>>>>>>> origin/develop
 import { getAvatarColor, getInitials } from '@shared/utils/string';
 import type { GroupMember } from '../../types';
 
@@ -202,6 +211,7 @@ const MemberDetailDialog = ({ open, member, isCurrentUser, onClose }: MemberDeta
             small
           />
         </Box>
+<<<<<<< HEAD
 
         <AppButton
           component={Link}
@@ -212,6 +222,8 @@ const MemberDetailDialog = ({ open, member, isCurrentUser, onClose }: MemberDeta
         >
           {t('viewProfile')}
         </AppButton>
+=======
+>>>>>>> origin/develop
       </Box>
     </Dialog>
   );

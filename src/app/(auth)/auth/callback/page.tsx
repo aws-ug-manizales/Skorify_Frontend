@@ -10,6 +10,10 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { useAuthStore } from '@features/auth/store/useAuthStore';
 import { exchangeAuthorizationCode } from '@features/auth/lib/oauth';
+<<<<<<< HEAD
+=======
+import { TOUR_LOGIN_FLAG } from '@features/dashboard/tourFlag';
+>>>>>>> origin/develop
 
 const AuthCallbackContent = () => {
   const router = useRouter();
@@ -40,6 +44,10 @@ const AuthCallbackContent = () => {
       try {
         const session = await exchangeAuthorizationCode(code);
         setSession(session);
+<<<<<<< HEAD
+=======
+        sessionStorage.setItem(TOUR_LOGIN_FLAG, '1');
+>>>>>>> origin/develop
         router.replace('/home');
       } catch (err) {
         const message =

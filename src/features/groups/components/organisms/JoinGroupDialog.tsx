@@ -14,9 +14,17 @@ import JoinGroupFlow from './JoinGroupFlow';
 interface JoinGroupDialogProps {
   open: boolean;
   onClose: () => void;
+<<<<<<< HEAD
 }
 
 const JoinGroupDialog = ({ open, onClose }: JoinGroupDialogProps) => {
+=======
+  /** Prefills the invite code (e.g. when resuming a join after login). */
+  initialCode?: string;
+}
+
+const JoinGroupDialog = ({ open, onClose, initialCode }: JoinGroupDialogProps) => {
+>>>>>>> origin/develop
   const t = useTranslations('groups.join');
 
   return (
@@ -102,7 +110,11 @@ const JoinGroupDialog = ({ open, onClose }: JoinGroupDialogProps) => {
           }}
         >
           <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
+<<<<<<< HEAD
             <JoinGroupFlow />
+=======
+            <JoinGroupFlow initialCode={initialCode} />
+>>>>>>> origin/develop
           </CardContent>
         </Card>
 

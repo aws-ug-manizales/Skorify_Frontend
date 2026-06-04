@@ -10,7 +10,10 @@ import type { Match, MatchStatus } from '../../types';
 import TeamBlock from '../atoms/TeamBlock';
 import ScoreOrVs from '../atoms/ScoreOrVs';
 import MatchStatusChip from '../atoms/MatchStatusChip';
+<<<<<<< HEAD
 import AppButton from '@shared/components/atoms/AppButton';
+=======
+>>>>>>> origin/develop
 import { useTranslations } from 'next-intl';
 import {
   evaluatePrediction,
@@ -32,11 +35,15 @@ type Props = {
   statusLabel: string;
   kickoffLabel: string;
   vsLabel: string;
-  addPredictionLabel: string;
-  editPredictionLabel: string;
   predictionLabel: string;
-  onAddPrediction?: (match: Match) => void;
-  onEditPrediction?: (match: Match) => void;
+  actions?: React.ReactNode;
+  /** Optional content rendered at the bottom of the card (e.g. a predict button). */
+  footer?: React.ReactNode;
+  /**
+   * Whether to show the prediction/result/points row. Hidden in views where
+   * predictions don't apply (e.g. the admin matches list). Defaults to true.
+   */
+  showPrediction?: boolean;
 };
 
 const MatchCard = ({
@@ -46,11 +53,10 @@ const MatchCard = ({
   statusLabel,
   kickoffLabel,
   vsLabel,
-  addPredictionLabel,
-  editPredictionLabel,
   predictionLabel,
-  onAddPrediction,
-  onEditPrediction,
+  actions,
+  footer,
+  showPrediction = true,
 }: Props) => {
   const tResults = useTranslations('results');
   const meta = STATUS_META[match.status];
@@ -88,11 +94,16 @@ const MatchCard = ({
         }}
       />
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <Box
+        sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}
+      >
         <Box sx={{ bgcolor: tokens.surfaceContainerHigh, p: 1, borderRadius: '8px' }}>
           <StatusIcon sx={{ color: meta.color, fontSize: '1.25rem', display: 'block' }} />
         </Box>
-        <MatchStatusChip status={match.status} label={statusLabel} />
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <MatchStatusChip status={match.status} label={statusLabel} />
+          {actions}
+        </Box>
       </Box>
 
       <Box>
@@ -121,11 +132,23 @@ const MatchCard = ({
           gap: 1,
         }}
       >
-        <TeamBlock name={match.homeTeam.name} code={match.homeTeam.code} />
+        <TeamBlock
+          name={match.homeTeam.name}
+          code={match.homeTeam.code}
+          image={match.homeTeam.image}
+          loading={match.homeTeam.loading}
+        />
         <ScoreOrVs showScore={showScore} score={match.score} vsLabel={vsLabel} />
-        <TeamBlock name={match.awayTeam.name} code={match.awayTeam.code} align="right" />
+        <TeamBlock
+          name={match.awayTeam.name}
+          code={match.awayTeam.code}
+          image={match.awayTeam.image}
+          loading={match.awayTeam.loading}
+          align="right"
+        />
       </Box>
 
+<<<<<<< HEAD
       <Box
         sx={{
           display: 'flex',
@@ -209,10 +232,50 @@ const MatchCard = ({
                 ) : null}
 
                 {/* 2. Badge de Resultado: [X INCORRECTO] */}
+=======
+      {showPrediction && (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            gap: 1,
+            alignItems: { xs: 'stretch', sm: 'center' },
+            justifyContent: 'space-between',
+          }}
+        >
+          {match.status === 'finished' ? (
+            (() => {
+              const predictionResult = match.score
+                ? evaluatePrediction(match.score, match.prediction)
+                : 'no-prediction';
+              const resultColor = getPredictionResultColor(predictionResult);
+              const resultIcon = getPredictionResultIcon(predictionResult);
+              const resultLabel = (() => {
+                switch (predictionResult) {
+                  case 'exact':
+                    return tResults('exact') || 'Acierto exacto';
+                  case 'partial':
+                    return tResults('partial') || 'Acierto parcial';
+                  case 'wrong':
+                    return tResults('wrong') || 'Incorrecto';
+                  case 'no-prediction':
+                  default:
+                    return tResults('noPrediction') || 'Sin predicción';
+                }
+              })();
+
+              const totalPoints =
+                match.score && match.prediction
+                  ? calculatePredictionPoints(match.score, match.prediction).totalPoints
+                  : 0;
+
+              return (
+>>>>>>> origin/develop
                 <Box
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
+<<<<<<< HEAD
                     gap: 0.75,
                     bgcolor: `${resultColor}12`,
                     color: resultColor,
@@ -232,13 +295,64 @@ const MatchCard = ({
 
                 {/* 3. Badge de Puntaje Ganado: [+2 PTS] */}
                 {match.prediction ? (
+=======
+                    flexWrap: 'wrap',
+                    gap: 1.25,
+                  }}
+                >
+                  {/* 1. Badge de Predicción: [TU PREDICCIÓN 0 - 0] */}
+                  {match.prediction ? (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        bgcolor: `${tokens.primary}0F`,
+                        border: `1px solid ${tokens.primary}33`,
+                        borderRadius: '6px',
+                        px: 1.5,
+                        py: 0.75,
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontSize: '0.6875rem',
+                          fontWeight: 800,
+                          letterSpacing: '0.08em',
+                          textTransform: 'uppercase',
+                          color: tokens.primary,
+                        }}
+                      >
+                        Tu predicción
+                      </Typography>
+                      <Typography
+                        sx={{
+                          color: tokens.onSurface,
+                          fontWeight: 900,
+                          fontSize: '0.875rem',
+                          ml: 0.5,
+                        }}
+                      >
+                        {match.prediction.home} - {match.prediction.away}
+                      </Typography>
+                    </Box>
+                  ) : null}
+
+                  {/* 2. Badge de Resultado: [X INCORRECTO] */}
+>>>>>>> origin/develop
                   <Box
                     sx={{
                       display: 'flex',
                       alignItems: 'center',
                       gap: 0.75,
+<<<<<<< HEAD
                       bgcolor: `${totalPoints > 0 ? tokens.primary : tokens.onSurfaceVariant}12`,
                       border: `1px solid ${totalPoints > 0 ? tokens.primary : tokens.onSurfaceVariant}33`,
+=======
+                      bgcolor: `${resultColor}12`,
+                      color: resultColor,
+                      border: `1px solid ${resultColor}40`,
+>>>>>>> origin/develop
                       borderRadius: '6px',
                       px: 1.5,
                       py: 0.75,
@@ -246,6 +360,7 @@ const MatchCard = ({
                       fontWeight: 800,
                       textTransform: 'uppercase',
                       letterSpacing: '0.08em',
+<<<<<<< HEAD
                       color: totalPoints > 0 ? tokens.primary : tokens.onSurfaceVariant,
                     }}
                   >
@@ -290,14 +405,74 @@ const MatchCard = ({
             }}
           >
             <Typography
+=======
+                    }}
+                  >
+                    <span>{resultIcon}</span>
+                    {resultLabel}
+                  </Box>
+
+                  {/* 3. Badge de Puntaje Ganado: [+2 PTS] */}
+                  {match.prediction ? (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.75,
+                        bgcolor: `${totalPoints > 0 ? tokens.primary : tokens.onSurfaceVariant}12`,
+                        border: `1px solid ${totalPoints > 0 ? tokens.primary : tokens.onSurfaceVariant}33`,
+                        borderRadius: '6px',
+                        px: 1.5,
+                        py: 0.75,
+                        fontSize: '0.6875rem',
+                        fontWeight: 800,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.08em',
+                        color: totalPoints > 0 ? tokens.primary : tokens.onSurfaceVariant,
+                      }}
+                    >
+                      {totalPoints > 0 ? `+${totalPoints}` : '0'} {totalPoints === 1 ? 'pt' : 'pts'}
+                    </Box>
+                  ) : (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.75,
+                        bgcolor: `${tokens.onSurfaceVariant}12`,
+                        border: `1px solid ${tokens.onSurfaceVariant}33`,
+                        borderRadius: '6px',
+                        px: 1.5,
+                        py: 0.75,
+                        fontSize: '0.6875rem',
+                        fontWeight: 800,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.08em',
+                        color: tokens.onSurfaceVariant,
+                      }}
+                    >
+                      0 pts
+                    </Box>
+                  )}
+                </Box>
+              );
+            })()
+          ) : hasPrediction ? (
+            <Box
+>>>>>>> origin/develop
               sx={{
-                fontSize: '0.6875rem',
-                fontWeight: 800,
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                color: tokens.primary,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: { xs: 'space-between', sm: 'flex-start' },
+                gap: 1.25,
+                bgcolor: `${tokens.primaryContainer}1A`,
+                border: `1px solid ${tokens.outlineVariant}26`,
+                borderRadius: 2,
+                px: 1.25,
+                py: 0.75,
               }}
             >
+<<<<<<< HEAD
               {predictionLabel}
             </Typography>
             <Typography sx={{ color: tokens.onSurface, fontWeight: 900, fontSize: '0.95rem' }}>
@@ -324,9 +499,30 @@ const MatchCard = ({
             >
               {hasPrediction ? editPredictionLabel : addPredictionLabel}
             </AppButton>
+=======
+              <Typography
+                sx={{
+                  fontSize: '0.6875rem',
+                  fontWeight: 800,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  color: tokens.primary,
+                }}
+              >
+                {predictionLabel}
+              </Typography>
+              <Typography sx={{ color: tokens.onSurface, fontWeight: 900, fontSize: '0.95rem' }}>
+                {match.prediction?.home ?? 0} - {match.prediction?.away ?? 0}
+              </Typography>
+            </Box>
+          ) : (
+            <Box />
+>>>>>>> origin/develop
           )}
         </Box>
-      </Box>
+      )}
+
+      {footer && <Box sx={{ mt: 'auto', pt: 0.5 }}>{footer}</Box>}
     </Box>
   );
 };

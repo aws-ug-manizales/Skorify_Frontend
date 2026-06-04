@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+<<<<<<< HEAD
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
@@ -13,15 +14,27 @@ import GroupsIcon from '@mui/icons-material/Groups';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
+=======
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import PersonOffIcon from '@mui/icons-material/PersonOff';
+>>>>>>> origin/develop
 import { useTranslations } from 'next-intl';
 import { tokens } from '@lib/theme/theme';
 import AppButton from '@shared/components/atoms/AppButton';
 import AppCard from '@shared/components/molecules/AppCard';
+<<<<<<< HEAD
 import { getAvatarColor, getInitials } from '@shared/utils/string';
+=======
+
+>>>>>>> origin/develop
 interface UserPublicProfileProps {
   userId: string;
 }
 
+<<<<<<< HEAD
 interface PublicProfileGroup {
   id: string;
   name: string;
@@ -63,6 +76,10 @@ const buildEmptyProfile = (userId: string): PublicProfile => ({
 const UserPublicProfile = ({ userId }: UserPublicProfileProps) => {
   const t = useTranslations('userProfile');
   const profile = buildEmptyProfile(userId);
+=======
+const UserPublicProfile = ({}: UserPublicProfileProps) => {
+  const t = useTranslations('userProfile');
+>>>>>>> origin/develop
 
   return (
     <Box sx={{ p: { xs: 2.5, md: 4 }, maxWidth: 1100, mx: 'auto' }}>
@@ -78,6 +95,7 @@ const UserPublicProfile = ({ userId }: UserPublicProfileProps) => {
         </AppButton>
       </Box>
 
+<<<<<<< HEAD
       <Box
         sx={{
           position: 'relative',
@@ -352,10 +370,43 @@ const UserPublicProfile = ({ userId }: UserPublicProfileProps) => {
           </AppCard>
         </Grid>
       </Grid>
+=======
+      <AppCard>
+        <Stack
+          alignItems="center"
+          spacing={1.5}
+          sx={{ py: { xs: 6, md: 8 }, px: 3, textAlign: 'center' }}
+        >
+          <Box
+            sx={{
+              width: 64,
+              height: 64,
+              borderRadius: '50%',
+              bgcolor: tokens.surfaceContainerHigh,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <PersonOffIcon sx={{ color: tokens.onSurfaceVariant, fontSize: 32 }} />
+          </Box>
+          <Typography sx={{ fontWeight: 800, fontSize: '1.125rem', color: tokens.onSurface }}>
+            {t('unavailableTitle')}
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{ color: tokens.onSurfaceVariant, maxWidth: 360, lineHeight: 1.5 }}
+          >
+            {t('unavailableSubtitle')}
+          </Typography>
+        </Stack>
+      </AppCard>
+>>>>>>> origin/develop
     </Box>
   );
 };
 
+<<<<<<< HEAD
 interface StatCardProps {
   label: string;
   value: string;
@@ -422,4 +473,6 @@ const StatCard = ({ label, value, Icon, accent }: StatCardProps) => (
   </Grid>
 );
 
+=======
+>>>>>>> origin/develop
 export default UserPublicProfile;

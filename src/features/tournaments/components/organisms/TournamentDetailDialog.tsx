@@ -1,8 +1,14 @@
 'use client';
 
+<<<<<<< HEAD
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import JoinGroupDialog from '@features/groups/components/organisms/JoinGroupDialog';
+=======
+import { useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthSession } from '@features/auth';
+>>>>>>> origin/develop
 import { useLocale, useTranslations } from 'next-intl';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
@@ -15,14 +21,28 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import AddIcon from '@mui/icons-material/Add';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+<<<<<<< HEAD
+=======
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+>>>>>>> origin/develop
 import CloseIcon from '@mui/icons-material/Close';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
+<<<<<<< HEAD
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import AppButton from '@shared/components/atoms/AppButton';
 import { tokens } from '@lib/theme/theme';
 import { useGetTournamentById } from '../../hooks/useGetTournamentById';
+=======
+import AppButton from '@shared/components/atoms/AppButton';
+import useSnackbar from '@shared/hooks/useSnackbar';
+import { tokens } from '@lib/theme/theme';
+import { useCurrentUserId } from '@features/auth/hooks/useCurrentUserId';
+import { useGetUserEnrollmentsByUserId } from '@features/groups/hooks/useGetUserEnrollmentsByUserId';
+import { useGetTournamentById } from '../../hooks/useGetTournamentById';
+import { useJoinTournament } from '../../hooks/useJoinTournament';
+>>>>>>> origin/develop
 
 type TournamentStatus = 'active' | 'upcoming' | 'finished';
 
@@ -45,30 +65,88 @@ interface TournamentDetailDialogProps {
   open: boolean;
   onClose: () => void;
   tournamentId: string | null;
+<<<<<<< HEAD
 }
 
 const TournamentDetailDialog = ({ open, onClose, tournamentId }: TournamentDetailDialogProps) => {
+=======
+  /** Global tournament instance the user is enrolled into when joining. */
+  globalInstanceId?: string | null;
+  /** Called after a successful enrollment so callers can refresh their data (e.g. the user's groups). */
+  onJoined?: () => void;
+}
+
+const TournamentDetailDialog = ({
+  open,
+  onClose,
+  tournamentId,
+  globalInstanceId,
+  onJoined,
+}: TournamentDetailDialogProps) => {
+>>>>>>> origin/develop
   const t = useTranslations('tournaments');
   const tDetail = useTranslations('tournaments.detail');
   const locale = useLocale();
   const router = useRouter();
+<<<<<<< HEAD
 
   const { data, isLoading, error, getTournamentById, reset } = useGetTournamentById();
   const [joinDialogOpen, setJoinDialogOpen] = useState(false);
+=======
+  const snackbar = useSnackbar();
+  const { canCreateGroups } = useAuthSession();
+
+  const userId = useCurrentUserId();
+  const { data, isLoading, error, getTournamentById, reset } = useGetTournamentById();
+  const { joinTournament, isLoading: isJoining } = useJoinTournament();
+  const { getUserEnrollmentsByUserId, data: enrollments } = useGetUserEnrollmentsByUserId();
+
+  // The user is already in the tournament's general group when one of their
+  // enrollments points to this tournament's global instance.
+  const alreadyJoined = useMemo(
+    () =>
+      !!globalInstanceId &&
+      enrollments.some((enrollment) => enrollment.tournamentInstanceId === globalInstanceId),
+    [enrollments, globalInstanceId],
+  );
+>>>>>>> origin/develop
 
   const isFinished = useMemo(() => {
     if (!data) return false;
     // Treat missing/invalid dates as finished too — same rule as the list view
     // so a tournament without valid dates can't be joined or used as a group base.
+<<<<<<< HEAD
     if (!data.end_date) return true;
     const end = new Date(data.end_date);
+=======
+    if (!data.endDate) return true;
+    const end = new Date(data.endDate);
+>>>>>>> origin/develop
     if (Number.isNaN(end.getTime())) return true;
     return end < new Date();
   }, [data]);
 
+<<<<<<< HEAD
   const handleJoin = () => {
     if (isFinished) return;
     setJoinDialogOpen(true);
+=======
+  // Joins the tournament's global instance directly — no invite code needed.
+  const handleJoin = async () => {
+    if (isFinished) return;
+    const result = await joinTournament(globalInstanceId);
+    if (result === 'joined') {
+      snackbar.success(tDetail('joinSuccess'));
+      onJoined?.();
+      onClose();
+    } else if (result === 'already') {
+      snackbar.info(tDetail('joinAlready'));
+      onJoined?.();
+      onClose();
+    } else {
+      snackbar.error(tDetail('joinError'));
+    }
+>>>>>>> origin/develop
   };
 
   const handleCreateGroup = () => {
@@ -83,6 +161,14 @@ const TournamentDetailDialog = ({ open, onClose, tournamentId }: TournamentDetai
   }, [getTournamentById, open, tournamentId]);
 
   useEffect(() => {
+<<<<<<< HEAD
+=======
+    if (!open || !userId) return;
+    void getUserEnrollmentsByUserId({ userId });
+  }, [open, userId, getUserEnrollmentsByUserId]);
+
+  useEffect(() => {
+>>>>>>> origin/develop
     if (!open) reset();
   }, [open, reset]);
 
@@ -147,6 +233,7 @@ const TournamentDetailDialog = ({ open, onClose, tournamentId }: TournamentDetai
 
           {data &&
             (() => {
+<<<<<<< HEAD
               const start = data.start_date ? new Date(data.start_date) : null;
               const end = data.end_date ? new Date(data.end_date) : null;
               const status = deriveStatus(start, end, new Date());
@@ -154,6 +241,15 @@ const TournamentDetailDialog = ({ open, onClose, tournamentId }: TournamentDetai
                 data.match_type === 'single_match_per_round'
                   ? 'matchTypeSingle'
                   : data.match_type === 'home_and_away_per_round'
+=======
+              const start = data.startDate ? new Date(data.startDate) : null;
+              const end = data.endDate ? new Date(data.endDate) : null;
+              const status = deriveStatus(start, end, new Date());
+              const matchTypeKey =
+                data.matchType === 'single_match_per_round'
+                  ? 'matchTypeSingle'
+                  : data.matchType === 'home_and_away_per_round'
+>>>>>>> origin/develop
                     ? 'matchTypeHomeAway'
                     : null;
 
@@ -216,12 +312,15 @@ const TournamentDetailDialog = ({ open, onClose, tournamentId }: TournamentDetai
                       label={tDetail('matchTypeLabel')}
                       value={matchTypeKey ? t(matchTypeKey) : '—'}
                     />
+<<<<<<< HEAD
                     <DetailRow
                       icon={<VpnKeyIcon sx={{ color: tokens.onSurfaceVariant }} />}
                       label={tDetail('tokenLabel')}
                       value={data.token}
                       monospace
                     />
+=======
+>>>>>>> origin/develop
                   </Stack>
                 </Stack>
               );
@@ -242,6 +341,7 @@ const TournamentDetailDialog = ({ open, onClose, tournamentId }: TournamentDetai
                 {tDetail('finishedHint')}
               </Typography>
             )}
+<<<<<<< HEAD
             <DialogActions sx={{ p: 0, gap: 1.5, flexDirection: { xs: 'column', sm: 'row' } }}>
               <AppButton
                 variant="secondary"
@@ -273,11 +373,76 @@ const TournamentDetailDialog = ({ open, onClose, tournamentId }: TournamentDetai
               >
                 {tDetail('createGroupCta')}
               </AppButton>
+=======
+            {alreadyJoined && !isFinished && (
+              <Stack
+                direction="row"
+                alignItems="center"
+                justifyContent="center"
+                gap={1}
+                sx={{
+                  mb: 1.5,
+                  px: 2,
+                  py: 1.25,
+                  borderRadius: '10px',
+                  bgcolor: `${tokens.success}1A`,
+                  border: `1px solid ${tokens.success}33`,
+                }}
+              >
+                <CheckCircleIcon sx={{ color: tokens.success, fontSize: '1.125rem' }} />
+                <Typography
+                  sx={{ fontSize: '0.8125rem', fontWeight: 600, color: tokens.onSurface }}
+                >
+                  {tDetail('alreadyJoinedHint')}
+                </Typography>
+              </Stack>
+            )}
+            <DialogActions sx={{ p: 0, gap: 1.5, flexDirection: { xs: 'column', sm: 'row' } }}>
+              {!alreadyJoined && (
+                <AppButton
+                  data-tour="join"
+                  variant="secondary"
+                  fullWidth
+                  loading={isJoining}
+                  disabled={isFinished || !globalInstanceId}
+                  startIcon={<GroupAddIcon sx={{ fontSize: '1rem' }} />}
+                  onClick={handleJoin}
+                  sx={{
+                    fontSize: '0.6875rem',
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    fontWeight: 700,
+                  }}
+                >
+                  {tDetail('joinCta')}
+                </AppButton>
+              )}
+              {canCreateGroups && (
+                <AppButton
+                  variant="primary"
+                  fullWidth
+                  disabled={isFinished}
+                  startIcon={<AddIcon sx={{ fontSize: '1rem' }} />}
+                  onClick={handleCreateGroup}
+                  sx={{
+                    fontSize: '0.6875rem',
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    fontWeight: 700,
+                  }}
+                >
+                  {tDetail('createGroupCta')}
+                </AppButton>
+              )}
+>>>>>>> origin/develop
             </DialogActions>
           </Box>
         )}
       </Dialog>
+<<<<<<< HEAD
       <JoinGroupDialog open={joinDialogOpen} onClose={() => setJoinDialogOpen(false)} />
+=======
+>>>>>>> origin/develop
     </>
   );
 };

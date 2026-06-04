@@ -1,11 +1,20 @@
 'use client';
 
+<<<<<<< HEAD
 import { useMemo, useState } from 'react';
+=======
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+>>>>>>> origin/develop
 import Box from '@mui/material/Box';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
+<<<<<<< HEAD
+=======
+import useMediaQuery from '@mui/material/useMediaQuery';
+>>>>>>> origin/develop
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CloseIcon from '@mui/icons-material/Close';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
@@ -27,6 +36,7 @@ import StandingsTable from './StandingsTable';
 import TopPodium from '../molecules/TopPodium';
 import { useMatchesList } from '@features/matches/hooks/useMatchesList';
 import FinishedMatchCard from '@features/matches/components/molecules/FinishedMatchCard';
+<<<<<<< HEAD
 import { formatKickoff } from '@features/matches/utils/formatKickoff';
 
 const getTournamentLabel = (key: string, t: (key: string) => string) => {
@@ -44,6 +54,12 @@ const getStageLabel = (key: string, t: (key: string) => string) => {
     return key;
   }
 };
+=======
+import MatchCard from '@features/matches/components/molecules/MatchCard';
+import { formatKickoff } from '@features/matches/utils/formatKickoff';
+import { useGetPredictionsByUser } from '@features/predictions/hooks/useGetPredictionsByUser';
+import { isMatchLocked } from '@features/predictions/hooks/useMatchCountdown';
+>>>>>>> origin/develop
 
 interface GroupDetailProps {
   groupId: string;
@@ -53,21 +69,114 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
   const t = useTranslations('groups');
   const tCommon = useTranslations('common');
   const m = useTranslations('matches');
+<<<<<<< HEAD
   const tResults = useTranslations('results');
   const locale = useLocale();
 
   const [activeTab, setActiveTab] = useState<'standings' | 'results'>('standings');
+=======
+  const p = useTranslations('predictions');
+  const tResults = useTranslations('results');
+  const locale = useLocale();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [activeTab, setActiveTab] = useState<'standings' | 'upcoming' | 'results'>(() => {
+    const tab = searchParams.get('tab');
+    return tab === 'upcoming' || tab === 'results' ? tab : 'standings';
+  });
+  const isDesktop = useMediaQuery('(min-width:900px)');
+
+  // On mobile, hide the members list on the matches/results tabs — it only adds
+  // noise there; keep it on desktop where it lives in a dedicated sidebar column.
+  const showMembers = isDesktop || activeTab === 'standings';
+>>>>>>> origin/develop
 
   const { data, isLoading, error, refetch } = useGroupDetail(groupId);
   const currentUserId = useCurrentUserId() ?? '';
 
+<<<<<<< HEAD
   const { items: matchItems, loading: loadingResults } = useMatchesList(20, 'filterFinished');
+=======
+  // Remount the podium/table whenever the ranking changes so their mount-time
+  // rank-change animation replays on each refetch (they only animate on mount).
+  const standingsKey = useMemo(
+    () => (data?.standings ?? []).map((s) => `${s.userId}:${s.rank}:${s.points}`).join('|'),
+    [data?.standings],
+  );
+
+  // Results tab: finished matches of this group's tournament, compared against
+  // the user's predictions in this group (the group is the tournament instance).
+  const { items: matchItems, loading: loadingResults } = useMatchesList(
+    20,
+    'filterFinished',
+    data?.group.tournamentId,
+  );
+
+  // Upcoming tab: every not-yet-finished match of this group's tournament, with
+  // the user's predictions attached when available. We fetch all statuses (large
+  // page size) and filter client-side so in-progress matches show too — they
+  // appear locked rather than being hidden.
+  const { items: upcomingItems, loading: loadingUpcoming } = useMatchesList(
+    200,
+    'filterAll',
+    data?.group.tournamentId,
+  );
+
+  const { getPredictionsByUser, data: userPredictions } = useGetPredictionsByUser();
+  useEffect(() => {
+    if (!currentUserId) return;
+    void getPredictionsByUser({ userId: currentUserId, tournamentInstanceId: groupId });
+  }, [currentUserId, groupId, getPredictionsByUser]);
+
+  const predictionByMatch = useMemo(() => {
+    const map: Record<string, { home: number; away: number }> = {};
+    (userPredictions ?? []).forEach((prediction) => {
+      map[prediction.matchId] = { home: prediction.homeScore, away: prediction.awayScore };
+    });
+    return map;
+  }, [userPredictions]);
+
+  // Backend verdict per match (the same values that feed the ranking).
+  const verdictByMatch = useMemo(() => {
+    const map: Record<string, { earnedPoints: number; hasExactResult: boolean }> = {};
+    (userPredictions ?? []).forEach((prediction) => {
+      map[prediction.matchId] = {
+        earnedPoints: prediction.earnedPoints,
+        hasExactResult: prediction.hasExactResult,
+      };
+    });
+    return map;
+  }, [userPredictions]);
+>>>>>>> origin/develop
 
   const finishedMatches = useMemo(() => {
     return [...matchItems]
       .filter((match) => match.status === 'finished')
+<<<<<<< HEAD
       .sort((a, b) => new Date(b.kickoffAt).getTime() - new Date(a.kickoffAt).getTime());
   }, [matchItems]);
+=======
+      .sort((a, b) => new Date(b.kickoffAt).getTime() - new Date(a.kickoffAt).getTime())
+      .map((match) => ({
+        ...match,
+        prediction: predictionByMatch[match.id] ?? match.prediction,
+      }));
+  }, [matchItems, predictionByMatch]);
+
+  const upcomingMatches = useMemo(() => {
+    // Show every match that hasn't finished (upcoming + in-progress/live).
+    // Matches within the lock window or already in progress still appear but
+    // are rendered non-predictable below, mirroring the predictions view.
+    return [...upcomingItems]
+      .filter((match) => match.status !== 'finished')
+      .sort((a, b) => new Date(a.kickoffAt).getTime() - new Date(b.kickoffAt).getTime())
+      .map((match) => ({
+        ...match,
+        prediction: predictionByMatch[match.id] ?? match.prediction,
+      }));
+  }, [upcomingItems, predictionByMatch]);
+>>>>>>> origin/develop
 
   const [shareOpen, setShareOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(() => {
@@ -136,12 +245,16 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
   return (
     <Box sx={{ p: { xs: 2, md: 3 } }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+<<<<<<< HEAD
         <GroupHeader
           group={data.group}
           isAdmin={isAdmin}
           onShare={() => setShareOpen(true)}
           onLeave={() => setLeaveOpen(true)}
         />
+=======
+        <GroupHeader group={data.group} isAdmin={isAdmin} onShare={() => setShareOpen(true)} />
+>>>>>>> origin/develop
 
         <Box
           sx={{
@@ -151,10 +264,20 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
             alignItems: 'stretch',
           }}
         >
+<<<<<<< HEAD
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             <Tabs
               value={activeTab}
               onChange={(_e, val) => setActiveTab(val)}
+=======
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0 }}>
+            <Tabs
+              value={activeTab}
+              onChange={(_e, val) => setActiveTab(val)}
+              variant="scrollable"
+              scrollButtons="auto"
+              allowScrollButtonsMobile
+>>>>>>> origin/develop
               sx={{
                 borderBottom: `1px solid ${tokens.outlineVariant}26`,
                 '& .MuiTabs-indicator': {
@@ -177,20 +300,36 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
               }}
             >
               <Tab value="standings" label={t('standingsTitle') || 'Clasificación'} />
+<<<<<<< HEAD
+=======
+              <Tab value="upcoming" label={t('upcomingMatchesTitle') || 'Próximos partidos'} />
+>>>>>>> origin/develop
               <Tab value="results" label={t('finishedMatchesTitle') || 'Resultados'} />
             </Tabs>
 
             {activeTab === 'standings' && (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                 <TopPodium
+<<<<<<< HEAD
                   standings={data.standings}
                   previousStandings={undefined}
+=======
+                  key={`podium-${standingsKey}`}
+                  standings={data.standings}
+                  previousStandings={data.previousStandings}
+>>>>>>> origin/develop
                   currentUserId={currentUserId}
                   pointsLabel={t('pointsLabel')}
                 />
                 <StandingsTable
+<<<<<<< HEAD
                   standings={data.standings}
                   previousStandings={undefined}
+=======
+                  key={`table-${standingsKey}`}
+                  standings={data.standings}
+                  previousStandings={data.previousStandings}
+>>>>>>> origin/develop
                   currentUserId={currentUserId}
                   onRefresh={refetch}
                   isRefreshing={isLoading}
@@ -198,6 +337,83 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
               </Box>
             )}
 
+<<<<<<< HEAD
+=======
+            {activeTab === 'upcoming' && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                {loadingUpcoming ? (
+                  <Box sx={{ p: 4, textAlign: 'center' }}>
+                    <Typography variant="body1" sx={{ color: tokens.onSurfaceVariant }}>
+                      {t('upcomingMatchesLoading')}
+                    </Typography>
+                  </Box>
+                ) : upcomingMatches.length === 0 ? (
+                  <Box sx={{ p: 4, textAlign: 'center' }}>
+                    <Typography variant="body1" sx={{ color: tokens.onSurfaceVariant }}>
+                      {t('upcomingMatchesEmpty')}
+                    </Typography>
+                  </Box>
+                ) : (
+                  <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: '1fr' }}>
+                    {upcomingMatches.map((match) => {
+                      // In-progress matches, or those within the 10-min lock
+                      // window, are shown but can't be predicted: skip the
+                      // click-through to the prediction drawer and dim the card.
+                      const locked = match.status === 'live' || isMatchLocked(match.kickoffAt);
+                      const card = (
+                        <MatchCard
+                          match={match}
+                          tournamentLabel={data.group.name}
+                          stageLabel={
+                            match.stageKey === 'finals' ? m('stageFinals') : m('stageGroup')
+                          }
+                          statusLabel={
+                            match.status === 'live'
+                              ? m('live')
+                              : locked
+                                ? p('closed')
+                                : m('upcoming')
+                          }
+                          kickoffLabel={formatKickoff(match.kickoffAt, locale)}
+                          vsLabel={m('vs')}
+                          predictionLabel={m('predictionLabel')}
+                        />
+                      );
+
+                      if (locked) {
+                        return (
+                          <Box key={match.id} sx={{ opacity: 0.7 }}>
+                            {card}
+                          </Box>
+                        );
+                      }
+
+                      return (
+                        <Box
+                          key={match.id}
+                          role="button"
+                          tabIndex={0}
+                          onClick={() =>
+                            router.push(`/predictions?group=${groupId}&match=${match.id}`)
+                          }
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              router.push(`/predictions?group=${groupId}&match=${match.id}`);
+                            }
+                          }}
+                          sx={{ cursor: 'pointer', borderRadius: '8px', outline: 'none' }}
+                        >
+                          {card}
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                )}
+              </Box>
+            )}
+
+>>>>>>> origin/develop
             {activeTab === 'results' && (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                 {loadingResults ? (
@@ -218,8 +434,15 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
                       <FinishedMatchCard
                         key={match.id}
                         match={match}
+<<<<<<< HEAD
                         tournamentLabel={getTournamentLabel(match.tournamentKey, m)}
                         stageLabel={getStageLabel(match.stageKey, m)}
+=======
+                        tournamentLabel={data.group.name}
+                        stageLabel={
+                          match.stageKey === 'finals' ? m('stageFinals') : m('stageGroup')
+                        }
+>>>>>>> origin/develop
                         kickoffLabel={formatKickoff(match.kickoffAt, locale)}
                         exactLabel={tResults('exact', { defaultValue: 'Acierto exacto' })}
                         partialLabel={tResults('partial', { defaultValue: 'Acierto parcial' })}
@@ -227,6 +450,11 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
                         noPredictionLabel={tResults('noPrediction', {
                           defaultValue: 'Sin predicción',
                         })}
+<<<<<<< HEAD
+=======
+                        earnedPoints={verdictByMatch[match.id]?.earnedPoints}
+                        hasExactResult={verdictByMatch[match.id]?.hasExactResult}
+>>>>>>> origin/develop
                       />
                     ))}
                   </Box>
@@ -236,7 +464,11 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
           </Box>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+<<<<<<< HEAD
             <MemberList members={data.members} currentUserId={currentUserId} />
+=======
+            {showMembers && <MemberList members={data.members} currentUserId={currentUserId} />}
+>>>>>>> origin/develop
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <AppCard variant="interactive" href="/predictions">
                 <Box

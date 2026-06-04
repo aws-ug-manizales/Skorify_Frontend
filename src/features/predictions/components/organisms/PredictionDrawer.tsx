@@ -260,6 +260,21 @@ const PredictionDrawer = ({
                 <TeamLabel name={match.awayTeam} flagUrl={match.awayTeamFlag} align="away" />
               </Box>
             </Stack>
+<<<<<<< HEAD
+=======
+
+            <Box sx={{ pt: 0.5 }}>
+              <AppButton
+                type="submit"
+                disabled={isSubmitting || !formState.isValid}
+                fullWidth
+                variant="primary"
+              >
+                {isSubmitting ? <CircularProgress size={18} color="inherit" /> : t('submit')}
+              </AppButton>
+            </Box>
+
+>>>>>>> origin/develop
             <Box>
               <Typography
                 sx={{
@@ -304,6 +319,7 @@ const PredictionDrawer = ({
                 description={t('scoreRules.streakDescription', { thresholds: streakThresholds })}
               />
             )}
+<<<<<<< HEAD
 
             <Box sx={{ mt: 'auto', pt: 1 }}>
               <AppButton
@@ -315,6 +331,8 @@ const PredictionDrawer = ({
                 {isSubmitting ? <CircularProgress size={18} color="inherit" /> : t('submit')}
               </AppButton>
             </Box>
+=======
+>>>>>>> origin/develop
           </Box>
         </Box>
       )}

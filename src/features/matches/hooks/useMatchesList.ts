@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Match } from '../types';
 import type { MatchesFilterKey } from '../components/molecules/MatchesFilters';
 import { matchesService } from '../services/matchesService';
@@ -19,6 +19,7 @@ type UseMatchesListState = {
   setPage: (page: number) => void;
   setPageSize: (pageSize: number) => void;
   resetFilters: () => void;
+  reload: () => void;
   loading: boolean;
   items: Match[];
   total: number;
@@ -27,6 +28,10 @@ type UseMatchesListState = {
 export const useMatchesList = (
   initialPageSize = 10,
   initialFilter: MatchesFilterKey = 'filterAll',
+<<<<<<< HEAD
+=======
+  tournamentId?: string,
+>>>>>>> origin/develop
 ): UseMatchesListState => {
   const [query, setQuery] = useState<MatchesQuery>({
     statusFilter: initialFilter,
@@ -39,6 +44,9 @@ export const useMatchesList = (
   const [items, setItems] = useState<Match[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [reloadToken, setReloadToken] = useState(0);
+
+  const userId = useCurrentUserId();
 
   const userId = useCurrentUserId();
 
@@ -46,6 +54,7 @@ export const useMatchesList = (
     const status = statusFromFilter(query.statusFilter);
     const { from, to } = worldCupWeekToFromToIso(Number(query.week));
     return {
+      tournamentId,
       page: query.page,
       pageSize: query.pageSize,
       status,
@@ -53,7 +62,7 @@ export const useMatchesList = (
       from,
       to,
     };
-  }, [query]);
+  }, [query, tournamentId]);
 
   useEffect(() => {
     let mounted = true;
@@ -73,7 +82,13 @@ export const useMatchesList = (
     return () => {
       mounted = false;
     };
+<<<<<<< HEAD
   }, [params, userId]);
+=======
+  }, [params, userId, reloadToken]);
+
+  const reload = useCallback(() => setReloadToken((token) => token + 1), []);
+>>>>>>> origin/develop
 
   const setStatusFilter = (filter: MatchesFilterKey) =>
     setQuery((q) => ({ ...q, statusFilter: filter, page: 1 }));
@@ -94,6 +109,7 @@ export const useMatchesList = (
     setPage,
     setPageSize,
     resetFilters,
+    reload,
     loading,
     items,
     total,

@@ -18,12 +18,21 @@ import AppButton from '@shared/components/atoms/AppButton';
 import AppCard from '@shared/components/molecules/AppCard';
 import PageHeader from '@shared/components/molecules/PageHeader';
 import { getInitials } from '@shared/utils/string';
+<<<<<<< HEAD
+=======
+import { useAuthSession } from '@features/auth';
+>>>>>>> origin/develop
 import CreateGroupDrawer from './CreateGroupDrawer';
 import { useUserGroups, type UserGroupSummary } from '../../hooks/useUserGroups';
 
 const numberFormatter = new Intl.NumberFormat('es-CO');
 
+<<<<<<< HEAD
 const colorForGroup = (id: string) => {
+=======
+const colorForGroup = (id: string | undefined) => {
+  if (!id) return avatarPalette[0];
+>>>>>>> origin/develop
   let hash = 0;
   for (let i = 0; i < id.length; i += 1) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
   return avatarPalette[hash % avatarPalette.length];
@@ -32,6 +41,10 @@ const colorForGroup = (id: string) => {
 const GroupsView = () => {
   const t = useTranslations('groups');
   const { groups, isLoading } = useUserGroups();
+<<<<<<< HEAD
+=======
+  const { canCreateGroups } = useAuthSession();
+>>>>>>> origin/develop
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
@@ -57,9 +70,17 @@ const GroupsView = () => {
         subtitle={isLoading ? t('subtitle') : t('listSubtitle', { count: groups.length })}
         icon={<GroupsIcon sx={{ color: tokens.primary, fontSize: '1rem' }} />}
         rightSlot={
+<<<<<<< HEAD
           <AppButton startIcon={<AddIcon />} onClick={() => setDrawerOpen(true)}>
             {t('create')}
           </AppButton>
+=======
+          canCreateGroups ? (
+            <AppButton startIcon={<AddIcon />} onClick={() => setDrawerOpen(true)}>
+              {t('create')}
+            </AppButton>
+          ) : undefined
+>>>>>>> origin/develop
         }
       />
 
@@ -72,7 +93,11 @@ const GroupsView = () => {
           ))}
         </Grid>
       ) : groups.length === 0 ? (
+<<<<<<< HEAD
         <EmptyState onCreate={() => setDrawerOpen(true)} t={t} />
+=======
+        <EmptyState onCreate={() => setDrawerOpen(true)} canCreate={canCreateGroups} t={t} />
+>>>>>>> origin/develop
       ) : (
         <Grid container spacing={2.5}>
           {groups.map((group) => (
@@ -83,7 +108,13 @@ const GroupsView = () => {
         </Grid>
       )}
 
+<<<<<<< HEAD
       <CreateGroupDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+=======
+      {canCreateGroups && (
+        <CreateGroupDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      )}
+>>>>>>> origin/develop
     </Box>
   );
 };
@@ -217,10 +248,18 @@ const GroupCard = ({ group, t }: GroupCardProps) => {
 
 interface EmptyStateProps {
   onCreate: () => void;
+<<<<<<< HEAD
   t: ReturnType<typeof useTranslations<'groups'>>;
 }
 
 const EmptyState = ({ onCreate, t }: EmptyStateProps) => (
+=======
+  canCreate: boolean;
+  t: ReturnType<typeof useTranslations<'groups'>>;
+}
+
+const EmptyState = ({ onCreate, canCreate, t }: EmptyStateProps) => (
+>>>>>>> origin/develop
   <AppCard>
     <Stack alignItems="center" spacing={2} sx={{ py: 6, px: 3, textAlign: 'center' }}>
       <Box
@@ -242,11 +281,21 @@ const EmptyState = ({ onCreate, t }: EmptyStateProps) => (
       <Typography variant="body2" sx={{ color: tokens.onSurfaceVariant, maxWidth: 360 }}>
         {t('pageEmptySubtitle')}
       </Typography>
+<<<<<<< HEAD
       <Box sx={{ pt: 1 }}>
         <AppButton startIcon={<AddIcon />} onClick={onCreate}>
           {t('pageEmptyCta')}
         </AppButton>
       </Box>
+=======
+      {canCreate && (
+        <Box sx={{ pt: 1 }}>
+          <AppButton startIcon={<AddIcon />} onClick={onCreate}>
+            {t('pageEmptyCta')}
+          </AppButton>
+        </Box>
+      )}
+>>>>>>> origin/develop
     </Stack>
   </AppCard>
 );

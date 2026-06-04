@@ -23,6 +23,16 @@ type Props = {
   partialLabel: string;
   wrongLabel: string;
   noPredictionLabel: string;
+<<<<<<< HEAD
+=======
+  /** Backend-awarded points for the user's prediction — the same value that
+   *  feeds the ranking (`earnedPoints`). When provided it's shown verbatim
+   *  instead of recomputing the score on the client. */
+  earnedPoints?: number;
+  /** Backend flag for an exact-score hit. Used together with `earnedPoints` to
+   *  derive the result label so it stays consistent with the ranking. */
+  hasExactResult?: boolean;
+>>>>>>> origin/develop
 };
 
 const FinishedMatchCard = ({
@@ -34,10 +44,30 @@ const FinishedMatchCard = ({
   partialLabel,
   wrongLabel,
   noPredictionLabel,
+<<<<<<< HEAD
 }: Props) => {
   const predictionResult: PredictionResult = match.score
     ? evaluatePrediction(match.score, match.prediction)
     : 'no-prediction';
+=======
+  earnedPoints,
+  hasExactResult,
+}: Props) => {
+  // Prefer the backend's verdict (exact / earned points) so the label matches
+  // the ranking; only fall back to the client-side evaluation when we don't
+  // have the backend data for this prediction.
+  const predictionResult: PredictionResult = !match.prediction
+    ? 'no-prediction'
+    : earnedPoints !== undefined
+      ? hasExactResult
+        ? 'exact'
+        : earnedPoints > 0
+          ? 'partial'
+          : 'wrong'
+      : match.score
+        ? evaluatePrediction(match.score, match.prediction)
+        : 'no-prediction';
+>>>>>>> origin/develop
 
   const resultColor = getPredictionResultColor(predictionResult);
   const resultIcon = getPredictionResultIcon(predictionResult);
@@ -58,11 +88,22 @@ const FinishedMatchCard = ({
 
   const resultLabel = getSafeLabel(predictionResult);
 
+<<<<<<< HEAD
   // Calcular puntos obtenidos
   const totalPoints =
     match.score && match.prediction
       ? calculatePredictionPoints(match.score, match.prediction).totalPoints
       : 0;
+=======
+  // Puntos obtenidos: preferimos el `earnedPoints` del backend (el mismo valor
+  // que alimenta el ranking) y solo recalculamos en el cliente como respaldo
+  // cuando no lo tenemos disponible.
+  const totalPoints =
+    earnedPoints ??
+    (match.score && match.prediction
+      ? calculatePredictionPoints(match.score, match.prediction).totalPoints
+      : 0);
+>>>>>>> origin/develop
 
   return (
     <Box
@@ -83,6 +124,7 @@ const FinishedMatchCard = ({
         },
       }}
     >
+<<<<<<< HEAD
       {/* Badge de estado finalizado */}
       <Box
         sx={{
@@ -124,6 +166,58 @@ const FinishedMatchCard = ({
         <Typography sx={{ color: tokens.onSurfaceVariant, fontSize: '0.75rem' }}>
           {kickoffLabel}
         </Typography>
+=======
+      {/* Encabezado del partido + badge de estado finalizado.
+          El badge va en el flujo (no absoluto) para que en móvil el nombre
+          del torneo no se sobremonte con él. */}
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          gap: 1,
+        }}
+      >
+        <Box sx={{ minWidth: 0 }}>
+          <Typography
+            sx={{
+              fontSize: '0.625rem',
+              color: tokens.onSurfaceVariant,
+              textTransform: 'uppercase',
+              letterSpacing: '0.12em',
+              fontWeight: 700,
+              mb: 0.5,
+            }}
+          >
+            {tournamentLabel} • {stageLabel}
+          </Typography>
+          <Typography sx={{ color: tokens.onSurfaceVariant, fontSize: '0.75rem' }}>
+            {kickoffLabel}
+          </Typography>
+        </Box>
+
+        <Box
+          sx={{
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 0.5,
+            bgcolor: `${tokens.success}1A`,
+            color: tokens.success,
+            px: 1.5,
+            py: 0.5,
+            borderRadius: '4px',
+            fontSize: '0.625rem',
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          <CheckCircleIcon sx={{ fontSize: '0.75rem' }} />
+          Finalizado
+        </Box>
+>>>>>>> origin/develop
       </Box>
 
       {/* Equipos y marcador */}

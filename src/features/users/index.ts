@@ -7,4 +7,9 @@ export type { User, UserStatus } from './types/user';
 
 export { useCreateUser } from './hooks/useCreateUser';
 export { useGetUserById } from './hooks/useGetUserById';
+<<<<<<< HEAD
+=======
+export { useGetAvailableUsers } from './hooks/useGetAvailableUsers';
+export { useDeleteUser } from './hooks/useDeleteUser';
+>>>>>>> origin/develop
 export { useRegisterNotificationToken } from './hooks/useRegisterNotificationToken';

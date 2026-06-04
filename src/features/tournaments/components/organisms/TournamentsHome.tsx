@@ -1,18 +1,33 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+<<<<<<< HEAD
+=======
+import { useRouter } from 'next/navigation';
+>>>>>>> origin/develop
 import { useLocale, useTranslations } from 'next-intl';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Skeleton from '@mui/material/Skeleton';
+<<<<<<< HEAD
+=======
+import Stack from '@mui/material/Stack';
+>>>>>>> origin/develop
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+<<<<<<< HEAD
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import AppButton from '@shared/components/atoms/AppButton';
+=======
+import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
+import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
+import AppButton from '@shared/components/atoms/AppButton';
+import Confetti from '@shared/components/organisms/Confetti';
+>>>>>>> origin/develop
 import { tokens, avatarPalette } from '@lib/theme/theme';
 import useSnackbar from '@shared/hooks/useSnackbar';
 import { useAuthSession } from '@features/auth/hooks/useAuthSession';
@@ -71,8 +86,13 @@ interface DerivedTournament {
 }
 
 const deriveTournament = (dto: TournamentDto, now: Date): DerivedTournament => {
+<<<<<<< HEAD
   const start = parseDate(dto.start_date);
   const end = parseDate(dto.end_date);
+=======
+  const start = parseDate(dto.startDate);
+  const end = parseDate(dto.endDate);
+>>>>>>> origin/develop
   const status = deriveStatus(start, end, now);
   const daysLeft =
     status === 'upcoming' && start
@@ -93,6 +113,10 @@ const deriveTournament = (dto: TournamentDto, now: Date): DerivedTournament => {
 const TournamentsHome = () => {
   const t = useTranslations('tournaments');
   const locale = useLocale();
+<<<<<<< HEAD
+=======
+  const router = useRouter();
+>>>>>>> origin/develop
   const { isAdmin } = useAuthSession();
   const snackbar = useSnackbar();
   const { data, isLoading, error, getAvailableTournaments } = useGetAvailableTournaments();
@@ -112,6 +136,10 @@ const TournamentsHome = () => {
   const [activeFilter, setActiveFilter] = useState<FilterKey>('filterAll');
   const [createOpen, setCreateOpen] = useState(false);
   const [detailId, setDetailId] = useState<string | null>(null);
+<<<<<<< HEAD
+=======
+  const [celebrate, setCelebrate] = useState(false);
+>>>>>>> origin/develop
 
   // Show one error toast per failed load (not on every re-render).
   useEffect(() => {
@@ -318,6 +346,7 @@ const TournamentsHome = () => {
                   </Typography>
                 </Box>
 
+<<<<<<< HEAD
                 <AppButton
                   variant="secondary"
                   fullWidth
@@ -332,6 +361,38 @@ const TournamentsHome = () => {
                 >
                   {t('viewDetail')}
                 </AppButton>
+=======
+                <Stack direction="row" spacing={1}>
+                  <AppButton
+                    variant="secondary"
+                    fullWidth
+                    startIcon={<VisibilityIcon sx={{ fontSize: '1rem' }} />}
+                    onClick={() => setDetailId(id)}
+                    sx={{
+                      fontSize: '0.6875rem',
+                      letterSpacing: '0.1em',
+                      textTransform: 'uppercase',
+                      fontWeight: 700,
+                    }}
+                  >
+                    {t('viewDetail')}
+                  </AppButton>
+                  <AppButton
+                    variant="secondary"
+                    fullWidth
+                    startIcon={<SportsSoccerIcon sx={{ fontSize: '1rem' }} />}
+                    onClick={() => router.push(`/matches?tournamentId=${id}`)}
+                    sx={{
+                      fontSize: '0.6875rem',
+                      letterSpacing: '0.1em',
+                      textTransform: 'uppercase',
+                      fontWeight: 700,
+                    }}
+                  >
+                    {t('viewMatches')}
+                  </AppButton>
+                </Stack>
+>>>>>>> origin/develop
               </Box>
             </Grid>
           ))}
@@ -342,14 +403,30 @@ const TournamentsHome = () => {
         <CreateTournamentDrawer
           open={createOpen}
           onClose={() => setCreateOpen(false)}
+<<<<<<< HEAD
           onCreated={() => void getAvailableTournaments()}
         />
       )}
 
+=======
+          onCreated={() => {
+            setCelebrate(true);
+            void getAvailableTournaments();
+          }}
+        />
+      )}
+
+      <Confetti active={celebrate} onComplete={() => setCelebrate(false)} />
+
+>>>>>>> origin/develop
       <TournamentDetailDialog
         open={detailId !== null}
         onClose={() => setDetailId(null)}
         tournamentId={detailId}
+<<<<<<< HEAD
+=======
+        globalInstanceId={data.find((tournament) => tournament.id === detailId)?.globalInstanceId}
+>>>>>>> origin/develop
       />
     </Box>
   );

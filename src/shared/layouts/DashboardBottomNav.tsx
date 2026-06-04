@@ -21,7 +21,10 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import GroupIcon from '@mui/icons-material/Group';
 import HomeIcon from '@mui/icons-material/Home';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
+<<<<<<< HEAD
 import UploadFileIcon from '@mui/icons-material/UploadFile';
+=======
+>>>>>>> origin/develop
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import { type SvgIconProps } from '@mui/material/SvgIcon';
 import Link from 'next/link';
@@ -32,14 +35,25 @@ type IconComponent = ComponentType<SvgIconProps>;
 type BottomNavLeaf = { key: string; href: string; Icon: IconComponent };
 type BottomNavItem = BottomNavLeaf & { children?: ReadonlyArray<BottomNavLeaf> };
 
+<<<<<<< HEAD
 const MATCHES_CHILDREN: ReadonlyArray<BottomNavLeaf> = [
   { key: 'matchesList', href: '/matches', Icon: CalendarMonthIcon },
+=======
+// The raw matches list (`matchesList`) is admin-only; general users and
+// managers only get predictions and results under the "matches" group.
+const MATCHES_CHILDREN: ReadonlyArray<BottomNavLeaf> = [
+>>>>>>> origin/develop
   { key: 'predictions', href: '/predictions', Icon: SportsSoccerIcon },
   { key: 'results', href: '/results', Icon: LeaderboardIcon },
 ];
 
 const MATCHES_ADMIN_CHILDREN: ReadonlyArray<BottomNavLeaf> = [
+<<<<<<< HEAD
   { key: 'loadResults', href: '/matches/load-results', Icon: UploadFileIcon },
+=======
+  { key: 'matchesList', href: '/matches', Icon: CalendarMonthIcon },
+  { key: 'results', href: '/results', Icon: LeaderboardIcon },
+>>>>>>> origin/develop
 ];
 
 const buildBottomNavItems = (isAdmin: boolean): ReadonlyArray<BottomNavItem> => [
@@ -48,9 +62,18 @@ const buildBottomNavItems = (isAdmin: boolean): ReadonlyArray<BottomNavItem> => 
     key: 'matches',
     href: '/matches',
     Icon: CalendarMonthIcon,
+<<<<<<< HEAD
     children: isAdmin ? [...MATCHES_CHILDREN, ...MATCHES_ADMIN_CHILDREN] : MATCHES_CHILDREN,
   },
   { key: 'tournaments', href: '/tournaments', Icon: EmojiEventsIcon },
+=======
+    children: isAdmin ? MATCHES_ADMIN_CHILDREN : MATCHES_CHILDREN,
+  },
+  // Tournaments management is admin-only.
+  ...(isAdmin
+    ? [{ key: 'tournaments', href: '/tournaments', Icon: EmojiEventsIcon } as BottomNavItem]
+    : []),
+>>>>>>> origin/develop
   { key: 'groups', href: '/groups', Icon: GroupIcon },
 ];
 

@@ -5,7 +5,11 @@ import { api } from '@lib/api';
 import {
   skorifyEndpoints,
   type GetMatchesByTournamentIdParams,
+<<<<<<< HEAD
   type MatchDto,
+=======
+  type MatchWithTeamsDto,
+>>>>>>> origin/develop
   type SkorifyEnvelope,
 } from '@lib/api/skorify';
 import type { ApiError } from '@lib/api/types';
@@ -13,7 +17,11 @@ import type { ApiError } from '@lib/api/types';
 interface UseGetMatchesByTournamentIdState {
   isLoading: boolean;
   error: ApiError | null;
+<<<<<<< HEAD
   data: MatchDto[];
+=======
+  data: MatchWithTeamsDto[];
+>>>>>>> origin/develop
 }
 
 const initialState: UseGetMatchesByTournamentIdState = {
@@ -32,11 +40,19 @@ export const useGetMatchesByTournamentId = (options: UseGetMatchesByTournamentId
   const [state, setState] = useState<UseGetMatchesByTournamentIdState>(initialState);
 
   const getMatchesByTournamentId = useCallback(
+<<<<<<< HEAD
     async (params: GetMatchesByTournamentIdParams): Promise<MatchDto[]> => {
       await Promise.resolve();
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
       const result = await api.get<SkorifyEnvelope<MatchDto[]>>(
+=======
+    async (params: GetMatchesByTournamentIdParams): Promise<MatchWithTeamsDto[]> => {
+      await Promise.resolve();
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+
+      const result = await api.get<SkorifyEnvelope<MatchWithTeamsDto[]>>(
+>>>>>>> origin/develop
         skorifyEndpoints.match.getByTournamentId,
         params as unknown as Record<string, unknown>,
       );
@@ -60,7 +76,11 @@ export const useGetMatchesByTournamentId = (options: UseGetMatchesByTournamentId
     lastFetchedId.current = tournamentId;
     // setState inside the callback is deferred via `await Promise.resolve()`,
     // and the lastFetchedId guard prevents the cascade the lint rule warns about.
+<<<<<<< HEAD
     // eslint-disable-next-line react-hooks/set-state-in-effect
+=======
+
+>>>>>>> origin/develop
     void getMatchesByTournamentId({ tournamentId });
   }, [autoFetch, tournamentId, getMatchesByTournamentId]);
 
