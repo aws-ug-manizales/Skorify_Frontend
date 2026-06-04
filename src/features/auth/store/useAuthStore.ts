@@ -3,6 +3,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { authService } from '../services/authService';
+import { refreshOAuthSession } from '../lib/oauth';
 import type { AuthGatewayResult } from '../services/AuthGatewayPort';
 import type {
   AuthSession,
@@ -25,6 +26,10 @@ type AuthState = {
   validateSession: () => Promise<boolean>;
   logout: () => Promise<void>;
 };
+
+// Treat an OAuth session that expires within this window as already expired so
+// it gets proactively refreshed rather than failing mid-request.
+const EXPIRY_SKEW_MS = 30_000;
 
 const persistToken = (token: string | null) => {
   if (typeof window === 'undefined') return;
@@ -96,7 +101,41 @@ export const useAuthStore = create<AuthState>()(
       // it. Once resolved it is carried over, so repeated validations from the
       // session-expiry watcher stay purely local to Cognito.
       validateSession: async () => {
-        const previousDomainUserId = get().session?.domainUserId;
+        const current = get().session;
+        if (!current) {
+          return false;
+        }
+
+        // Social / Hosted-UI sessions (e.g. Google) are NOT stored in the
+        // amazon-cognito-identity-js user pool, so `getCurrentUser()` can't see
+        // them and `getValidSession()` would always return null — wrongly
+        // logging the user out right after login. Validate these locally by the
+        // token's expiry and refresh through the OAuth token endpoint instead.
+        if (current.user.provider !== 'email') {
+          const expiresAtMs = current.expiresAt ? new Date(current.expiresAt).getTime() : 0;
+          if (expiresAtMs - Date.now() > EXPIRY_SKEW_MS) {
+            return true;
+          }
+
+          const refreshed = current.refreshToken
+            ? await refreshOAuthSession(current.refreshToken)
+            : null;
+          if (refreshed) {
+            const next = {
+              ...refreshed,
+              domainUserId: current.domainUserId ?? refreshed.domainUserId,
+            };
+            set({ session: next });
+            persistToken(next.token);
+            return true;
+          }
+
+          set({ session: null });
+          persistToken(null);
+          return false;
+        }
+
+        const previousDomainUserId = current.domainUserId;
         const session = previousDomainUserId
           ? await authService.getValidSession()
           : await authService.restoreSession();

@@ -200,11 +200,20 @@ export class CognitoAuthGateway implements AuthGatewayPort {
     return new Promise<AuthGatewayResult>((resolve) => {
       cognitoUser.authenticateUser(authDetails, {
         onSuccess: (cognitoSession) => {
-          resolve({
-            ok: true,
-            messageKey: 'auth.success.loggedIn',
-            session: sessionFromCognito(cognitoSession, { email }),
-          });
+          const session = sessionFromCognito(cognitoSession, { email });
+          // Resolve the domain user ID up front so consumers (groups,
+          // enrollments, predictions) query the backend with the correct
+          // id immediately after login — not just after a session restore.
+          // Mirrors `restoreSession` and the Google OAuth exchange.
+          void fetchDomainUserId(session.user.id, session.idToken ?? session.token).then(
+            (domainUserId) => {
+              resolve({
+                ok: true,
+                messageKey: 'auth.success.loggedIn',
+                session: { ...session, domainUserId },
+              });
+            },
+          );
         },
         onFailure: (err) => {
           const mapped = mapCognitoErrorToKey(err);

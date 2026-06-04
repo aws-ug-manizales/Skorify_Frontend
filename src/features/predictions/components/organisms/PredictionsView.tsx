@@ -24,6 +24,7 @@ import {
 import { getWorldCupWeekOptions2026 } from '@shared/components/organisms/MatchList/weekOptions';
 import { useCurrentUserId } from '@features/auth/hooks/useCurrentUserId';
 import { useGetUserEnrollmentsByUserId } from '@features/groups/hooks/useGetUserEnrollmentsByUserId';
+import { useTournamentInstanceNames } from '@features/tournaments/hooks/useTournamentInstanceNames';
 import { useGetMatchesByTournamentId } from '@features/matches/hooks/useGetMatchesByTournamentId';
 import type { PredictionDto } from '@lib/api/skorify';
 import PredictionsToolbar, { type PredictionsToolbarValues } from '../molecules/PredictionsToolbar';
@@ -78,6 +79,10 @@ const PredictionsView = () => {
     if (!userId) return;
     void getUserEnrollmentsByUserId({ userId });
   }, [userId, getUserEnrollmentsByUserId]);
+
+  const instanceNames = useTournamentInstanceNames(
+    useMemo(() => enrollments.map((e) => e.tournamentInstanceId), [enrollments]),
+  );
 
   const activeEnrollment = useMemo(
     () => enrollments.find((e) => e.tournamentInstanceId === tournamentInstanceId) ?? null,
@@ -372,7 +377,7 @@ const PredictionsView = () => {
           </MenuItem>
           {enrollments.map((enrollment) => (
             <MenuItem key={enrollment.id} value={enrollment.tournamentInstanceId}>
-              {enrollment.tournamentInstanceId}
+              {instanceNames[enrollment.tournamentInstanceId] ?? enrollment.tournamentInstanceId}
             </MenuItem>
           ))}
         </Select>
