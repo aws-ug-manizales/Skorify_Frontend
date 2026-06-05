@@ -48,6 +48,9 @@
   "results": {
     "title": "Results",
     "subtitle": "History of finished matches and predictions",
+    "groupLabel": "Group",
+    "groupPlaceholder": "Pick a group",
+    "noGroups": "You don't belong to any group yet.",
     "loading": "Loading results...",
     "noMatches": "No finished matches found.",
     "exact": "Exact Match",

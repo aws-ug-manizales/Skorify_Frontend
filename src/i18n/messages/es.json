@@ -48,6 +48,9 @@
   "results": {
     "title": "Resultados",
     "subtitle": "Historial de partidos finalizados y predicciones",
+    "groupLabel": "Grupo",
+    "groupPlaceholder": "Elige un grupo",
+    "noGroups": "Aún no perteneces a ningún grupo.",
     "loading": "Cargando resultados...",
     "noMatches": "No se encontraron partidos finalizados.",
     "exact": "Acierto exacto",

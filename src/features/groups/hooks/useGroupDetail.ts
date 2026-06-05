@@ -29,7 +29,10 @@ const buildStandings = (
 ): StandingRow[] => {
   const hasPositions = ranking.some((item) => positionOf(item) > 0);
   const ordered = [...ranking].sort((a, b) =>
-    hasPositions ? positionOf(a) - positionOf(b) : (b.points ?? 0) - (a.points ?? 0),
+    hasPositions
+      ? positionOf(a) - positionOf(b)
+      : // Tie-break players with the same points by their current streak.
+        (b.points ?? 0) - (a.points ?? 0) || (b.streak ?? 0) - (a.streak ?? 0),
   );
   return ordered.map((item, index) => ({
     rank: positionOf(item) > 0 ? positionOf(item) : index + 1,

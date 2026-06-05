@@ -11,7 +11,7 @@ import { tokens } from '@lib/theme/theme';
 import { useMatchesList } from '@features/matches/hooks/useMatchesList';
 import FinishedMatchCard from '@features/matches/components/molecules/FinishedMatchCard';
 import { formatKickoff } from '@features/matches/utils/formatKickoff';
-import { useGetAvailableTournaments } from '@features/tournaments';
+import { useUserGroups } from '@features/groups';
 import { useCurrentUserId } from '@features/auth/hooks/useCurrentUserId';
 import { useGetUserEnrollmentsByUserId } from '@features/groups/hooks/useGetUserEnrollmentsByUserId';
 import { useGetPredictionsByUser } from '@features/predictions/hooks/useGetPredictionsByUser';
@@ -19,34 +19,36 @@ import { useGetPredictionsByUser } from '@features/predictions/hooks/useGetPredi
 export default function ResultsPage() {
   const t = useTranslations('results');
   const m = useTranslations('matches');
-  const tAdmin = useTranslations('matchesAdmin');
   const locale = useLocale();
   const userId = useCurrentUserId();
 
-  const { data: tournaments } = useGetAvailableTournaments();
-  const [selectedTournamentId, setSelectedTournamentId] = useState<string | null>(null);
-  const tournamentId = selectedTournamentId ?? tournaments[0]?.id ?? '';
-  const selectedTournamentName =
-    tournaments.find((tournament) => tournament.id === tournamentId)?.name ?? '';
+  // The select lists the user's groups. A "group" is a tournament instance, so
+  // its id is the tournamentInstanceId predictions are scoped to.
+  const { groups, isLoading: groupsLoading } = useUserGroups();
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+  const groupId = selectedGroupId ?? groups[0]?.id ?? '';
+  const tournamentInstanceId = groupId;
+  const selectedGroupName = groups.find((group) => group.id === groupId)?.name ?? '';
 
-  // Bring every match for the tournament and pick the ones with a recorded
-  // score on the front. A "closed" match keeps its scheduled/in_progress
-  // status but carries a final score, so filtering by status alone would miss
-  // it — we treat "has a score" as "is a result".
-  const { items, loading } = useMatchesList(200, 'filterAll', tournamentId || undefined);
-
-  // Resolve the user's predictions for this tournament (predictions live on a
-  // tournament instance, so we use the user's enrollment for the tournament).
+  // Predictions live on the tournament instance (the group itself), while
+  // matches are fetched by the underlying tournament id — resolved from the
+  // user's enrollment for the selected group.
   const { getUserEnrollmentsByUserId, data: enrollments } = useGetUserEnrollmentsByUserId();
   useEffect(() => {
     if (!userId) return;
     void getUserEnrollmentsByUserId({ userId });
   }, [userId, getUserEnrollmentsByUserId]);
 
-  const tournamentInstanceId = useMemo(
-    () => enrollments.find((e) => e.tournamentId === tournamentId)?.tournamentInstanceId ?? '',
-    [enrollments, tournamentId],
+  const tournamentId = useMemo(
+    () => enrollments.find((e) => e.tournamentInstanceId === groupId)?.tournamentId ?? '',
+    [enrollments, groupId],
   );
+
+  // Bring every match for the tournament and pick the ones with a recorded
+  // score on the front. A "closed" match keeps its scheduled/in_progress
+  // status but carries a final score, so filtering by status alone would miss
+  // it — we treat "has a score" as "is a result".
+  const { items, loading } = useMatchesList(200, 'filterAll', tournamentId || undefined);
 
   const { getPredictionsByUser, data: userPredictions } = useGetPredictionsByUser();
   useEffect(() => {
@@ -104,25 +106,25 @@ export default function ResultsPage() {
         <TextField
           select
           size="small"
-          label={tAdmin('tournamentLabel')}
-          value={tournamentId}
-          onChange={(e) => setSelectedTournamentId(e.target.value)}
+          label={t('groupLabel')}
+          value={groupId}
+          onChange={(e) => setSelectedGroupId(e.target.value)}
           fullWidth
         >
-          <MenuItem value="">{tAdmin('tournamentPlaceholder')}</MenuItem>
-          {tournaments.map((tournament) => (
-            <MenuItem key={tournament.id} value={tournament.id}>
-              {tournament.name}
+          <MenuItem value="">{t('groupPlaceholder')}</MenuItem>
+          {groups.map((group) => (
+            <MenuItem key={group.id} value={group.id}>
+              {group.name}
             </MenuItem>
           ))}
         </TextField>
       </Stack>
 
-      {!tournamentId ? (
+      {!groupId ? (
         <Box sx={{ py: 8, textAlign: 'center', color: tokens.onSurfaceVariant }}>
-          <Typography>{tAdmin('actions.selectTournamentPrompt')}</Typography>
+          <Typography>{groupsLoading ? t('loading') : t('noGroups')}</Typography>
         </Box>
-      ) : loading ? (
+      ) : loading || groupsLoading ? (
         <Box sx={{ py: 8, textAlign: 'center', color: tokens.onSurfaceVariant }}>
           <Typography>{t('loading')}</Typography>
         </Box>
@@ -136,7 +138,7 @@ export default function ResultsPage() {
             <FinishedMatchCard
               key={match.id}
               match={match}
-              tournamentLabel={selectedTournamentName}
+              tournamentLabel={selectedGroupName}
               stageLabel={match.stageKey === 'finals' ? m('stageFinals') : m('stageGroup')}
               kickoffLabel={formatKickoff(match.kickoffAt, locale)}
               exactLabel={t('exact')}
