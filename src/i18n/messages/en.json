@@ -333,7 +333,8 @@
       "closeSuccess": "Match closed successfully.",
       "calculateSuccess": "Score calculated successfully.",
       "bulkCloseSuccess": "{count} match(es) closed.",
-      "actionError": "Could not complete the action. Please try again."
+      "actionError": "Could not complete the action. Please try again.",
+      "invalidScoreError": "Enter the goals for both teams before closing the match."
     }
   },
   "matches": {

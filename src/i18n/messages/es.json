@@ -333,7 +333,8 @@
       "closeSuccess": "Partido cerrado correctamente.",
       "calculateSuccess": "Puntaje calculado correctamente.",
       "bulkCloseSuccess": "{count} partido(s) cerrado(s).",
-      "actionError": "No se pudo completar la acción. Intenta de nuevo."
+      "actionError": "No se pudo completar la acción. Intenta de nuevo.",
+      "invalidScoreError": "Ingresa los goles de ambos equipos antes de cerrar el partido."
     }
   },
   "matches": {
