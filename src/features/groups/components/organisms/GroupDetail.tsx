@@ -383,7 +383,7 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             {showMembers && <MemberList members={data.members} currentUserId={currentUserId} />}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <AppCard variant="interactive" href="/predictions">
+              <AppCard variant="interactive" href={`/predictions?group=${groupId}`}>
                 <Box
                   sx={{
                     display: 'flex',
