@@ -37,7 +37,7 @@ const PRE_ROLL_MS = 700;
 const DELTA_VISIBLE_MS = 3200;
 
 const sortByRank = (rows: StandingRow[]) =>
-  [...rows].sort((a, b) => a.rank - b.rank || b.points - a.points);
+  [...rows].sort((a, b) => a.rank - b.rank || b.points - a.points || b.streak - a.streak);
 const idsKey = (rows: StandingRow[]) => rows.map((r) => r.userId).join('|');
 
 const StandingsTable = ({
@@ -141,10 +141,10 @@ const StandingsTable = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const headerColsMobile = ['#', t('colPlayer'), t('colPoints')];
-  const headerColsDesktop = ['#', t('colPlayer'), t('colPoints'), t('colStreak')];
-  const cols = isDesktop ? headerColsDesktop : headerColsMobile;
-  const gridTemplate = isDesktop ? '40px 1fr 60px 80px' : '40px 1fr 52px';
+  const cols = ['#', t('colPlayer'), t('colPoints'), t('colStreak')];
+  // The streak column also shows on mobile, just narrower (and without the
+  // `/maxStreak` suffix) to fit the smaller viewport.
+  const gridTemplate = isDesktop ? '40px 1fr 60px 80px' : '32px 1fr 44px 56px';
 
   return (
     <Box
@@ -318,35 +318,35 @@ const StandingsTable = ({
               {row.points}
             </Typography>
 
-            {isDesktop && (
-              <Box
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 0.25,
+              }}
+            >
+              <LocalFireDepartmentIcon
                 sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 0.25,
+                  fontSize: '0.95rem',
+                  color: row.streak > 0 ? tokens.error : tokens.onSurfaceVariant,
                 }}
+              />
+              <Typography
+                variant="body2"
+                sx={{ color: tokens.onSurface, fontWeight: 700, fontSize: '0.8rem' }}
               >
-                <LocalFireDepartmentIcon
-                  sx={{
-                    fontSize: '0.95rem',
-                    color: row.streak > 0 ? tokens.error : tokens.onSurfaceVariant,
-                  }}
-                />
-                <Typography
-                  variant="body2"
-                  sx={{ color: tokens.onSurface, fontWeight: 700, fontSize: '0.8rem' }}
-                >
-                  {row.streak}
-                </Typography>
+                {row.streak}
+              </Typography>
+              {isDesktop && (
                 <Typography
                   variant="body2"
                   sx={{ color: tokens.onSurfaceVariant, fontWeight: 500, fontSize: '0.7rem' }}
                 >
                   /{row.maxStreak}
                 </Typography>
-              </Box>
-            )}
+              )}
+            </Box>
           </Box>
         );
       })}
