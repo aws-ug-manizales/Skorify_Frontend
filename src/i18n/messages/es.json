@@ -865,6 +865,7 @@
       "NotificationTokenAssignmentFailedDomainEvent": "No se pudo registrar el token de notificación.",
       "MatchDoesNotExistDomainEvent": "El partido no existe.",
       "MatchCannotBeBetedDomainEvent": "No se pueden hacer predicciones para este partido.",
+      "PassedPredictionWindowDomainEvent": "El partido ya está cerrado, no se pueden hacer más predicciones.",
       "MatchCannotBeEditedDomainEvent": "Este partido ya no se puede editar.",
       "MatchCannotChangeTeamsDomainEvent": "No se pueden cambiar los equipos: ya hay predicciones registradas.",
       "MatchCannotBeSavedDomainEvent": "No se pudo guardar el partido.",
@@ -872,6 +873,8 @@
       "TournamentNotSavedDomainEvent": "No se pudo guardar el torneo.",
       "NotGottenTournamentDomainEvent": "No se pudo encontrar el torneo.",
       "TournamentInstanceWithSameNameDomainEvent": "Ya existe una instancia del torneo con ese nombre.",
+      "NotGottenTournamentInstanceDomainEvent": "El código de invitación no es válido.",
+      "UserIsInTournamentInstanceDomainEvent": "Ya eres miembro de este grupo.",
       "NotValidParams": "Los datos enviados no son válidos."
     }
   }
