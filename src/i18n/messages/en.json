@@ -280,7 +280,11 @@
       "min": "Cannot be negative",
       "max": "Max 99",
       "integerOnly": "Whole numbers only"
-    }
+    },
+    "pendingScore": "Score pending",
+    "resultExact": "Exact score",
+    "resultPartial": "Partial match",
+    "resultWrong": "Wrong"
   },
   "matchesAdmin": {
     "title": "Create Match",
