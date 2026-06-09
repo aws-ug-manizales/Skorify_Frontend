@@ -865,6 +865,7 @@
       "NotificationTokenAssignmentFailedDomainEvent": "Could not register notification token.",
       "MatchDoesNotExistDomainEvent": "The match does not exist.",
       "MatchCannotBeBetedDomainEvent": "Predictions are not allowed for this match.",
+      "PassedPredictionWindowDomainEvent": "The match is already closed; no more predictions can be made.",
       "MatchCannotBeEditedDomainEvent": "This match can no longer be edited.",
       "MatchCannotChangeTeamsDomainEvent": "Teams cannot be changed: predictions already exist.",
       "MatchCannotBeSavedDomainEvent": "The match could not be saved.",
@@ -872,6 +873,8 @@
       "TournamentNotSavedDomainEvent": "The tournament could not be saved.",
       "NotGottenTournamentDomainEvent": "Tournament not found.",
       "TournamentInstanceWithSameNameDomainEvent": "A tournament instance with that name already exists.",
+      "NotGottenTournamentInstanceDomainEvent": "The invitation code is not valid.",
+      "UserIsInTournamentInstanceDomainEvent": "You are already a member of this group.",
       "NotValidParams": "The submitted data is not valid."
     }
   }

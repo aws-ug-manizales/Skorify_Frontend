@@ -34,6 +34,8 @@ export const SKORIFY_DOMAIN_ERROR_CODES = new Set<string>([
 
   // tournament-instance
   'TournamentInstanceWithSameNameDomainEvent',
+  'NotGottenTournamentInstanceDomainEvent',
+  'UserIsInTournamentInstanceDomainEvent',
 ]);
 
 export const isDomainErrorCode = (bareCode: string): boolean =>
