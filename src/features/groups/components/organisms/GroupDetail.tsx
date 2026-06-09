@@ -102,11 +102,15 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
 
   // Backend verdict per match (the same values that feed the ranking).
   const verdictByMatch = useMemo(() => {
-    const map: Record<string, { earnedPoints: number; hasExactResult: boolean }> = {};
+    const map: Record<
+      string,
+      { earnedPoints: number; hasExactResult: boolean; isCalculated?: boolean }
+    > = {};
     (userPredictions ?? []).forEach((prediction) => {
       map[prediction.matchId] = {
         earnedPoints: prediction.earnedPoints,
         hasExactResult: prediction.hasExactResult,
+        isCalculated: prediction.isCalculated,
       };
     });
     return map;
@@ -372,6 +376,7 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
                         })}
                         earnedPoints={verdictByMatch[match.id]?.earnedPoints}
                         hasExactResult={verdictByMatch[match.id]?.hasExactResult}
+                        isCalculated={verdictByMatch[match.id]?.isCalculated}
                       />
                     ))}
                   </Box>
