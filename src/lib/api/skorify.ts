@@ -215,14 +215,8 @@ export interface PredictionScoreRuleDto {
   score: number;
 }
 
-export interface StreakBonusRuleDto {
-  key: number;
-  value: number;
-}
-
 export interface PredictionScoringConfigDto {
   rules: PredictionScoreRuleDto[];
-  streakBonusRules: StreakBonusRuleDto[];
 }
 
 export interface EditPredictionDirectlyPayload {
@@ -243,7 +237,6 @@ export interface SimulatePredictionPayload {
   predictionAwayScore: number;
   matchHomeScore: number;
   matchAwayScore: number;
-  streak: number;
 }
 
 export interface PredictionScoreBreakdownItem {
@@ -388,8 +381,6 @@ export interface RankingItemDto {
   lastPosition: number;
   score: number;
   points: number;
-  maxStreak: number;
-  streak: number;
 }
 
 // ──────────────────────────── User Enrollment ─────────────────
@@ -403,7 +394,6 @@ export interface UserEnrollmentDto {
   lastPosition: number;
   currentPosition: number;
   currentScore: number;
-  streak: number;
 }
 
 export interface GetUserEnrollmentsByUserIdParams {
