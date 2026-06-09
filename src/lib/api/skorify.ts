@@ -164,6 +164,7 @@ export interface PredictionDto {
   score: number;
   earnedPoints: number;
   hasExactResult: boolean;
+  isCalculated?: boolean;
   createdAt: string;
   updatedAt?: string;
   deletedAt?: string;

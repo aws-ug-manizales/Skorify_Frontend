@@ -276,7 +276,11 @@
       "min": "No puede ser negativo",
       "max": "Máximo 99",
       "integerOnly": "Solo números enteros"
-    }
+    },
+    "pendingScore": "Puntaje pendiente",
+    "resultExact": "Marcador exacto",
+    "resultPartial": "Acierto parcial",
+    "resultWrong": "Incorrecto"
   },
   "matchesAdmin": {
     "title": "Crear Partido",

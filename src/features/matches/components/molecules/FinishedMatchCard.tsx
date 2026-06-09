@@ -13,6 +13,7 @@ import {
   calculatePredictionPoints,
   PredictionResult,
 } from '../../utils/predictionEvaluator';
+import { useTranslations } from 'next-intl';
 
 type Props = {
   match: Match;
@@ -30,6 +31,13 @@ type Props = {
   /** Backend flag for an exact-score hit. Used together with `earnedPoints` to
    *  derive the result label so it stays consistent with the ranking. */
   hasExactResult?: boolean;
+  /**
+   * Whether the admin has already run score calculation for this prediction.
+   * - `true`  → show the result/points badges as usual.
+   * - `false` → the prediction exists but scoring is pending; show a "pending" badge.
+   * - `undefined` → legacy behaviour, show result badges regardless.
+   */
+  isCalculated?: boolean;
 };
 
 const FinishedMatchCard = ({
@@ -43,7 +51,10 @@ const FinishedMatchCard = ({
   noPredictionLabel,
   earnedPoints,
   hasExactResult,
+  isCalculated,
 }: Props) => {
+  const tPredictions = useTranslations('predictions');
+
   // Prefer the backend's verdict (exact / earned points) so the label matches
   // the ranking; only fall back to the client-side evaluation when we don't
   // have the backend data for this prediction.
@@ -86,6 +97,8 @@ const FinishedMatchCard = ({
     (match.score && match.prediction
       ? calculatePredictionPoints(match.score, match.prediction).totalPoints
       : 0);
+
+  const scoreIsPending = isCalculated === false && Boolean(match.prediction);
 
   return (
     <Box
@@ -246,37 +259,16 @@ const FinishedMatchCard = ({
             </Box>
           ) : null}
 
-          {/* 2. Badge de Resultado: [X INCORRECTO] */}
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 0.75,
-              bgcolor: `${resultColor}12`,
-              color: resultColor,
-              border: `1px solid ${resultColor}40`,
-              borderRadius: '6px',
-              px: 1.5,
-              py: 0.75,
-              fontSize: '0.6875rem',
-              fontWeight: 800,
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-            }}
-          >
-            <span>{resultIcon}</span>
-            {resultLabel}
-          </Box>
-
-          {/* 3. Badge de Puntaje Ganado: [+2 PTS] */}
-          {match.prediction ? (
+          {/* 2 & 3. Pending badge OR result + points badges */}
+          {scoreIsPending ? (
+            /* ⏳ Score pending evaluation */
             <Box
               sx={{
-                display: 'flex',
+                display: 'inline-flex',
                 alignItems: 'center',
                 gap: 0.75,
-                bgcolor: `${totalPoints > 0 ? tokens.primary : tokens.onSurfaceVariant}12`,
-                border: `1px solid ${totalPoints > 0 ? tokens.primary : tokens.onSurfaceVariant}33`,
+                bgcolor: `${tokens.tertiary}12`,
+                border: `1px solid ${tokens.tertiary}40`,
                 borderRadius: '6px',
                 px: 1.5,
                 py: 0.75,
@@ -284,31 +276,78 @@ const FinishedMatchCard = ({
                 fontWeight: 800,
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
-                color: totalPoints > 0 ? tokens.primary : tokens.onSurfaceVariant,
+                color: tokens.tertiary,
               }}
             >
-              {totalPoints > 0 ? `+${totalPoints}` : '0'} {totalPoints === 1 ? 'pt' : 'pts'}
+              ⏳ {tPredictions('pendingScore')}
             </Box>
           ) : (
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 0.75,
-                bgcolor: `${tokens.onSurfaceVariant}12`,
-                border: `1px solid ${tokens.onSurfaceVariant}33`,
-                borderRadius: '6px',
-                px: 1.5,
-                py: 0.75,
-                fontSize: '0.6875rem',
-                fontWeight: 800,
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-                color: tokens.onSurfaceVariant,
-              }}
-            >
-              0 pts
-            </Box>
+            <>
+              {/* 2. Badge de Resultado: [X INCORRECTO] */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.75,
+                  bgcolor: `${resultColor}12`,
+                  color: resultColor,
+                  border: `1px solid ${resultColor}40`,
+                  borderRadius: '6px',
+                  px: 1.5,
+                  py: 0.75,
+                  fontSize: '0.6875rem',
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                }}
+              >
+                <span>{resultIcon}</span>
+                {resultLabel}
+              </Box>
+
+              {/* 3. Badge de Puntaje Ganado: [+2 PTS] */}
+              {match.prediction ? (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.75,
+                    bgcolor: `${totalPoints > 0 ? tokens.primary : tokens.onSurfaceVariant}12`,
+                    border: `1px solid ${totalPoints > 0 ? tokens.primary : tokens.onSurfaceVariant}33`,
+                    borderRadius: '6px',
+                    px: 1.5,
+                    py: 0.75,
+                    fontSize: '0.6875rem',
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                    color: totalPoints > 0 ? tokens.primary : tokens.onSurfaceVariant,
+                  }}
+                >
+                  {totalPoints > 0 ? `+${totalPoints}` : '0'} {totalPoints === 1 ? 'pt' : 'pts'}
+                </Box>
+              ) : (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.75,
+                    bgcolor: `${tokens.onSurfaceVariant}12`,
+                    border: `1px solid ${tokens.onSurfaceVariant}33`,
+                    borderRadius: '6px',
+                    px: 1.5,
+                    py: 0.75,
+                    fontSize: '0.6875rem',
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                    color: tokens.onSurfaceVariant,
+                  }}
+                >
+                  0 pts
+                </Box>
+              )}
+            </>
           )}
         </Box>
       </Box>
