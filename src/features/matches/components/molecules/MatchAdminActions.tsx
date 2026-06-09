@@ -87,7 +87,7 @@ const MatchAdminActions = ({
   const isCalculated = rawStatus === 'calculated';
   // Scores are only meaningful after the match is closed, so calculating
   // points is gated on the closed (finished) status.
-  const canCalculate = (rawStatus ?? matchStatus) === 'finished';
+  const canCalculate = ['finished', 'calculated'].includes(rawStatus ?? matchStatus);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialog, setDialog] = useState<DialogKind>(null);
@@ -220,12 +220,10 @@ const MatchAdminActions = ({
           <LockIcon sx={{ fontSize: '1.125rem', mr: 1 }} />
           {t('actions.closeAction')}
         </MenuItem>
-        {!isCalculated && (
-          <MenuItem onClick={openCalculate} disabled={!canCalculate}>
-            <CalculateIcon sx={{ fontSize: '1.125rem', mr: 1 }} />
-            {t('actions.calculateAction')}
-          </MenuItem>
-        )}
+        <MenuItem onClick={openCalculate} disabled={!canCalculate}>
+          <CalculateIcon sx={{ fontSize: '1.125rem', mr: 1 }} />
+          {t('actions.calculateAction')}
+        </MenuItem>
       </Menu>
 
       {/* Edit */}
