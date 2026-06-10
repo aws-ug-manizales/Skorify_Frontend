@@ -102,11 +102,15 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
 
   // Backend verdict per match (the same values that feed the ranking).
   const verdictByMatch = useMemo(() => {
-    const map: Record<string, { earnedPoints: number; hasExactResult: boolean }> = {};
+    const map: Record<
+      string,
+      { earnedPoints: number; hasExactResult: boolean; isCalculated?: boolean }
+    > = {};
     (userPredictions ?? []).forEach((prediction) => {
       map[prediction.matchId] = {
         earnedPoints: prediction.earnedPoints,
         hasExactResult: prediction.hasExactResult,
+        isCalculated: prediction.isCalculated,
       };
     });
     return map;
@@ -372,6 +376,7 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
                         })}
                         earnedPoints={verdictByMatch[match.id]?.earnedPoints}
                         hasExactResult={verdictByMatch[match.id]?.hasExactResult}
+                        isCalculated={verdictByMatch[match.id]?.isCalculated}
                       />
                     ))}
                   </Box>
@@ -383,7 +388,7 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             {showMembers && <MemberList members={data.members} currentUserId={currentUserId} />}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <AppCard variant="interactive" href="/predictions">
+              <AppCard variant="interactive" href={`/predictions?group=${groupId}`}>
                 <Box
                   sx={{
                     display: 'flex',

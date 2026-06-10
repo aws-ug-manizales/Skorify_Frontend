@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useForm, useWatch } from 'react-hook-form';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
@@ -59,6 +59,7 @@ const PredictionsView = () => {
   // Deep-link support: /predictions?group=<instanceId>&match=<matchId> selects
   // the right tournament instance and auto-opens that match's prediction modal.
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const groupParam = searchParams.get('group');
   const matchParam = searchParams.get('match');
@@ -73,6 +74,24 @@ const PredictionsView = () => {
   // instance (?group=) and finally the first enrollment.
   const tournamentInstanceId =
     selectedInstanceId ?? groupParam ?? enrollments[0]?.tournamentInstanceId ?? '';
+
+  // Switch the selected group and keep the URL in sync so the selection is
+  // shareable/refreshable. We use the History API rather than router.replace:
+  // the view is driven by local state, so we only need to reflect the change in
+  // the address bar without triggering an App Router RSC navigation. The
+  // deep-linked `?match=` belongs to the previous group, so drop it.
+  const handleInstanceChange = useCallback(
+    (id: string) => {
+      setSelectedInstanceId(id);
+      const next = new URLSearchParams(searchParams.toString());
+      if (id) next.set('group', id);
+      else next.delete('group');
+      next.delete('match');
+      const qs = next.toString();
+      window.history.replaceState(null, '', qs ? `${pathname}?${qs}` : pathname);
+    },
+    [pathname, searchParams],
+  );
 
   useEffect(() => {
     if (!userId) return;
@@ -400,7 +419,7 @@ const PredictionsView = () => {
         <Select
           size="small"
           value={tournamentInstanceId}
-          onChange={(event) => setSelectedInstanceId(event.target.value)}
+          onChange={(event) => handleInstanceChange(event.target.value)}
           displayEmpty
           disabled={enrollments.length === 0}
           sx={{ maxWidth: 360, bgcolor: tokens.surfaceContainerLow }}

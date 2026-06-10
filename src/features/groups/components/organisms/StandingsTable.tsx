@@ -11,7 +11,6 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import LeaderboardOutlinedIcon from '@mui/icons-material/LeaderboardOutlined';
-import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { useTranslations } from 'next-intl';
 import { tokens } from '@lib/theme/theme';
@@ -141,10 +140,8 @@ const StandingsTable = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const headerColsMobile = ['#', t('colPlayer'), t('colPoints')];
-  const headerColsDesktop = ['#', t('colPlayer'), t('colPoints'), t('colStreak')];
-  const cols = isDesktop ? headerColsDesktop : headerColsMobile;
-  const gridTemplate = isDesktop ? '40px 1fr 60px 80px' : '40px 1fr 52px';
+  const cols = ['#', t('colPlayer'), t('colPoints')];
+  const gridTemplate = isDesktop ? '40px 1fr 60px' : '32px 1fr 44px';
 
   return (
     <Box
@@ -317,36 +314,6 @@ const StandingsTable = ({
             >
               {row.points}
             </Typography>
-
-            {isDesktop && (
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 0.25,
-                }}
-              >
-                <LocalFireDepartmentIcon
-                  sx={{
-                    fontSize: '0.95rem',
-                    color: row.streak > 0 ? tokens.error : tokens.onSurfaceVariant,
-                  }}
-                />
-                <Typography
-                  variant="body2"
-                  sx={{ color: tokens.onSurface, fontWeight: 700, fontSize: '0.8rem' }}
-                >
-                  {row.streak}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ color: tokens.onSurfaceVariant, fontWeight: 500, fontSize: '0.7rem' }}
-                >
-                  /{row.maxStreak}
-                </Typography>
-              </Box>
-            )}
           </Box>
         );
       })}

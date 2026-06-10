@@ -48,6 +48,9 @@
   "results": {
     "title": "Results",
     "subtitle": "History of finished matches and predictions",
+    "groupLabel": "Group",
+    "groupPlaceholder": "Pick a group",
+    "noGroups": "You don't belong to any group yet.",
     "loading": "Loading results...",
     "noMatches": "No finished matches found.",
     "exact": "Exact Match",
@@ -101,8 +104,6 @@
       "total": "Predictions"
     },
     "participation": "Participation",
-    "streakTitle": "Unstoppable!",
-    "streakSubtitle": "{count} predictions in a row",
     "groups": {
       "title": "My groups",
       "rank": "Rank #{rank}",
@@ -261,9 +262,7 @@
       "exactTitle": "Exact score",
       "exactDescription": "Nail the exact final score of the match.",
       "reverseTitle": "Reversed score",
-      "reverseDescription": "If you get the score in reverse, you still earn a point.",
-      "streakTitle": "Streak bonus",
-      "streakDescription": "Consecutive exact-score hits give you a bonus: {thresholds}. The streak resets on a miss."
+      "reverseDescription": "If you get the score in reverse, you still earn a point."
     },
     "unit": {
       "month": "mo",
@@ -277,7 +276,11 @@
       "min": "Cannot be negative",
       "max": "Max 99",
       "integerOnly": "Whole numbers only"
-    }
+    },
+    "pendingScore": "Score pending",
+    "resultExact": "Exact score",
+    "resultPartial": "Partial match",
+    "resultWrong": "Wrong"
   },
   "matchesAdmin": {
     "title": "Create Match",
@@ -333,7 +336,8 @@
       "closeSuccess": "Match closed successfully.",
       "calculateSuccess": "Score calculated successfully.",
       "bulkCloseSuccess": "{count} match(es) closed.",
-      "actionError": "Could not complete the action. Please try again."
+      "actionError": "Could not complete the action. Please try again.",
+      "invalidScoreError": "Enter the goals for both teams before closing the match."
     }
   },
   "matches": {
@@ -563,7 +567,6 @@
     "colPoints": "Pts",
     "standingsRefresh": "Refresh standings",
     "colPredictedMatches": "Predicted",
-    "colStreak": "Streak",
     "colWon": "W",
     "colDrawn": "D",
     "colLost": "L",
@@ -624,7 +627,6 @@
     "totalPoints": "Points",
     "accuracy": "Accuracy",
     "predictionsMade": "Predictions",
-    "streak": "Streak",
     "sharedGroupsTitle": "Shared groups",
     "sharedGroupsEmpty": "No groups in common yet.",
     "rankInGroup": "Rank #{rank}",
@@ -661,7 +663,7 @@
   "userDashboard": {
     "eyebrow": "Your playing field",
     "greeting": "Hi, {name}",
-    "streakText": "Your current streak is <highlight>{count} hits</highlight>. There are matches waiting for your predictions.",
+    "welcomeText": "There are matches waiting for your predictions. Rack up points and climb the ranking!",
     "defaultUser": "predictor",
     "createGroup": "Create group",
     "joinGroup": "Join a group",
@@ -732,7 +734,7 @@
       },
       "ranking": {
         "title": "Climb the ranking",
-        "description": "Live standings, streaks, stats and the coveted #1 spot."
+        "description": "Live standings, stats and the coveted #1 spot."
       }
     },
     "howItWorks": {
@@ -861,6 +863,7 @@
       "NotificationTokenAssignmentFailedDomainEvent": "Could not register notification token.",
       "MatchDoesNotExistDomainEvent": "The match does not exist.",
       "MatchCannotBeBetedDomainEvent": "Predictions are not allowed for this match.",
+      "PassedPredictionWindowDomainEvent": "The match is already closed; no more predictions can be made.",
       "MatchCannotBeEditedDomainEvent": "This match can no longer be edited.",
       "MatchCannotChangeTeamsDomainEvent": "Teams cannot be changed: predictions already exist.",
       "MatchCannotBeSavedDomainEvent": "The match could not be saved.",
@@ -868,6 +871,8 @@
       "TournamentNotSavedDomainEvent": "The tournament could not be saved.",
       "NotGottenTournamentDomainEvent": "Tournament not found.",
       "TournamentInstanceWithSameNameDomainEvent": "A tournament instance with that name already exists.",
+      "NotGottenTournamentInstanceDomainEvent": "The invitation code is not valid.",
+      "UserIsInTournamentInstanceDomainEvent": "You are already a member of this group.",
       "NotValidParams": "The submitted data is not valid."
     }
   }

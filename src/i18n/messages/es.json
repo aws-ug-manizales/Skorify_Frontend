@@ -48,6 +48,9 @@
   "results": {
     "title": "Resultados",
     "subtitle": "Historial de partidos finalizados y predicciones",
+    "groupLabel": "Grupo",
+    "groupPlaceholder": "Elige un grupo",
+    "noGroups": "Aún no perteneces a ningún grupo.",
     "loading": "Cargando resultados...",
     "noMatches": "No se encontraron partidos finalizados.",
     "exact": "Acierto exacto",
@@ -101,8 +104,6 @@
       "total": "Predicciones"
     },
     "participation": "Participación",
-    "streakTitle": "¡Imparable!",
-    "streakSubtitle": "{count} aciertos seguidos",
     "groups": {
       "title": "Mis grupos",
       "rank": "Puesto #{rank}",
@@ -261,9 +262,7 @@
       "exactTitle": "Marcador exacto",
       "exactDescription": "Acertar el marcador final exacto del partido.",
       "reverseTitle": "Marcador invertido",
-      "reverseDescription": "Si aciertas el marcador al revés, no todo está perdido, puedes sumar un punto.",
-      "streakTitle": "Bono por racha",
-      "streakDescription": "Aciertos exactos consecutivos te dan un bono extra: {thresholds}. La racha se reinicia al fallar."
+      "reverseDescription": "Si aciertas el marcador al revés, no todo está perdido, puedes sumar un punto."
     },
     "unit": {
       "month": "mes",
@@ -277,7 +276,11 @@
       "min": "No puede ser negativo",
       "max": "Máximo 99",
       "integerOnly": "Solo números enteros"
-    }
+    },
+    "pendingScore": "Puntaje pendiente",
+    "resultExact": "Marcador exacto",
+    "resultPartial": "Acierto parcial",
+    "resultWrong": "Incorrecto"
   },
   "matchesAdmin": {
     "title": "Crear Partido",
@@ -333,7 +336,8 @@
       "closeSuccess": "Partido cerrado correctamente.",
       "calculateSuccess": "Puntaje calculado correctamente.",
       "bulkCloseSuccess": "{count} partido(s) cerrado(s).",
-      "actionError": "No se pudo completar la acción. Intenta de nuevo."
+      "actionError": "No se pudo completar la acción. Intenta de nuevo.",
+      "invalidScoreError": "Ingresa los goles de ambos equipos antes de cerrar el partido."
     }
   },
   "matches": {
@@ -563,7 +567,6 @@
     "colPoints": "Pts",
     "standingsRefresh": "Actualizar clasificación",
     "colPredictedMatches": "Predichos",
-    "colStreak": "Racha",
     "colWon": "V",
     "colDrawn": "E",
     "colLost": "D",
@@ -624,7 +627,6 @@
     "totalPoints": "Puntos",
     "accuracy": "Precisión",
     "predictionsMade": "Predicciones",
-    "streak": "Racha",
     "sharedGroupsTitle": "Grupos en común",
     "sharedGroupsEmpty": "No comparten grupos por ahora.",
     "rankInGroup": "Posición #{rank}",
@@ -661,7 +663,7 @@
   "userDashboard": {
     "eyebrow": "Tu cancha de juego",
     "greeting": "Hola, {name}",
-    "streakText": "Tu racha actual es de <highlight>{count} aciertos</highlight>. Hay partidos esperando tus predicciones.",
+    "welcomeText": "Hay partidos esperando tus predicciones. ¡Suma puntos y escala posiciones!",
     "defaultUser": "predictor",
     "createGroup": "Crear grupo",
     "joinGroup": "Unirme a un grupo",
@@ -739,7 +741,7 @@
       },
       "ranking": {
         "title": "Escala el ranking",
-        "description": "Tabla de posiciones en vivo, rachas, estadísticas y el codiciado puesto #1."
+        "description": "Tabla de posiciones en vivo, estadísticas y el codiciado puesto #1."
       }
     },
     "howItWorks": {
@@ -861,6 +863,7 @@
       "NotificationTokenAssignmentFailedDomainEvent": "No se pudo registrar el token de notificación.",
       "MatchDoesNotExistDomainEvent": "El partido no existe.",
       "MatchCannotBeBetedDomainEvent": "No se pueden hacer predicciones para este partido.",
+      "PassedPredictionWindowDomainEvent": "El partido ya está cerrado, no se pueden hacer más predicciones.",
       "MatchCannotBeEditedDomainEvent": "Este partido ya no se puede editar.",
       "MatchCannotChangeTeamsDomainEvent": "No se pueden cambiar los equipos: ya hay predicciones registradas.",
       "MatchCannotBeSavedDomainEvent": "No se pudo guardar el partido.",
@@ -868,6 +871,8 @@
       "TournamentNotSavedDomainEvent": "No se pudo guardar el torneo.",
       "NotGottenTournamentDomainEvent": "No se pudo encontrar el torneo.",
       "TournamentInstanceWithSameNameDomainEvent": "Ya existe una instancia del torneo con ese nombre.",
+      "NotGottenTournamentInstanceDomainEvent": "El código de invitación no es válido.",
+      "UserIsInTournamentInstanceDomainEvent": "Ya eres miembro de este grupo.",
       "NotValidParams": "Los datos enviados no son válidos."
     }
   }

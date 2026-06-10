@@ -7,7 +7,6 @@ import ScoreboardIcon from '@mui/icons-material/Scoreboard';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import GpsFixedIcon from '@mui/icons-material/GpsFixed';
-import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import CloseIcon from '@mui/icons-material/Close';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
@@ -25,7 +24,6 @@ import MatchCountdown from '../atoms/MatchCountdown';
 import TeamLabel from '../atoms/TeamLabel';
 import ScoreEditor from '../molecules/ScoreEditor';
 import PredictionScoreRuleCard from '../molecules/PredictionScoreRuleCard';
-import PredictionScoreStreakCallout from '../molecules/PredictionScoreStreakCallout';
 import { useGetPredictionRules } from '../../hooks/useGetPredictionRules';
 
 const RULE_UI_MAP: Record<string, { icon: ElementType; titleKey: string; descriptionKey: string }> =
@@ -116,15 +114,6 @@ const PredictionDrawer = ({
         ),
     [scoringConfig?.rules],
   );
-
-  const streakThresholds = useMemo(() => {
-    const items = scoringConfig?.streakBonusRules ?? [];
-    if (items.length === 0) return '';
-    return [...items]
-      .sort((a, b) => a.key - b.key)
-      .map((item) => `${item.key}×+${item.value}`)
-      .join(', ');
-  }, [scoringConfig?.streakBonusRules]);
 
   const { control, handleSubmit, reset, formState } = useForm<DrawerFormValues>({
     defaultValues: buildDefaults(initialScore),
@@ -308,14 +297,6 @@ const PredictionDrawer = ({
                     ))}
               </Box>
             </Box>
-
-            {streakThresholds && (
-              <PredictionScoreStreakCallout
-                icon={LocalFireDepartmentIcon}
-                title={t('scoreRules.streakTitle')}
-                description={t('scoreRules.streakDescription', { thresholds: streakThresholds })}
-              />
-            )}
           </Box>
         </Box>
       )}

@@ -87,7 +87,7 @@ const MatchAdminActions = ({
   const isCalculated = rawStatus === 'calculated';
   // Scores are only meaningful after the match is closed, so calculating
   // points is gated on the closed (finished) status.
-  const canCalculate = (rawStatus ?? matchStatus) === 'finished';
+  const canCalculate = ['finished', 'calculated'].includes(rawStatus ?? matchStatus);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialog, setDialog] = useState<DialogKind>(null);
@@ -110,16 +110,14 @@ const MatchAdminActions = ({
     getTeamsByQuery,
     data: teams,
     isLoading: loadingTeams,
-  } = useGetTeamsByQuery({
-    autoFetch: false,
-  });
+  } = useGetTeamsByQuery({ autoFetch: false });
   const { editMatch, isLoading: editing } = useEditMatch();
   const { closeMatch, isLoading: closing } = useCloseMatch();
   const { calculateMatchScore, isLoading: calculating } = useCalculateMatchScore();
   const {
     getTournamentInstancesByTournamentId,
     data: instances,
-    isLoading: loadingInstances,
+    isLoading: loadingInstance,
   } = useGetTournamentInstancesByTournamentId();
 
   const closeMenu = () => setAnchorEl(null);
@@ -170,10 +168,15 @@ const MatchAdminActions = ({
   };
 
   const handleClose = async () => {
+    if (!homeScore || !awayScore) {
+      snackbar.error(t('actions.invalidScoreError'));
+      return;
+    }
+
     const result = await closeMatch({
       matchId,
-      homeScore: homeScore.trim() === '' ? undefined : Number(homeScore),
-      awayScore: awayScore.trim() === '' ? undefined : Number(awayScore),
+      homeScore: Number(homeScore.trim()),
+      awayScore: Number(awayScore.trim()),
     });
     if (!result) {
       snackbar.error(t('actions.actionError'));
@@ -217,12 +220,10 @@ const MatchAdminActions = ({
           <LockIcon sx={{ fontSize: '1.125rem', mr: 1 }} />
           {t('actions.closeAction')}
         </MenuItem>
-        {!isCalculated && (
-          <MenuItem onClick={openCalculate} disabled={!canCalculate}>
-            <CalculateIcon sx={{ fontSize: '1.125rem', mr: 1 }} />
-            {t('actions.calculateAction')}
-          </MenuItem>
-        )}
+        <MenuItem onClick={openCalculate} disabled={!canCalculate}>
+          <CalculateIcon sx={{ fontSize: '1.125rem', mr: 1 }} />
+          {t('actions.calculateAction')}
+        </MenuItem>
       </Menu>
 
       {/* Edit */}
@@ -374,9 +375,9 @@ const MatchAdminActions = ({
             value={instanceId}
             onChange={(e) => setInstanceId(e.target.value)}
             fullWidth
-            disabled={loadingInstances}
+            disabled={loadingInstance}
             helperText={
-              !loadingInstances && instances.length === 0 ? t('actions.noInstances') : undefined
+              !loadingInstance && instances.length === 0 ? t('actions.noInstances') : undefined
             }
           >
             {instances.map((instance: TournamentInstanceDto) => (

@@ -2,6 +2,7 @@
 
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { setSessionRefresher } from '@lib/api/sessionEvents';
 import { authService } from '../services/authService';
 import { refreshOAuthSession } from '../lib/oauth';
 import type { AuthGatewayResult } from '../services/AuthGatewayPort';
@@ -177,3 +178,11 @@ export const useAuthStore = create<AuthState>()(
     },
   ),
 );
+
+// Let the axios layer silently refresh the session on a 401 (stale token) and
+// replay the failed request, instead of immediately logging the user out.
+// Registered at module load so it's available before any request is made,
+// avoiding a race with the first home fetches on app start.
+if (typeof window !== 'undefined') {
+  setSessionRefresher(() => useAuthStore.getState().validateSession());
+}

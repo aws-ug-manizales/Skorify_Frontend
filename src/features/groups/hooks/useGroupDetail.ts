@@ -36,8 +36,6 @@ const buildStandings = (
     userId: item.userId,
     name: item.userName,
     points: item.points ?? 0,
-    streak: item.streak ?? 0,
-    maxStreak: item.maxStreak ?? 0,
   }));
 };
 

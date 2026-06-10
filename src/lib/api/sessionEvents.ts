@@ -9,7 +9,11 @@
  */
 type SessionExpiredHandler = () => void;
 
+type SessionRefresher = () => Promise<boolean>;
+
 let handler: SessionExpiredHandler | null = null;
+let refresher: SessionRefresher | null = null;
+let inFlightRefresh: Promise<boolean> | null = null;
 
 export const setSessionExpiredHandler = (next: SessionExpiredHandler | null): void => {
   handler = next;
@@ -17,4 +21,21 @@ export const setSessionExpiredHandler = (next: SessionExpiredHandler | null): vo
 
 export const notifySessionExpired = (): void => {
   handler?.();
+};
+
+export const setSessionRefresher = (next: SessionRefresher | null): void => {
+  refresher = next;
+};
+
+export const requestSessionRefresh = (): Promise<boolean> => {
+  if (!refresher) return Promise.resolve(false);
+  if (!inFlightRefresh) {
+    inFlightRefresh = Promise.resolve()
+      .then(() => refresher!())
+      .catch(() => false)
+      .finally(() => {
+        inFlightRefresh = null;
+      });
+  }
+  return inFlightRefresh;
 };
