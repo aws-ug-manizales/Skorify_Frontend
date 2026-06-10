@@ -7,7 +7,7 @@ import {
   isSkorifyEnvelope,
   stripControllerPrefix,
 } from './skorify-events';
-import { notifySessionExpired } from './sessionEvents';
+import { notifySessionExpired, requestSessionRefresh } from './sessionEvents';
 
 const apiInstance: AxiosInstance = axios.create({
   baseURL: env.NEXT_PUBLIC_API_URL,
@@ -70,18 +70,23 @@ apiInstance.interceptors.response.use(
     }
     return response;
   },
-  (error: AxiosError) => {
-    if (error.response?.status === 401) {
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('token');
-        // Defer to the React layer (SessionExpiryGuard) so the user sees the
-        // "session expired" modal before being redirected to the login screen.
-        notifySessionExpired();
+  async (error: AxiosError) => {
+    if (error.response?.status === 401 && typeof window !== 'undefined') {
+      const originalRequest = error.config as
+        | (InternalAxiosRequestConfig & { _retry?: boolean })
+        | undefined;
+      if (originalRequest && !originalRequest._retry) {
+        originalRequest._retry = true;
+        const refreshed = await requestSessionRefresh();
+        if (refreshed) {
+          return apiInstance(originalRequest);
+        }
       }
+
+      localStorage.removeItem('token');
+      notifySessionExpired();
     }
 
-    // Normalize iraca-shape error envelopes that arrived with a non-2xx status
-    // (e.g. NotValidParams → 400) into the ApiError shape `toFailure` expects.
     const responseData = error.response?.data;
     if (responseData && typeof responseData === 'object' && 'meta' in responseData) {
       const meta = (responseData as { meta?: { code?: string; message?: string } }).meta;
