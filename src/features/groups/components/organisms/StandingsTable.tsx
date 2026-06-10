@@ -11,7 +11,6 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import LeaderboardOutlinedIcon from '@mui/icons-material/LeaderboardOutlined';
-import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { useTranslations } from 'next-intl';
 import { tokens } from '@lib/theme/theme';
@@ -37,7 +36,7 @@ const PRE_ROLL_MS = 700;
 const DELTA_VISIBLE_MS = 3200;
 
 const sortByRank = (rows: StandingRow[]) =>
-  [...rows].sort((a, b) => a.rank - b.rank || b.points - a.points || b.streak - a.streak);
+  [...rows].sort((a, b) => a.rank - b.rank || b.points - a.points);
 const idsKey = (rows: StandingRow[]) => rows.map((r) => r.userId).join('|');
 
 const StandingsTable = ({
@@ -141,10 +140,8 @@ const StandingsTable = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const cols = ['#', t('colPlayer'), t('colPoints'), t('colStreak')];
-  // The streak column also shows on mobile, just narrower (and without the
-  // `/maxStreak` suffix) to fit the smaller viewport.
-  const gridTemplate = isDesktop ? '40px 1fr 60px 80px' : '32px 1fr 44px 56px';
+  const cols = ['#', t('colPlayer'), t('colPoints')];
+  const gridTemplate = isDesktop ? '40px 1fr 60px' : '32px 1fr 44px';
 
   return (
     <Box
@@ -317,36 +314,6 @@ const StandingsTable = ({
             >
               {row.points}
             </Typography>
-
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 0.25,
-              }}
-            >
-              <LocalFireDepartmentIcon
-                sx={{
-                  fontSize: '0.95rem',
-                  color: row.streak > 0 ? tokens.error : tokens.onSurfaceVariant,
-                }}
-              />
-              <Typography
-                variant="body2"
-                sx={{ color: tokens.onSurface, fontWeight: 700, fontSize: '0.8rem' }}
-              >
-                {row.streak}
-              </Typography>
-              {isDesktop && (
-                <Typography
-                  variant="body2"
-                  sx={{ color: tokens.onSurfaceVariant, fontWeight: 500, fontSize: '0.7rem' }}
-                >
-                  /{row.maxStreak}
-                </Typography>
-              )}
-            </Box>
           </Box>
         );
       })}

@@ -17,7 +17,6 @@ export type {
 } from './components/organisms/PredictionDrawer';
 export { default as PredictionsToolbar } from './components/molecules/PredictionsToolbar';
 export { default as PredictionScoreRuleCard } from './components/molecules/PredictionScoreRuleCard';
-export { default as PredictionScoreStreakCallout } from './components/molecules/PredictionScoreStreakCallout';
 export { default as ScoreEditor } from './components/molecules/ScoreEditor';
 export { default as MatchCountdown } from './components/atoms/MatchCountdown';
 export { default as TeamLabel } from './components/atoms/TeamLabel';

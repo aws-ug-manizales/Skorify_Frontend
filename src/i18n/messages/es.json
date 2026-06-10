@@ -104,8 +104,6 @@
       "total": "Predicciones"
     },
     "participation": "Participación",
-    "streakTitle": "¡Imparable!",
-    "streakSubtitle": "{count} aciertos seguidos",
     "groups": {
       "title": "Mis grupos",
       "rank": "Puesto #{rank}",
@@ -264,9 +262,7 @@
       "exactTitle": "Marcador exacto",
       "exactDescription": "Acertar el marcador final exacto del partido.",
       "reverseTitle": "Marcador invertido",
-      "reverseDescription": "Si aciertas el marcador al revés, no todo está perdido, puedes sumar un punto.",
-      "streakTitle": "Bono por racha",
-      "streakDescription": "Aciertos exactos consecutivos te dan un bono extra: {thresholds}. La racha se reinicia al fallar."
+      "reverseDescription": "Si aciertas el marcador al revés, no todo está perdido, puedes sumar un punto."
     },
     "unit": {
       "month": "mes",
@@ -571,7 +567,6 @@
     "colPoints": "Pts",
     "standingsRefresh": "Actualizar clasificación",
     "colPredictedMatches": "Predichos",
-    "colStreak": "Racha",
     "colWon": "V",
     "colDrawn": "E",
     "colLost": "D",
@@ -632,7 +627,6 @@
     "totalPoints": "Puntos",
     "accuracy": "Precisión",
     "predictionsMade": "Predicciones",
-    "streak": "Racha",
     "sharedGroupsTitle": "Grupos en común",
     "sharedGroupsEmpty": "No comparten grupos por ahora.",
     "rankInGroup": "Posición #{rank}",
@@ -669,7 +663,7 @@
   "userDashboard": {
     "eyebrow": "Tu cancha de juego",
     "greeting": "Hola, {name}",
-    "streakText": "Tu racha actual es de <highlight>{count} aciertos</highlight>. Hay partidos esperando tus predicciones.",
+    "welcomeText": "Hay partidos esperando tus predicciones. ¡Suma puntos y escala posiciones!",
     "defaultUser": "predictor",
     "createGroup": "Crear grupo",
     "joinGroup": "Unirme a un grupo",
@@ -747,7 +741,7 @@
       },
       "ranking": {
         "title": "Escala el ranking",
-        "description": "Tabla de posiciones en vivo, rachas, estadísticas y el codiciado puesto #1."
+        "description": "Tabla de posiciones en vivo, estadísticas y el codiciado puesto #1."
       }
     },
     "howItWorks": {

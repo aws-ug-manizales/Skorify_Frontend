@@ -127,7 +127,6 @@ const RECENT_PREDICTIONS: RecentPrediction[] = [];
 const FRIEND_ACTIVITY: FriendActivity[] = [];
 
 const CURRENT_USER_RANK = { rank: 0, points: 0 };
-const USER_STREAK = 0;
 const WEEK_POINTS = 0;
 const ACCURACY = 0;
 
@@ -212,7 +211,6 @@ const UserDashboardHome = () => {
       <GlobalStyles styles={TOUR_STYLES} />
       <WelcomeBanner
         displayName={displayName}
-        streak={USER_STREAK}
         canCreateGroups={canCreateGroups}
         t={t}
         onJoinGroup={openJoinDialog}
@@ -416,7 +414,6 @@ const ActiveTournamentsSection = ({
 
 interface WelcomeBannerProps {
   displayName: string;
-  streak: number;
   canCreateGroups: boolean;
   t: ReturnType<typeof useTranslations<'userDashboard'>>;
   onJoinGroup: () => void;
@@ -425,7 +422,6 @@ interface WelcomeBannerProps {
 
 const WelcomeBanner = ({
   displayName,
-  streak,
   canCreateGroups,
   t,
   onJoinGroup,
@@ -522,14 +518,7 @@ const WelcomeBanner = ({
           maxWidth: 520,
         }}
       >
-        {t.rich('streakText', {
-          highlight: (chunks) => (
-            <Box component="span" sx={{ color: tokens.primary, fontWeight: 800 }}>
-              {chunks}
-            </Box>
-          ),
-          count: streak,
-        })}
+        {t('welcomeText')}
       </Typography>
 
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mt: 3.5 }}>

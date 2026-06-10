@@ -104,8 +104,6 @@
       "total": "Predictions"
     },
     "participation": "Participation",
-    "streakTitle": "Unstoppable!",
-    "streakSubtitle": "{count} predictions in a row",
     "groups": {
       "title": "My groups",
       "rank": "Rank #{rank}",
@@ -264,9 +262,7 @@
       "exactTitle": "Exact score",
       "exactDescription": "Nail the exact final score of the match.",
       "reverseTitle": "Reversed score",
-      "reverseDescription": "If you get the score in reverse, you still earn a point.",
-      "streakTitle": "Streak bonus",
-      "streakDescription": "Consecutive exact-score hits give you a bonus: {thresholds}. The streak resets on a miss."
+      "reverseDescription": "If you get the score in reverse, you still earn a point."
     },
     "unit": {
       "month": "mo",
@@ -571,7 +567,6 @@
     "colPoints": "Pts",
     "standingsRefresh": "Refresh standings",
     "colPredictedMatches": "Predicted",
-    "colStreak": "Streak",
     "colWon": "W",
     "colDrawn": "D",
     "colLost": "L",
@@ -632,7 +627,6 @@
     "totalPoints": "Points",
     "accuracy": "Accuracy",
     "predictionsMade": "Predictions",
-    "streak": "Streak",
     "sharedGroupsTitle": "Shared groups",
     "sharedGroupsEmpty": "No groups in common yet.",
     "rankInGroup": "Rank #{rank}",
@@ -669,7 +663,7 @@
   "userDashboard": {
     "eyebrow": "Your playing field",
     "greeting": "Hi, {name}",
-    "streakText": "Your current streak is <highlight>{count} hits</highlight>. There are matches waiting for your predictions.",
+    "welcomeText": "There are matches waiting for your predictions. Rack up points and climb the ranking!",
     "defaultUser": "predictor",
     "createGroup": "Create group",
     "joinGroup": "Join a group",
@@ -740,7 +734,7 @@
       },
       "ranking": {
         "title": "Climb the ranking",
-        "description": "Live standings, streaks, stats and the coveted #1 spot."
+        "description": "Live standings, stats and the coveted #1 spot."
       }
     },
     "howItWorks": {
