@@ -46,9 +46,9 @@ const MatchesHome = () => {
       if (id) next.set('tournamentId', id);
       else next.delete('tournamentId');
       const qs = next.toString();
-      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+      window.history.replaceState(null, '', qs ? `${pathname}?${qs}` : pathname);
     },
-    [pathname, router, searchParams],
+    [pathname, searchParams],
   );
 
   const {
