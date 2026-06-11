@@ -218,7 +218,7 @@ export class CognitoAuthGateway implements AuthGatewayPort {
           // enrollments, predictions) query the backend with the correct
           // id immediately after login — not just after a session restore.
           // Mirrors `restoreSession` and the Google OAuth exchange.
-          void fetchDomainUserId(session.user.id, session.idToken ?? session.token).then(
+          void fetchDomainUserId(session.user.id, session.accessToken ?? session.token).then(
             (domainUserId) => {
               resolve({
                 ok: true,
@@ -328,7 +328,10 @@ export class CognitoAuthGateway implements AuthGatewayPort {
     if (!session) {
       return null;
     }
-    const domainUserId = await fetchDomainUserId(session.user.id, session.idToken ?? session.token);
+    const domainUserId = await fetchDomainUserId(
+      session.user.id,
+      session.accessToken ?? session.token,
+    );
     return { ...session, domainUserId };
   }
 }
