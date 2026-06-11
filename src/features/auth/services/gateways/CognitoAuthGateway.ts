@@ -104,7 +104,7 @@ const sessionFromCognito = (
     )?.[0]?.providerName?.toLowerCase() as AuthUser['provider'] | undefined) ?? 'email';
 
   return {
-    token: idToken,
+    token: accessToken,
     idToken,
     accessToken,
     refreshToken,
@@ -218,15 +218,17 @@ export class CognitoAuthGateway implements AuthGatewayPort {
           // enrollments, predictions) query the backend with the correct
           // id immediately after login — not just after a session restore.
           // Mirrors `restoreSession` and the Google OAuth exchange.
-          void fetchDomainUserId(session.user.id, session.accessToken ?? session.token).then(
-            (domainUserId) => {
+          void fetchDomainUserId(session.user.id, session.accessToken ?? session.token)
+            .then((domainUserId) => {
               resolve({
                 ok: true,
                 messageKey: 'auth.success.loggedIn',
                 session: { ...session, domainUserId },
               });
-            },
-          );
+            })
+            .catch(() => {
+              resolve({ ok: false, messageKey: 'auth.errors.domainUserNotFound' });
+            });
         },
         onFailure: (err) => {
           const mapped = mapCognitoErrorToKey(err);
