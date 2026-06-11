@@ -7,17 +7,20 @@ import apiInstance from '@api/instance';
  * The idToken is temporarily stored in localStorage so the shared api instance
  * interceptor can pick it up, then restored to its previous value afterwards.
  *
- * Throws if the API call fails so that the login flow is aborted when the
- * domain user cannot be resolved.
+ * Returns `undefined` on any error so the session can still be created
+ * without a domainUserId (it will be retried on next restore).
  */
-export const fetchDomainUserId = async (sub: string, idToken: string): Promise<string> => {
-  // Temporarily set the token so the api interceptor sends it as Authorization
-  const previous = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('token', idToken);
-  }
-
+export const fetchDomainUserId = async (
+  sub: string,
+  idToken: string,
+): Promise<string | undefined> => {
   try {
+    // Temporarily set the token so the api interceptor sends it as Authorization
+    const previous = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('token', idToken);
+    }
+
     const result = await apiInstance.get<{ data: GetUserBySubResult }>(
       skorifyEndpoints.user.getBySub,
       {
@@ -25,11 +28,7 @@ export const fetchDomainUserId = async (sub: string, idToken: string): Promise<s
       },
     );
 
-    return result.data.data.id;
-  } catch (error) {
-    throw new Error('auth.errors.domainUserNotFound', { cause: error });
-  } finally {
-    // Always restore the previous token value
+    // Restore the previous token value
     if (typeof window !== 'undefined') {
       if (previous !== null) {
         localStorage.setItem('token', previous);
@@ -37,5 +36,9 @@ export const fetchDomainUserId = async (sub: string, idToken: string): Promise<s
         localStorage.removeItem('token');
       }
     }
+
+    return result.data.data.id;
+  } catch {
+    return undefined;
   }
 };
