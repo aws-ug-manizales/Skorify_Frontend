@@ -47,6 +47,8 @@ const TeamBlock = ({ name, code, image, loading = false, align = 'left' }: Props
     >
       <Box
         sx={{
+          minWidth: 0,
+          maxWidth: '100%',
           display: 'flex',
           alignItems: 'center',
           gap: 1,
@@ -71,7 +73,18 @@ const TeamBlock = ({ name, code, image, loading = false, align = 'left' }: Props
         ) : code ? (
           <CountryFlag src={getCountryFlagUrl(code)} alt={name} size={22} />
         ) : null}
-        <Typography sx={{ color: tokens.onSurface, fontWeight: 800, fontSize: '0.95rem' }} noWrap>
+        <Typography
+          sx={{
+            minWidth: 0,
+            color: tokens.onSurface,
+            fontWeight: 800,
+            fontSize: '0.95rem',
+            lineHeight: 1.15,
+            // Long names (e.g. "Bosnia-Herzegovina") wrap instead of overflowing
+            // and overlapping the VS column on narrow screens.
+            overflowWrap: 'anywhere',
+          }}
+        >
           {name}
         </Typography>
       </Box>

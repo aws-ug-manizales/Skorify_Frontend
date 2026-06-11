@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
@@ -8,12 +9,21 @@ import CircularProgress from '@mui/material/CircularProgress';
 import AppButton from '@shared/components/atoms/AppButton';
 import CheckCircle from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
+import InfoIcon from '@mui/icons-material/Info';
 import { InvitationCodeInput } from '../molecules/InvitationCodeInput';
 import { JoinGroupCard } from '../molecules/JoinGroupCard';
 import { useJoinGroup } from '../../hooks/useJoinGroup';
+import { INVITATION_CONFIG } from '../../constants/invitation';
 import type { ValidateCodeResponse } from '../../types/invitation.types';
 
-type FlowStep = 'INPUT' | 'VALIDATING' | 'CONFIRM' | 'JOINING' | 'SUCCESS' | 'ERROR';
+type FlowStep =
+  | 'INPUT'
+  | 'VALIDATING'
+  | 'CONFIRM'
+  | 'JOINING'
+  | 'SUCCESS'
+  | 'ERROR'
+  | 'ALREADY_MEMBER';
 
 interface JoinGroupFlowProps {
   initialCode?: string;
@@ -21,6 +31,7 @@ interface JoinGroupFlowProps {
 
 export const JoinGroupFlow = ({ initialCode }: JoinGroupFlowProps) => {
   const t = useTranslations('groups');
+  const router = useRouter();
   const { loading, error, validateCode, joinGroup, resetError } = useJoinGroup();
 
   const [step, setStep] = useState<FlowStep>('INPUT');
@@ -45,12 +56,19 @@ export const JoinGroupFlow = ({ initialCode }: JoinGroupFlowProps) => {
 
       if (result && result.isValid) {
         setValidationData(result);
-        setStep('CONFIRM');
+        // Already enrolled in this group: skip the join step and send the user
+        // home instead of letting them re-attempt a join the backend rejects.
+        if (result.isMember) {
+          setStep('ALREADY_MEMBER');
+          setTimeout(() => router.replace('/home'), INVITATION_CONFIG.REDIRECT_DELAY_MS);
+        } else {
+          setStep('CONFIRM');
+        }
       } else {
         setStep('ERROR');
       }
     },
-    [code, validateCode, resetError],
+    [code, validateCode, resetError, router],
   );
   useEffect(() => {
     if (initialCode && initialCode.length >= 6 && step === 'INPUT') {
@@ -159,6 +177,19 @@ export const JoinGroupFlow = ({ initialCode }: JoinGroupFlowProps) => {
         <CheckCircle sx={{ fontSize: 80, color: 'success.main', mb: 2 }} />
         <Alert severity="success" sx={{ mb: 2 }}>
           {t('successfullyJoinedGroup')}
+        </Alert>
+        <Box sx={{ color: 'textSecondary', fontSize: '0.9rem' }}>{t('redirecting')}</Box>
+      </Box>
+    );
+  }
+
+  // STEP: ALREADY_MEMBER
+  if (step === 'ALREADY_MEMBER') {
+    return (
+      <Box sx={{ textAlign: 'center', py: 3 }}>
+        <InfoIcon sx={{ fontSize: 80, color: 'info.main', mb: 2 }} />
+        <Alert severity="info" sx={{ mb: 2 }}>
+          {t('errors.alreadyMember')}
         </Alert>
         <Box sx={{ color: 'textSecondary', fontSize: '0.9rem' }}>{t('redirecting')}</Box>
       </Box>
