@@ -18,18 +18,16 @@ const JoinByCodeRoute = () => {
   const code = params?.code ?? '';
   const resolvedCode = code === '_' ? '' : code;
 
-  // A guest who opens an invite link is sent to login carrying the code; once
-  // authenticated the dashboard auto-opens the join dialog prefilled with it.
-  const shouldRedirectGuest = hydrated && !isAuthenticated && !!resolvedCode;
+  const shouldRedirect = hydrated && !!resolvedCode;
   useEffect(() => {
-    if (!shouldRedirectGuest) return;
+    if (!shouldRedirect) return;
     sessionStorage.setItem(PENDING_JOIN_CODE_KEY, resolvedCode);
-    router.replace(`/auth?${JOIN_CODE_PARAM}=${encodeURIComponent(resolvedCode)}`);
-  }, [shouldRedirectGuest, resolvedCode, router]);
+    router.replace(
+      isAuthenticated ? '/home' : `/auth?${JOIN_CODE_PARAM}=${encodeURIComponent(resolvedCode)}`,
+    );
+  }, [shouldRedirect, isAuthenticated, resolvedCode, router]);
 
-  // While the session resolves (or we're redirecting a guest) show a spinner so
-  // the public join form doesn't flash before the redirect.
-  if (!hydrated || shouldRedirectGuest) {
+  if (!hydrated || shouldRedirect) {
     return (
       <PublicJoinLayout title={t('title')} subtitle={t('subtitle')} footer={t('contactAdmin')}>
         <Box sx={{ display: 'grid', placeItems: 'center', py: 6 }}>
