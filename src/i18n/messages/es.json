@@ -165,7 +165,6 @@
       "tooManyRequests": "Demasiadas solicitudes. Espera un momento e intenta de nuevo.",
       "genericError": "No se pudo completar la operación. Intenta nuevamente.",
       "oauthExchangeFailed": "No se pudo completar el inicio de sesión con Google",
-      "domainUserNotFound": "No se pudo verificar tu cuenta. Intenta nuevamente.",
       "nicknameMin": "Mínimo 3 caracteres",
       "nicknameMax": "Máximo 24 caracteres",
       "nicknameFormat": "Solo letras, números, guion y punto",

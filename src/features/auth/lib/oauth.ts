@@ -72,7 +72,7 @@ const buildSessionFromTokens = (
     payload.nickname ?? payload.preferred_username ?? payload.name ?? email.split('@')[0];
 
   return {
-    token: tokens.access_token,
+    token: tokens.id_token,
     idToken: tokens.id_token,
     accessToken: tokens.access_token,
     refreshToken: tokens.refresh_token ?? fallbackRefreshToken,
@@ -112,7 +112,7 @@ export const exchangeAuthorizationCode = async (code: string): Promise<AuthSessi
   const tokens = (await response.json()) as CognitoTokenResponse;
   const session = buildSessionFromTokens(tokens);
 
-  const domainUserId = await fetchDomainUserId(session.sub, tokens.access_token);
+  const domainUserId = await fetchDomainUserId(session.sub, tokens.id_token);
   return { ...session, domainUserId };
 };
 
