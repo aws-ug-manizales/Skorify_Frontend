@@ -68,10 +68,32 @@ export const useJoinGroup = (): UseJoinGroupReturn => {
     }
 
     const instance = response.data.data;
+
+    // Check whether the current user already belongs to this instance so the UI
+    // can short-circuit the join flow (e.g. redirect home) instead of letting
+    // them re-attempt a join the backend would reject as ALREADY_MEMBER.
+    //
+    // We read the user's enrollments (the same GET the dashboard uses) rather
+    // than the dedicated `is-a-user-in-tournament-instance` endpoint: that one
+    // answers "yes" via the `UserIsInTournamentInstanceDomainEvent`, which the
+    // framework returns as a non-2xx error — so `success` would be false for an
+    // actual member and the check would silently miss.
+    let isMember = false;
+    if (userId) {
+      const enrollments = await api.get<SkorifyEnvelope<UserEnrollmentDto[]>>(
+        skorifyEndpoints.userEnrollment.getByUserId,
+        { userId },
+      );
+      isMember =
+        enrollments.success &&
+        (enrollments.data.data ?? []).some((e) => e.tournamentInstanceId === instance.id);
+    }
+
     return {
       isValid: true,
       groupId: instance.id,
       groupName: instance.name,
+      isMember,
     };
   };
 
