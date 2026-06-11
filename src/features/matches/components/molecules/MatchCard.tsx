@@ -123,7 +123,10 @@ const MatchCard = ({
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: '1fr auto 1fr',
+          // `minmax(0, 1fr)` lets the team columns shrink below their content
+          // width; a plain `1fr` keeps an implicit `auto` minimum, so long names
+          // push the tracks wider and overlap the center VS column on mobile.
+          gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)',
           alignItems: 'center',
           gap: 1,
         }}
