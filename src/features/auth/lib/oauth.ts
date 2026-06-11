@@ -61,7 +61,7 @@ const buildSessionFromTokens = (
   tokens: CognitoTokenResponse,
   fallbackRefreshToken?: string,
 ): AuthSession => {
-  const payload = decodeJwt<CognitoIdTokenPayload>(tokens.id_token);
+  const payload = decodeJwt<CognitoIdTokenPayload>(tokens.access_token);
 
   const roles = resolveRoles(payload['cognito:groups'] ?? []);
   const provider =
@@ -72,7 +72,7 @@ const buildSessionFromTokens = (
     payload.nickname ?? payload.preferred_username ?? payload.name ?? email.split('@')[0];
 
   return {
-    token: tokens.id_token,
+    token: tokens.access_token,
     idToken: tokens.id_token,
     accessToken: tokens.access_token,
     refreshToken: tokens.refresh_token ?? fallbackRefreshToken,
@@ -112,7 +112,7 @@ export const exchangeAuthorizationCode = async (code: string): Promise<AuthSessi
   const tokens = (await response.json()) as CognitoTokenResponse;
   const session = buildSessionFromTokens(tokens);
 
-  const domainUserId = await fetchDomainUserId(session.sub, tokens.id_token);
+  const domainUserId = await fetchDomainUserId(session.sub, tokens.access_token);
   return { ...session, domainUserId };
 };
 
