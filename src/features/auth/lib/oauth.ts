@@ -61,7 +61,7 @@ const buildSessionFromTokens = (
   tokens: CognitoTokenResponse,
   fallbackRefreshToken?: string,
 ): AuthSession => {
-  const payload = decodeJwt<CognitoIdTokenPayload>(tokens.access_token);
+  const payload = decodeJwt<CognitoIdTokenPayload>(tokens.id_token);
 
   const roles = resolveRoles(payload['cognito:groups'] ?? []);
   const provider =
