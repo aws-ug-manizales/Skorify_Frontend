@@ -31,6 +31,16 @@ const mapBackendErrorToCode = (code?: string | number): GroupInvitationError['co
   return 'INVALID_CODE';
 };
 
+const messageKeyForValidationFailure = (failure: {
+  status: number;
+  code: string | number;
+}): string => {
+  if (failure.code === INSTANCE_NOT_FOUND_CODE) return 'errors.invalidCode';
+  if (failure.status === 0) return 'errors.connection';
+  if (failure.status === 401 || failure.code === USER_NOT_FOUND_CODE) return 'errors.session';
+  return 'errors.validationFailed';
+};
+
 export interface UseJoinGroupReturn {
   loading: boolean;
   error: GroupInvitationError | null;
@@ -62,7 +72,9 @@ export const useJoinGroup = (): UseJoinGroupReturn => {
     if (!response.success) {
       setError({
         code: mapBackendErrorToCode(response.error.code),
-        message: t('errors.invalidCode'),
+        message: t(
+          messageKeyForValidationFailure({ status: response.status, code: response.error.code }),
+        ),
       });
       return null;
     }
