@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import IconButton from '@mui/material/IconButton';
+import Pagination from '@mui/material/Pagination';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -38,6 +39,8 @@ interface GroupDetailProps {
   groupId: string;
 }
 
+const RESULTS_PER_PAGE = 10;
+
 const GroupDetail = ({ groupId }: GroupDetailProps) => {
   const t = useTranslations('groups');
   const tCommon = useTranslations('common');
@@ -68,10 +71,8 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
     [data?.standings],
   );
 
-  // Results tab: finished matches of this group's tournament, compared against
-  // the user's predictions in this group (the group is the tournament instance).
   const { items: matchItems, loading: loadingResults } = useMatchesList(
-    20,
+    200,
     'filterFinished',
     data?.group.tournamentId,
   );
@@ -125,6 +126,18 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
         prediction: predictionByMatch[match.id] ?? match.prediction,
       }));
   }, [matchItems, predictionByMatch]);
+
+  const [resultsPage, setResultsPage] = useState(1);
+  const resultsPageCount = Math.max(1, Math.ceil(finishedMatches.length / RESULTS_PER_PAGE));
+  const safeResultsPage = Math.min(resultsPage, resultsPageCount);
+  const pagedFinishedMatches = useMemo(
+    () =>
+      finishedMatches.slice(
+        (safeResultsPage - 1) * RESULTS_PER_PAGE,
+        safeResultsPage * RESULTS_PER_PAGE,
+      ),
+    [finishedMatches, safeResultsPage],
+  );
 
   const upcomingMatches = useMemo(() => {
     // Show every match that hasn't finished (upcoming + in-progress/live).
@@ -358,28 +371,50 @@ const GroupDetail = ({ groupId }: GroupDetailProps) => {
                     </Typography>
                   </Box>
                 ) : (
-                  <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: '1fr' }}>
-                    {finishedMatches.map((match) => (
-                      <FinishedMatchCard
-                        key={match.id}
-                        match={match}
-                        tournamentLabel={data.group.name}
-                        stageLabel={
-                          match.stageKey === 'finals' ? m('stageFinals') : m('stageGroup')
-                        }
-                        kickoffLabel={formatKickoff(match.kickoffAt, locale)}
-                        exactLabel={tResults('exact', { defaultValue: 'Acierto exacto' })}
-                        partialLabel={tResults('partial', { defaultValue: 'Acierto parcial' })}
-                        wrongLabel={tResults('wrong', { defaultValue: 'Incorrecto' })}
-                        noPredictionLabel={tResults('noPrediction', {
-                          defaultValue: 'Sin predicción',
-                        })}
-                        earnedPoints={verdictByMatch[match.id]?.earnedPoints}
-                        hasExactResult={verdictByMatch[match.id]?.hasExactResult}
-                        isCalculated={verdictByMatch[match.id]?.isCalculated}
-                      />
-                    ))}
-                  </Box>
+                  <>
+                    <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: '1fr' }}>
+                      {pagedFinishedMatches.map((match) => (
+                        <FinishedMatchCard
+                          key={match.id}
+                          match={match}
+                          tournamentLabel={data.group.name}
+                          stageLabel={
+                            match.stageKey === 'finals' ? m('stageFinals') : m('stageGroup')
+                          }
+                          kickoffLabel={formatKickoff(match.kickoffAt, locale)}
+                          exactLabel={tResults('exact', { defaultValue: 'Acierto exacto' })}
+                          partialLabel={tResults('partial', { defaultValue: 'Acierto parcial' })}
+                          wrongLabel={tResults('wrong', { defaultValue: 'Incorrecto' })}
+                          noPredictionLabel={tResults('noPrediction', {
+                            defaultValue: 'Sin predicción',
+                          })}
+                          earnedPoints={verdictByMatch[match.id]?.earnedPoints}
+                          hasExactResult={verdictByMatch[match.id]?.hasExactResult}
+                          isCalculated={verdictByMatch[match.id]?.isCalculated}
+                        />
+                      ))}
+                    </Box>
+                    {resultsPageCount > 1 && (
+                      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
+                        <Pagination
+                          count={resultsPageCount}
+                          page={safeResultsPage}
+                          onChange={(_e, value) => setResultsPage(value)}
+                          siblingCount={0}
+                          sx={{
+                            '& .MuiPaginationItem-root': {
+                              color: tokens.onSurfaceVariant,
+                              fontWeight: 700,
+                            },
+                            '& .Mui-selected': {
+                              bgcolor: `${tokens.primary}1A !important`,
+                              color: tokens.primary,
+                            },
+                          }}
+                        />
+                      </Box>
+                    )}
+                  </>
                 )}
               </Box>
             )}
