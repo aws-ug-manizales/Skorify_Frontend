@@ -590,6 +590,8 @@
     "errors": {
       "invalidCode": "El código de invitación no es válido",
       "validationFailed": "Error al validar el código",
+      "connection": "No pudimos validar el código. Revisa tu conexión e inténtalo de nuevo.",
+      "session": "Tu sesión no está lista. Inténtalo de nuevo en un momento.",
       "joinFailed": "Error al unirse al grupo",
       "alreadyMember": "Ya eres miembro de este grupo"
     },

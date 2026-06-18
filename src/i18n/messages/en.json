@@ -590,6 +590,8 @@
     "errors": {
       "invalidCode": "The invitation code is not valid",
       "validationFailed": "Error validating the code",
+      "connection": "We couldn't validate the code. Check your connection and try again.",
+      "session": "Your session isn't ready yet. Please try again in a moment.",
       "joinFailed": "Error joining the group",
       "alreadyMember": "You are already a member of this group"
     },
